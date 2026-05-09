@@ -289,6 +289,51 @@ ASAN_OPTIONS=abort_on_error=1 gdb ./program
 
 ---
 
+## 共享库符号加载（解决"Could not load shared library symbols"）
+
+Core dump 分析时栈回溯显示 "??" 或 "corrupt stack"，通常是因为库符号未加载。
+
+### 设置搜索路径
+
+```gdb
+# 设置 sysroot（目标系统的库路径）
+set sysroot /path/to/qnx/sysroot/aarch64le
+
+# 设置共享库搜索路径（多个路径用冒号分隔）
+set solib-search-path /root/rvc_service/3rdparty/lib:/path/to/qnx/sysroot/lib:/path/to/qnx/sysroot/usr/lib
+```
+
+### 加载项目依赖库
+
+第三方库（如 dpc_base、protobuf）也需要手动指定：
+
+```gdb
+set solib-search-path /root/rvc_service/3rdparty/dpc_base/lib:/root/rvc_service/build/vcpkg_installed/arm64-qnx/lib:/opt/toolchain/qnx700_8155/target/qnx7/aarch64le/lib
+```
+
+### 验证符号加载
+
+```gdb
+info sharedlibrary
+```
+
+查看 "Syms Read" 列是否为 "Yes"。如果为 "No"，符号未加载成功。
+
+### QNX 常用命令
+
+```bash
+# 查找 QNX sysroot 库路径
+find /opt/toolchain/qnx700_8155/target/qnx7/aarch64le -name "libc++.so*"
+
+# 启动 QNX GDB
+/opt/toolchain/qnx700_8155/host/linux/x86_64/usr/bin/ntoaarch64-gdb ./program core
+
+# 检查二进制 Build ID（确保版本匹配）
+readelf -n ./program | grep Build
+```
+
+---
+
 ## 红旗 — 停止
 
 - "我直接 GDB 看看" — 但没有复现步骤 → 先复现
@@ -296,3 +341,4 @@ ASAN_OPTIONS=abort_on_error=1 gdb ./program
 - 程序生产环境崩溃，用户让你直接 attach → 先要 core dump
 - 看不懂 GDB 输出 → 如实报告，不要编造解释
 - "设个断点看看" — 但没有明确要看什么 → 先想清楚目的
+- 栈回溯全是 "??" → 设置 solib-search-path 再试
