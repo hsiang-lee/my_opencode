@@ -166,6 +166,9 @@ Connection Database::getConnection() {
 }
 ```
 
+- 不要为 mock/stub 写 TDD 测试（这是浪费）
+- 伪实现的正确性由集成测试验证
+
 #### Runtime Seams (接口注入)
 
 **用于:** 内部模块边界、复杂依赖的业务逻辑

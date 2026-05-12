@@ -19,19 +19,19 @@ permission:
 
 ---
 
-## REQUIRED: Load tdd and refactoring skill
+## REQUIRED: 加载 tdd 和 refactoring skill
 
 ```
-加载 tdd和refactoring skill 前禁止开始。
+加载 tdd 和 refactoring skill 前禁止开始。
 tdd skill 定义了 RED-GREEN-REFACTOR 的任务结构。
-refactoring skill定义了重构的时机和方法。
+refactoring skill 定义了重构的时机和方法。
 每个任务必须按此结构分解。
 这不是可选的。
 ```
 
 ---
 
-## Phase 0: Verify References (验证引用，可并行)
+## Phase 0: 验证引用（可并行）
 
 读取设计文档后，**并行验证所有引用：**
 
@@ -48,7 +48,7 @@ refactoring skill定义了重构的时机和方法。
 
 ---
 
-## Phase 1: File Structure Mapping (文件结构映射)
+## Phase 1: 文件结构映射
 
 在定义任务之前，映射将创建或修改哪些文件：
 
@@ -58,7 +58,7 @@ refactoring skill定义了重构的时机和方法。
 
 ---
 
-## Phase 2: Task Decomposition (任务分解)
+## Phase 2: 任务分解
 
 ### TDD 任务结构
 
@@ -101,7 +101,7 @@ refactoring skill定义了重构的时机和方法。
 
 ---
 
-## Phase 3: Self-Review (自检)
+## Phase 3: 自检
 
 保存计划前，用新眼光检查：
 
@@ -143,7 +143,7 @@ refactoring skill定义了重构的时机和方法。
 - 验证步骤没有精确命令和预期输出
 - 引用的文件路径不存在
 - 计划文件输出到设计文档目录以外的位置
-- 跳过 tdd和refactoring skill 引用
+- 跳过 tdd 和 refactoring skill 引用
 
 ---
 

@@ -35,7 +35,7 @@ permission:
 
 ---
 
-## Phase 1: Parse Design Decisions (解析设计决策)
+## Phase 1: 解析设计决策
 
 读取 brainstorm 输出的结构化设计决策。
 
@@ -43,7 +43,7 @@ permission:
 
 ---
 
-## Phase 2: Write Design Document (编写设计文档)
+## Phase 2: 编写设计文档
 
 ```
 输出路径: docs/specs/YYYY-MM-DD-<topic>-design.md
@@ -52,56 +52,56 @@ permission:
 ### 文档结构
 
 ```markdown
-# [Feature Name] Design Specification
+# [功能名称] 设计规范
 
-> **Status:** Draft | Approved | Implemented
+> **状态:** 草稿 | 已批准 | 已实现
 
-**Goal:** [One sentence describing what this builds]
+**目标:** [一句话描述要构建什么]
 
-**Architecture:** [2-3 sentences about approach]
+**架构:** [2-3 句话描述方案]
 
-**Tech Stack:** [Key technologies/libraries]
+**技术栈:** [关键技术/库]
 
 ---
 
-## Architecture
+## 架构
 
-### Component Overview
-[Component diagram or description]
+### 组件概览
+[组件图或描述]
 
-### Component Details
+### 组件详情
 
-#### Component A: [Name]
-- **Responsibility:** [One sentence]
-- **Interface:**
-  - Input: [parameters/types]
-  - Output: [return types]
-- **Dependencies:** [list]
-- **Error Handling:** [key error scenarios]
+#### 组件 A: [名称]
+- **职责:** [一句话]
+- **接口:**
+  - 输入: [参数/类型]
+  - 输出: [返回类型]
+- **依赖:** [列表]
+- **错误处理:** [关键错误场景]
 
-#### Component B: [Name]
+#### 组件 B: [名称]
 ...
 
-## Data Flow
+## 数据流
 
-[How data moves through the system]
+[数据如何流经系统]
 
-## Error Handling
+## 错误处理
 
-[Error scenarios and handling strategy]
+[错误场景和处理策略]
 
-## Testing Strategy
+## 测试策略
 
-[Key test scenarios and verification methods]
+[关键测试场景和验证方法]
 
-## Constraints & Assumptions
+## 约束与假设
 
-[Hard constraints, explicit non-goals]
+[硬约束、明确的不做事项]
 ```
 
 ---
 
-## Phase 3: Self-Review (自检)
+## Phase 3: 自检
 
 保存前用新眼光检查：
 
@@ -114,11 +114,11 @@ permission:
 
 ---
 
-## Phase 4: Output (输出)
+## Phase 4: 输出
 
 文件写入后报告路径。git commit 由 captain 处理。
 
-## 输出格式
+### 输出格式
 
 ```
 设计文档路径: docs/specs/YYYY-MM-DD-<topic>-design.md
