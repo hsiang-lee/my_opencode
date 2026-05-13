@@ -5,7 +5,7 @@ description: Use when managing C++ dependencies with vcpkg, creating custom port
 
 # vcpkg C++ 包管理工具
 
-vcpkg 是微软开发的 C++ 包管理器,主要用于管理 Windows/Linux/macOS 上的 C++ 依赖。
+vcpkg 是微软开发的 C++ 包管理器，主要用于管理 Windows/Linux/macOS 上的 C++ 依赖。
 
 ## 常用命令
 
@@ -16,7 +16,7 @@ vcpkg 是微软开发的 C++ 包管理器,主要用于管理 Windows/Linux/macOS
 | `vcpkg list` | 列出已安装包 |
 | `vcpkg remove <pkg>` | 移除包 |
 | `vcpkg upgrade` | 升级所有过时包 |
-| `vcpkg integrate install` | 全局集成(项目外使用) |
+| `vcpkg integrate install` | 全局集成（项目外使用） |
 | `vcpkg integrate project` | 项目级集成 |
 
 ```bash
@@ -28,9 +28,11 @@ vcpkg integrate install
 vcpkg search json
 ```
 
+> **注意：** 推荐使用 CMakePresets + manifest 模式（参见下方「CMakePresets 集成」），全局集成仅用于快速测试。
+
 ## 项目 vcpkg.json
 
-项目根目录放置 `vcpkg.json` 声明依赖,项目级集成:
+项目根目录放置 `vcpkg.json` 声明依赖：
 
 ```json
 {
@@ -44,50 +46,17 @@ vcpkg search json
 }
 ```
 
-安装依赖:
 ```bash
 vcpkg install
 ```
 
-## CMake 集成
-
-### 方式一: vcpkg 作为子模块
-
-```bash
-git clone https://github.com/Microsoft/vcpkg.git
-./vcpkg/bootstrap-vcpkg.sh
-```
-
-CMakeLists.txt:
-```cmake
-cmake_minimum_required(VERSION 3.14)
-project(myproject)
-
-find_package(nlohmann-json CONFIG REQUIRED)
-find_package(spdlog CONFIG REQUIRED)
-
-add_executable(app main.cpp)
-target_link_libraries(app PRIVATE nlohmann_json::nlohmann_json spdlog::spdlog)
-```
-
-```bash
-cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=[path to vcpkg]/scripts/buildsystems/vcpkg.cmake
-cmake --build build
-```
-
-### 方式二: 通过 vcpkg install 安装
-
-```bash
-# 全局集成
-vcpkg integrate install
-
-# CMake 自动发现已安装的包
-find_package(nlohmann-json CONFIG REQUIRED)
-```
+要配置自定义 Registry，参见下方 `自定义 Registry` 章节。
 
 ## CMakePresets 集成
 
 推荐使用 CMakePresets.json 统一管理 vcpkg 构建配置，避免手动指定工具链。
+
+### Preset 配置
 
 ```json
 {
@@ -127,7 +96,6 @@ find_package(nlohmann-json CONFIG REQUIRED)
 ```
 
 ```bash
-# 使用 preset 构建
 cmake --preset linux-x86-release
 cmake --build build
 ```
@@ -153,16 +121,14 @@ QNX 交叉编译示例：
 }
 ```
 
-## CMake 正确用法与严禁事项
-
-### ✅ 正确做法：find_package + target_link_libraries（导出目标）
+### ✅ 正确用法：find_package + target_link_libraries
 
 ```cmake
 # 先 find_package
 find_package(fmt CONFIG REQUIRED)
 find_package(pugixml CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
-find_package(OpenSSL REQUIRED)
+find_package(OpenSSL CONFIG REQUIRED)
 
 # 再 target_link_libraries（使用导出的 CMake 目标）
 add_executable(myapp main.cpp)
@@ -175,6 +141,15 @@ target_link_libraries(myapp PRIVATE
 ```
 
 vcpkg 安装的库在 `build/vcpkg_installed/x64-linux/share/` 下有 `<package>Config.cmake` 文件，`find_package` 自动查找。
+
+来自 esmini 项目实际案例：
+
+```cmake
+find_package(fmt CONFIG REQUIRED)           # → fmt::fmt
+find_package(pugixml CONFIG REQUIRED)        # → pugixml::pugixml
+find_package(osc2_parser CONFIG REQUIRED)    # → osc2::osc2_parser
+find_package(GTest CONFIG REQUIRED)          # → GTest::gtest
+```
 
 ### ❌ 严禁做法：手动指定路径
 
@@ -192,7 +167,14 @@ target_link_libraries(myapp /path/to/vcpkg/installed/x64-linux/lib/libfmt.a)
 set(OpenCV_DIR /custom/path/to/opencv)
 ```
 
-**原因：** vcpkg 通过 `-DCMAKE_TOOLCHAIN_FILE` 自动注入所有搜索路径，`find_package` 会到 `vcpkg_installed/` 下查找。手动指定路径破坏可移植性和可重现性，换一个 triplet 或升级 vcpkg 就崩溃。
+**原因：** vcpkg 通过 `-DCMAKE_TOOLCHAIN_FILE` 自动注入所有搜索路径，`find_package` 会到 `vcpkg_installed/` 下查找。手动指定路径破坏可移植性和可重现性。
+
+**严禁清单：**
+- ❌ `target_include_directories(... /vcpkg/.../include)` — 使用 `find_package` 代替
+- ❌ `target_link_directories(... /vcpkg/.../lib)` — 使用 `find_package` 代替
+- ❌ `target_link_libraries(... /path/to/libxxx.a)` — 使用 vcpkg 导出的 CMake 目标
+- ❌ `set(XXX_DIR /custom/path)` 绕过 vcpkg — 会破坏可移植性
+- ❌ 在 CMakeLists.txt 中硬编码 `-DVCPKG_ROOT` 绝对路径 — 使用 CMakePresets 中的 `$env{VCPKG_ROOT}`
 
 ### 检查 vcpkg 安装的库
 
@@ -207,105 +189,18 @@ cat build/vcpkg_installed/x64-linux/share/fmt/fmt-config.cmake
 grep -r "add_library\|ALIAS" build/vcpkg_installed/x64-linux/share/
 ```
 
-从 esmini 项目实际案例：
-
-```cmake
-find_package(fmt CONFIG REQUIRED)           # → fmt::fmt
-find_package(pugixml CONFIG REQUIRED)        # → pugixml::pugixml
-find_package(osc2_parser CONFIG REQUIRED)    # → osc2::osc2_parser
-find_package(GTest CONFIG REQUIRED)          # → GTest::gtest
-```
-
-### 与 vcpkg 集成的 vcpkg.json 示例
-
-```json
-{
-  "name": "my-project",
-  "version": "1.0.0",
-  "dependencies": [
-    "fmt",
-    "pugixml",
-    "yaml-cpp"
-  ],
-  "configuration": {
-    "default-registry": {
-      "kind": "builtin",
-      "baseline": "c941d5e450738629213a60ab8911fd26efca7c6e"
-    },
-    "registries": [
-      {
-        "kind": "git",
-        "repository": "ssh://git@github.com/myorg/vcpkg-registry.git",
-        "baseline": "<commit-hash>",
-        "packages": ["my-custom-lib"]
-      }
-    ]
-  }
-}
-```
-
-## 实际项目案例
-
-来自 avm_camera_render 和 esmini 项目的真实用法：
-
-| vcpkg.json 依赖 | CMakeLists.txt | CMake 目标 |
-|----------------|---------------|-----------|
-| `"fmt"` | `find_package(fmt CONFIG REQUIRED)` | `fmt::fmt` |
-| `"pugixml"` | `find_package(pugixml CONFIG REQUIRED)` | `pugixml::pugixml` |
-| `"yaml-cpp"` | `find_package(yaml-cpp CONFIG REQUIRED)` | `yaml-cpp::yaml-cpp` |
-| `"gtest"` | `find_package(GTest CONFIG REQUIRED)` | `GTest::gtest` |
-| `"osc2-parser"` | `find_package(osc2_parser CONFIG REQUIRED)` | `osc2::osc2_parser` |
-| `"osg"` | `find_package(osg CONFIG REQUIRED)` | 包定义 |
-
 ## 自定义端口
 
-端口结构:
+端口结构：
+
 ```
 ports/<port-name>/
 ├── vcpkg.json        # 端口清单
 ├── portfile.cmake    # 构建脚本
-└── CMakeLists.txt    # 源代码构建文件(可选)
+└── CMakeLists.txt    # 源代码构建文件（可选）
 ```
 
-### 端口清单 (vcpkg.json)
-
-```json
-{
-  "name": "my-lib",
-  "version": "1.0.0",
-  "description": "My custom library",
-  "dependencies": [
-    "vcpkg-cmake",
-    "vcpkg-cmake-config"
-  ]
-}
-```
-
-### 构建脚本 (portfile.cmake)
-
-使用 Git 源码的典型模式:
-
-```cmake
-vcpkg_from_git(
-    OUT_SOURCE_PATH SOURCE_PATH
-    URL "https://github.com/owner/repo.git"
-    REF "<commit-hash>"
-    HEAD_REF main
-)
-
-vcpkg_cmake_configure(
-    SOURCE_PATH "${SOURCE_PATH}"
-    OPTIONS -DBUILD_TESTS=OFF
-)
-
-vcpkg_cmake_build()
-vcpkg_cmake_install()
-vcpkg_cmake_config_fixup(PACKAGE_NAME my-lib)
-
-file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug")
-```
-
-常用 vcpkg 函数:
+常用 vcpkg 函数：
 
 | 函数 | 用途 |
 |------|------|
@@ -317,81 +212,10 @@ file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug")
 | `vcpkg_cmake_install` | 执行安装 |
 | `vcpkg_cmake_config_fixup` | 修复安装配置 |
 
-## 自定义 Registry
-
-Registry 结构:
-```
-vcpkg-registry/
-├── ports/
-│   └── <port-name>/
-│       ├── vcpkg.json
-│       └── portfile.cmake
-├── versions/
-│   ├── baseline.json
-│   └── <letter>-/
-│       └── <port-name>.json
-```
-
-### baseline.json
-
-声明每个 port 的默认版本:
-
-```json
-{
-  "default": {
-    "my-lib": {
-      "baseline": "1.0.0",
-      "port-version": 0
-    },
-    "another-lib": {
-      "baseline": "2.1.0",
-      "port-version": 1
-    }
-  }
-}
-```
-
-### versions/<letter>-/<port>.json
-
-记录每个版本的 git tree SHA:
-
-```json
-{
-  "versions": [
-    {
-      "git-tree": "abc123...",
-      "version": "1.0.0",
-      "port-version": 0
-    }
-  ]
-}
-```
-
-### 项目中使用 Custom Registry
-
-在项目 `vcpkg.json` 中添加:
-
-```json
-{
-  "name": "my-project",
-  "version": "1.0.0",
-  "dependencies": ["nlohmann-json", "my-lib"],
-  "registries": [
-    {
-      "kind": "git",
-      "repository": "https://gitlab.example.com/vcpkg-registry.git",
-      "baseline": "<commit-hash>",
-      "packages": ["my-lib", "another-lib"]
-    }
-  ]
-}
-```
-
-## 实际端口示例
-
-来自 osc2-parser 端口:
+实际端口示例（osc2-parser）：
 
 **vcpkg.json:**
+
 ```json
 {
   "name": "osc2-parser",
@@ -407,6 +231,7 @@ vcpkg-registry/
 ```
 
 **portfile.cmake:**
+
 ```cmake
 vcpkg_from_git(
     OUT_SOURCE_PATH SOURCE_PATH
@@ -425,6 +250,77 @@ vcpkg_cmake_install()
 vcpkg_cmake_config_fixup(PACKAGE_NAME osc2-parser)
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug")
+```
+
+## 自定义 Registry
+
+Registry 结构：
+
+```
+vcpkg-registry/
+├── ports/
+│   └── <port-name>/
+│       ├── vcpkg.json
+│       └── portfile.cmake
+├── versions/
+│   ├── baseline.json
+│   └── <letter>-/
+│       └── <port-name>.json
+```
+
+### baseline.json
+
+声明每个 port 的默认版本：
+
+```json
+{
+  "default": {
+    "my-lib": {
+      "baseline": "1.0.0",
+      "port-version": 0
+    },
+    "another-lib": {
+      "baseline": "2.1.0",
+      "port-version": 1
+    }
+  }
+}
+```
+
+### versions/<letter>-/<port>.json
+
+记录每个版本的 git tree SHA：
+
+```json
+{
+  "versions": [
+    {
+      "git-tree": "abc123...",
+      "version": "1.0.0",
+      "port-version": 0
+    }
+  ]
+}
+```
+
+### 项目中使用 Custom Registry
+
+在项目 `vcpkg.json` 中添加：
+
+```json
+{
+  "name": "my-project",
+  "version": "1.0.0",
+  "dependencies": ["nlohmann-json", "my-lib"],
+  "registries": [
+    {
+      "kind": "git",
+      "repository": "https://gitlab.example.com/vcpkg-registry.git",
+      "baseline": "<commit-hash>",
+      "packages": ["my-lib", "another-lib"]
+    }
+  ]
+}
 ```
 
 ## Baseline 版本锁定
@@ -467,6 +363,23 @@ vcpkg x-update-baseline
 }
 ```
 
+## Overlay Ports
+
+```
+my-project/
+├── vcpkg.json
+└── ports/
+    └── mylib/
+        ├── vcpkg.json
+        └── portfile.cmake
+```
+
+```bash
+cmake -B build -S . \
+  -DCMAKE_TOOLCHAIN_FILE=[vcpkg]/scripts/buildsystems/vcpkg.cmake \
+  -DVCPKG_OVERLAY_PORTS=ports/
+```
+
 ## 自定义 Triplet
 
 `triplets/x64-linux-release.cmake`：
@@ -484,23 +397,6 @@ cmake -B build -S . \
   -DCMAKE_TOOLCHAIN_FILE=[vcpkg]/scripts/buildsystems/vcpkg.cmake \
   -DVCPKG_TARGET_TRIPLET=x64-linux-release \
   -DVCPKG_OVERLAY_TRIPLETS=triplets/
-```
-
-## Overlay Ports（项目内自定义端口）
-
-```
-my-project/
-├── vcpkg.json
-└── ports/
-    └── mylib/
-        ├── vcpkg.json
-        └── portfile.cmake
-```
-
-```bash
-cmake -B build -S . \
-  -DCMAKE_TOOLCHAIN_FILE=[vcpkg]/scripts/buildsystems/vcpkg.cmake \
-  -DVCPKG_OVERLAY_PORTS=ports/
 ```
 
 ## CI 集成
@@ -530,6 +426,10 @@ cmake -B build -S . \
 | gtest | `gtest` | `GTest::gtest` `GTest::gtest_main` |
 | protobuf | `protobuf` | `protobuf::libprotobuf` |
 | sqlite3 | `sqlite3` | `SQLite::SQLite3` |
+| pugixml | `pugixml` | `pugixml::pugixml` |
+| yaml-cpp | `yaml-cpp` | `yaml-cpp::yaml-cpp` |
+| osc2-parser | `osc2-parser` | `osc2::osc2_parser` |
+| OpenSceneGraph | `osg` | 参见包定义 |
 
 ## 快速参考
 
@@ -543,11 +443,3 @@ cmake -B build -S . \
 | 查看安装目录 | `ls build/vcpkg_installed/<triplet>/share/` |
 | 添加自定义端口 | 创建 `ports/<name>/vcpkg.json` + `portfile.cmake` |
 | 自定义 Registry | 在 vcpkg.json 中配置 registries 字段 |
-
-### 严禁清单
-
-- ❌ `target_include_directories(... /vcpkg/.../include)` — 使用 find_package 代替
-- ❌ `target_link_directories(... /vcpkg/.../lib)` — 使用 find_package 代替
-- ❌ `target_link_libraries(... /path/to/libxxx.a)` — 使用 vcpkg 导出的 CMake 目标
-- ❌ `set(XXX_DIR /custom/path)` 绕过 vcpkg — 会破坏可移植性
-- ❌ 在 CMakeLists.txt 中硬编码 `-DVCPKG_ROOT` 绝对路径 — 使用 CMakePresets 中的 `$env{VCPKG_ROOT}`
