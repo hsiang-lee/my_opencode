@@ -51,6 +51,8 @@ Tab 切换:
 | issue-master | - | 需求拆分与 Issue 创建 |
 | writing-skills | - | Skill 编写方法论 |
 | qnx | - | QNX 目标系统连接与部署 |
+| vcpkg | - | vcpkg 包管理：CMakePresets 集成、自定义端口/Registry、依赖管理 |
+| mull | - | Mull mutation testing 工具 |
 
 ## 安装
 
@@ -81,10 +83,10 @@ cp -r skills/* ~/.config/opencode/skills/
 {
   "agent": {
     "Creative": {
-      "model": "opencode-go/deepseek-v4-pro"
+      "model": "opencode-go/deepseek-v4-flash"
     },
     "Debug": {
-      "model": "opencode-go/deepseek-v4-pro"
+      "model": "opencode-go/deepseek-v4-flash"
     },
     "plan-executor": {
       "model": "minimax-cn/MiniMax-M2.7"
@@ -140,7 +142,10 @@ cp -r skills/* ~/.config/opencode/skills/
 │   ├── gh-pr/SKILL.md
 │   ├── glab/SKILL.md
 │   ├── issue-master/SKILL.md
-│   ├── writing-skills/SKILL.md
-│   └── qnx/SKILL.md
+│   ├── mull/SKILL.md
+│   ├── mull/mull.yml
+│   ├── qnx/SKILL.md
+│   ├── vcpkg/SKILL.md
+│   └── writing-skills/SKILL.md
 └── AGENTS.md           # Agent 使用指南
 ```
