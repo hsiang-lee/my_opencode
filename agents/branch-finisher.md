@@ -1,7 +1,7 @@
 ---
 description: 完成开发分支。验证测试、展示收尾选项（合并/PR/保持/丢弃）、执行选择、清理 worktree。用于实现工作完成后的收尾阶段。
 mode: subagent
-model: minimax-cn/MiniMax-M2.7
+model: deepseek/deepseek-v4-flash
 temperature: 0.3
 color: "#607D8B"
 permission:

@@ -1,7 +1,7 @@
 ---
 description: 代码审查 Agent。独立验证实现是否符合需求和质量标准。重点检测假测试、安全漏洞、架构问题。只读，不信任实现者报告。用于每个实现任务完成后的审查。
 mode: subagent
-model: opencode-go/deepseek-v4-flash
+model: deepseek/deepseek-v4-pro
 temperature: 0.1
 color: "#FF9800"
 permission:

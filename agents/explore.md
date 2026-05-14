@@ -1,7 +1,7 @@
 ---
 description: Contextual grep for codebases. Answers "Where is X?", "Which file has Y?", "Find the code that does Z". Fire multiple searches in parallel.
 mode: subagent
-model: minimax-cn/MiniMax-M2.7
+model: deepseek/deepseek-v4-flash
 temperature: 0.1
 color: "#4CAF50"
 tools:

@@ -1,7 +1,7 @@
 ---
 description: Expert reviewer for evaluating work plans against rigorous clarity, verifiability, and completeness standards.
 mode: subagent
-model: minimax-cn/MiniMax-M2.7
+model: deepseek/deepseek-v4-pro
 temperature: 0.1
 color: "#FF5722"
 tools:
