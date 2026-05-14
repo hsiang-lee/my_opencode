@@ -1,7 +1,7 @@
 ---
 description: 机械执行实现计划。严格遵循计划步骤和 TDD 纪律。报告 DONE/DONE_WITH_CONCERNS/BLOCKED/NEEDS_CONTEXT。用于按计划逐步实现功能。
 mode: subagent
-model: minimax-cn/MiniMax-M2.7
+model: deepseek/deepseek-v4-flash
 temperature: 0.1
 color: "#8BC34A"
 permission:

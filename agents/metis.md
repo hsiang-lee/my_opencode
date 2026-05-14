@@ -1,7 +1,7 @@
 ---
 description: Pre-planning consultant that analyzes requests to identify hidden intentions, ambiguities, and AI failure points. Identifies 6 intent types: Refactoring, Build from Scratch, Mid-sized Task, Collaborative, Architecture, Research.
 mode: subagent
-model: opencode-go/deepseek-v4-flash
+model: deepseek/deepseek-v4-pro
 temperature: 0.3
 color: "#00BCD4"
 tools:

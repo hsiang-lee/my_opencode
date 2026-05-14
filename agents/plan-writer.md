@@ -1,7 +1,7 @@
 ---
 description: 编写详细实现计划。从设计文档生成小而具体的 TDD 任务，含精确文件路径、完整代码、验证命令。用于设计批准后的计划编写阶段。
 mode: subagent
-model: opencode-go/deepseek-v4-flash
+model: deepseek/deepseek-v4-pro
 temperature: 0.1
 color: "#4CAF50"
 permission:

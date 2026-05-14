@@ -24,17 +24,17 @@ Tab 切换:
 
 | Agent | 功能 | 模型 |
 |-------|------|------|
-| brainstorm | 交互式设计探索 | opencode-go/deepseek-v4-flash |
-| spec-writer | 设计文档编写 | opencode-go/deepseek-v4-flash |
-| plan-writer | 实现计划编写 | opencode-go/deepseek-v4-flash |
-| plan-executor | TDD 计划执行 + 防假测试 | minimax-cn/MiniMax-M2.7 |
-| code-reviewer | 代码审查 + 假测试检测 | opencode-go/deepseek-v4-flash |
-| branch-finisher | 分支收尾 | minimax-cn/MiniMax-M2.7 |
-| explore | 代码库搜索 | minimax-cn/MiniMax-M2.7 |
-| librarian | 外部研究 | opencode-go/deepseek-v4-flash |
-| metis | 预规划分析 | opencode-go/deepseek-v4-flash |
-| momus | 计划评审 | minimax-cn/MiniMax-M2.7 |
-| oracle | 战略咨询 | opencode-go/deepseek-v4-pro |
+| brainstorm | 交互式设计探索 | deepseek/deepseek-v4-flash |
+| spec-writer | 设计文档编写 | deepseek/deepseek-v4-pro |
+| plan-writer | 实现计划编写 | deepseek/deepseek-v4-pro |
+| plan-executor | TDD 计划执行 + 防假测试 | deepseek/deepseek-v4-flash |
+| code-reviewer | 代码审查 + 假测试检测 | deepseek/deepseek-v4-pro |
+| branch-finisher | 分支收尾 | deepseek/deepseek-v4-flash |
+| explore | 代码库搜索 | deepseek/deepseek-v4-flash |
+| librarian | 外部研究 | deepseek/deepseek-v4-flash |
+| metis | 预规划分析 | deepseek/deepseek-v4-pro |
+| momus | 计划评审 | deepseek/deepseek-v4-pro |
+| oracle | 战略咨询 | deepseek/deepseek-v4-pro |
 
 ### Skill
 
@@ -82,14 +82,8 @@ cp -r skills/* ~/.config/opencode/skills/
 ```json
 {
   "agent": {
-    "Creative": {
-      "model": "opencode-go/deepseek-v4-flash"
-    },
-    "Debug": {
-      "model": "opencode-go/deepseek-v4-flash"
-    },
     "plan-executor": {
-      "model": "minimax-cn/MiniMax-M2.7"
+      "model": "deepseek/deepseek-v4-flash"
     }
   }
 }
