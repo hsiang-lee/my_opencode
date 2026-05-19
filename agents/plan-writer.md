@@ -33,18 +33,16 @@ refactoring skill 定义了重构的时机和方法。
 
 ## Phase 0: 验证引用（可并行）
 
-读取设计文档后，**并行验证所有引用：**
+读取设计文档后，并行 dispatch explore 验证所有引用。最终计划中只输出验证结果摘要（✅/❌），不输出 dispatch 指令。
 
-```
-并行 dispatch:
-  Task(explore, "验证文件路径",
-    "确认以下文件路径存在: [从设计文档提取的文件列表]")
+### 引用验证
 
-  Task(explore, "验证代码模式",
-    "搜索: [设计文档引用的代码模式] 确实在代码库中存在")
+- `path/to/existing/file.cpp` ✅ 存在
+- `src/module/header.h` ✅ 存在
+- `pattern::FunctionName` ✅ 匹配 3 处
+- `path/to/missing.cpp` ❌ 不存在 — NEEDS_CONTEXT
 
-检查: 是否有冲突的现有实现？
-```
+如果发现 ❌，标记 NEEDS_CONTEXT 并停止。
 
 ---
 
@@ -62,7 +60,7 @@ refactoring skill 定义了重构的时机和方法。
 
 ### TDD 任务结构
 
-每个任务按 RED-GREEN-REFACTOR 分解：
+每个任务按 RED-GREEN-REFACTOR 分解为 3 项。Commit 由外部流程（plan-executor / branch-finisher）处理，不包含在任务模板中。
 
 ```markdown
 ### Task N: [组件名称]
@@ -72,56 +70,51 @@ refactoring skill 定义了重构的时机和方法。
 - Modify: `exact/path/to/existing.ext:123-145`
 - Test: `tests/exact/path/to/test.ext`
 
-- [ ] **Step 1: 写失败测试** (RED)
-  [实际测试代码]
+- [ ] **RED:** `具体测试运行命令` → 预期: FAIL with "function not defined"
+  ```cpp
+  // 实际测试代码
+  ```
 
-- [ ] **Step 2: 验证测试失败** (Verify RED)
-  运行: `具体命令`
-  预期: FAIL with "function not defined"
+- [ ] **GREEN:** [实现代码简述]
+  ```cpp
+  // 实际实现代码
+  ```
+  验证: `具体命令` → 预期: PASS
 
-- [ ] **Step 3: 最小实现** (GREEN)
-  [实际实现代码]
-
-- [ ] **Step 4: 验证测试通过** (Verify GREEN)
-  运行: `具体命令`
-  预期: PASS
-
-- [ ] **Step 5: 重构** (REFACTOR)
-  [如需要，清理重复、改进命名]
-
-- [ ] **Step 6: 提交**
-  git add [文件] && git commit -m "feat: [描述]"
+- [ ] **REFACTOR:** 
+  <!-- 有坏味道：展开。无坏味道：REFACTOR_SKIPPED — 无坏味道 -->
 ```
+
+**REFACTOR 规则（强制存在）：**
+
+- **有坏味道时** — 展开为：坏味道类型 → 重构技术 → 验证
+  ```markdown
+  - [ ] **REFACTOR:** 重复代码 → Extract Method → `extractHelpers()`
+     验证: `ctest -R test_task_N` → 预期: PASS
+  ```
+- **无坏味道时** — 一句话
+  ```markdown
+  - [ ] **REFACTOR:** REFACTOR_SKIPPED — 无坏味道
+  ```
 
 ### 粒度要求
 
-- 每步 2-5 分钟
+- 每项 2-5 分钟可执行完毕
 - 原子化：一个动作
 - 自包含：不依赖理解其他任务
 
 ---
 
-## Phase 3: 自检
+## Phase 3: 自检（内部流程，不写入产物）
 
-保存计划前，用新眼光检查：
+保存前执行自检，发现问题直接修复。自检内容和结果不写入最终计划文档。
 
-### 1. 规范覆盖
-浏览设计文档的每个部分。能指向实现它的任务吗？
+1. **规范覆盖** — 浏览设计文档的每个部分。能指向实现它的任务吗？
+2. **占位符扫描** — 禁止出现："TBD"、"TODO"、"添加适当的错误处理"（无实际代码）、"类似任务 N"、引用未定义的类型/函数。
+3. **类型一致性** — 后面的任务使用的类型、方法签名和属性名与前面的任务一致吗？
+4. **自包含** — 每个任务可以独立理解和执行吗？
 
-### 2. 占位符扫描
-以下模式**禁止出现**：
-- "TBD"、"TODO"、"稍后实现"
-- "添加适当的错误处理"、"添加验证"、"处理边缘情况"
-- "为上述写测试"（没有实际测试代码）
-- "类似任务 N"（必须重复完整内容）
-- 描述要做什么而不展示怎么做的步骤
-- 引用任何任务中都未定义的类型/函数
-
-### 3. 类型一致性
-后面的任务使用的类型、方法签名和属性名与前面的任务一致吗？
-
-### 4. 自包含
-每个任务可以独立理解和执行吗？
+> **此阶段为 agent 内部工作流程，自检内容不写入产物。**
 
 ---
 
