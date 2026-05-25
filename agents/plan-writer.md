@@ -62,7 +62,7 @@ refactoring skill 定义了重构的时机和方法。
 
 ### TDD 任务结构
 
-每个任务按 RED-GREEN-REFACTOR 分解：
+每个任务按行为描述 + RED-GREEN-REFACTOR 分解：
 
 ```markdown
 ### Task N: [组件名称]
@@ -72,27 +72,31 @@ refactoring skill 定义了重构的时机和方法。
 - Modify: `exact/path/to/existing.ext:123-145`
 - Test: `tests/exact/path/to/test.ext`
 
-- [ ] **Step 1: 写失败测试** (RED)
-  [实际测试代码]
+**行为描述:**
+- 输入/输出: [类型 + 含义]
+- 行为规则: [精确描述做什么，给出关键逻辑判定条件]
+- 边界约束: [有效值范围、特殊值处理]
+- 副作用: [是否修改状态/IO/网络]（无副作用可省略）
+- 不做: [YAGNI，明确排除什么]（无可省略）
 
+**测试策略:**
+- [具体输入值] → 预期: [具体返回值]
+- [具体输入值] → 预期: [具体返回值]
+- [具体输入值] → 预期: [具体返回值]
+
+- [ ] **Step 1: 写失败测试** (RED)
 - [ ] **Step 2: 验证测试失败** (Verify RED)
   运行: `具体命令`
   预期: FAIL with "function not defined"
 
 - [ ] **Step 3: 最小实现** (GREEN)
-  [实际实现代码]
-
 - [ ] **Step 4: 验证测试通过** (Verify GREEN)
   运行: `具体命令`
   预期: PASS
 
 - [ ] **Step 5: 重构** (REFACTOR)
-  [如需要，清理重复、改进命名]
-
-- [ ] **Step 6: 提交**
-  git add [文件] && git commit -m "feat: [描述]"
+  <!-- 无坏味道 → REFACTOR_SKIPPED；有坏味道 → 展开分析 -->
 ```
-
 ### 粒度要求
 
 - 每步 2-5 分钟
@@ -139,7 +143,7 @@ refactoring skill 定义了重构的时机和方法。
 ## 红旗 — 停止
 
 - 任何形式的 "TBD"、"TODO"
-- 步骤描述没有伴随实际代码
+- 步骤描述没有伴随行为描述或测试策略
 - 验证步骤没有精确命令和预期输出
 - 引用的文件路径不存在
 - 计划文件输出到设计文档目录以外的位置
