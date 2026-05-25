@@ -33,6 +33,7 @@ description: Automatically detect and eliminate code smells during the REFACTOR 
 | 12 | **过度亲密 (Inappropriate Intimacy)** | 类之间过多访问彼此的私有成员 | 类 A 在方法中多次调用类 B 的 getter/setter |
 | 13 | **异曲同工的类 (Alternative Classes)** | 类似功能的类有不同的接口 | 两个类做相似的事情但方法名/签名不一致 |
 | 14 | **注释 (Comments)** | 代码不易读，用注释解释行为 | 注释在解释"做了什么"而不是"为什么这么做" |
+| 15 | **嵌套层次过深 (Deep Nesting)** | if/for/while 多层嵌套导致可读性差 | 嵌套层次 ≥ 3 层，或单方法包含 ≥ 2 个嵌套块（优先用卫语句重构） |
 
 ---
 
@@ -54,6 +55,7 @@ description: Automatically detect and eliminate code smells during the REFACTOR 
 | 过度亲密 | Move Method / Change Bidirectional Association to Unidirectional |
 | 异曲同工的类 | Rename Method / Move Method |
 | 注释 | Extract Method / Rename Method / Introduce Assertion |
+| 嵌套层次过深 | Replace Nested Conditional with Guard Clauses / Extract Method |
 
 ---
 
@@ -75,6 +77,7 @@ description: Automatically detect and eliminate code smells during the REFACTOR 
 | **Hide Delegate** | 隐藏委托关系 | 在委托类中添加方法 → 调用方改为直接调用委托类的方法 |
 | **Remove Middle Man** | 移除中间委托层 | 调用方直接调用实际执行者 → 删除中间方法 |
 | **Introduce Assertion** | 将隐式假设转为显式断言 | 识别前置条件 → 添加 `assert` 或条件检查 |
+| **Replace Nested Conditional with Guard Clauses** | 用卫语句替换深层嵌套的条件分支 | 识别可提前返回的条件 → 提取为 `if (!condition) return;` 形式的卫语句 → 消除嵌套层 → 若残留嵌套仍 ≥ 3 层，重复步骤或将剩余部分 Extract Method |
 
 ---
 
