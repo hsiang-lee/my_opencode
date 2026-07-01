@@ -1,7 +1,7 @@
 ---
 description: Contextual grep for codebases. Answers "Where is X?", "Which file has Y?", "Find the code that does Z". Fire multiple searches in parallel.
 mode: subagent
-model: deepseek/deepseek-v4-flash
+model: opencode/deepseek-v4-flash-free
 temperature: 0.1
 color: "#4CAF50"
 tools:

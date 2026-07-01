@@ -8,19 +8,29 @@
 
 | Agent | 功能 | 使用时机 | 调用方式 |
 |-------|------|----------|----------|
+| **branch-finisher** | 分支收尾 | 实现完成、测试通过后，收尾分支（合并/PR/保持/丢弃） | `Task("branch-finisher", "Finish branch")` |
+| **code-reviewer** | 代码审查 | 实现完成后，独立验证代码质量和测试真实性 | `Task("code-reviewer", "Review implementation")` |
 | **explore** | 代码库搜索专家 | 查找"X在哪里实现"、"哪个文件包含Y"、"找到做Z的代码"时 | `@explore` 或 `Task("explore", "Find code that does X")` |
 | **librarian** | 外部代码理解专家 | 搜索远程代码库、查找开源库用法、获取官方文档时 | `@librarian` 或 `Task("librarian", "How to use X library")` |
 | **metis** | 预规划顾问 | 开始任务前需要分析意图、识别风险、厘清需求时 | `@metis` 或 `Task("metis", "Analyze this request")` |
 | **momus** | 计划评审专家 | 计划写完后需要检查可执行性、引用有效性时 | `@momus` 或 `Task("momus", "Review plan at path")` |
 | **oracle** | 战略技术顾问 | 遇到复杂调试问题、高难度架构设计需要深度推理时 | `@oracle` 或 `Task("oracle", "Debug why X is failing")` |
+| **plan-executor** | 计划执行 | 有实现计划时，按 TDD 纪律逐个任务执行实现 | `Task("plan-executor", "Execute plan")` |
+| **plan-writer** | 计划编写 | 设计文档完成后，生成包含文件路径和验证命令的可执行计划 | `Task("plan-writer", "Write plan")` |
+| **spec-writer** | 设计文档编写 | 设计批准后，将设计决策转化为正式文档 | `Task("spec-writer", "Write spec")` |
 
 ### 快速参考
 
+- **分支收尾** → `@branch-finisher`
+- **代码审查** → `@code-reviewer`
 - **探索代码库** → `@explore`
 - **查开源库用法/文档** → `@librarian`
 - **任务开始前厘清需求** → `@metis`
 - **计划评审** → `@momus`
 - **复杂问题深度分析** → `@oracle`
+- **计划执行** → `@plan-executor`
+- **计划编写** → `@plan-writer`
+- **设计文档编写** → `@spec-writer`
 
 ---
 
