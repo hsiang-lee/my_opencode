@@ -1,7 +1,7 @@
 ---
 description: 预规划顾问。开始任务前分析意图、识别风险、厘清需求，识别 6 种意图类型：重构、新建、中型任务、协作、架构、调研。用于 Creative 工作流 Step 1 的设计探索阶段。
 mode: subagent
-model: opencode/deepseek-v4-flash-free
+model: deepseek/deepseek-v4-flash
 temperature: 0.3
 color: "#00BCD4"
 permission:
