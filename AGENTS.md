@@ -8,6 +8,7 @@
 
 | Agent | 功能 | 使用时机 | 调用方式 |
 |-------|------|----------|----------|
+| **Patch** | 日常小修改 | 小功能、小改进、日常维护，需要 TDD + 审查但不用完整 Creative 流程 | `@Patch` 或 `Task("Patch", "Make small change")` |
 | **branch-finisher** | 分支收尾 | 实现完成、测试通过后，收尾分支（合并/PR/保持/丢弃） | `Task("branch-finisher", "Finish branch")` |
 | **code-reviewer** | 代码审查 | 实现完成后，独立验证代码质量和测试真实性 | `Task("code-reviewer", "Review implementation")` |
 | **explore** | 代码库搜索专家 | 查找"X在哪里实现"、"哪个文件包含Y"、"找到做Z的代码"时 | `@explore` 或 `Task("explore", "Find code that does X")` |
@@ -21,6 +22,7 @@
 
 ### 快速参考
 
+- **日常小修改** → `@Patch`
 - **分支收尾** → `@branch-finisher`
 - **代码审查** → `@code-reviewer`
 - **探索代码库** → `@explore`
