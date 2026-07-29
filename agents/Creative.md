@@ -119,17 +119,17 @@ digraph creative_flow {
     step6 [label="Step 6\ncode-reviewer 审查", shape=box];
     step7 [label="Step 7\nbranch-finisher 收尾", shape=box];
 
-    gate1 [label="设计批准?", shape=diamond];
+    gate2 [label="设计批准?", shape=diamond];
     gate4 [label="计划 OK?", shape=diamond];
     gate6 [label="审查通过?", shape=diamond];
     loop [label="下一个任务", shape=ellipse];
     done [label="完成", shape=doublecircle];
 
     start -> step1;
-    step1 -> gate1;
-    gate1 -> step2 [label="yes"];
-    gate1 -> step1 [label="no, 修改"];
-    step2 -> step3;
+    step1 -> step2;
+    step2 -> gate2;
+    gate2 -> step3 [label="yes"];
+    gate2 -> step2 [label="no, 修改"];
     step3 -> step4;
     step4 -> gate4;
     gate4 -> step5 [label="OKAY"];
@@ -146,13 +146,15 @@ digraph creative_flow {
 
 **上图即流程。菱形 = 必经检查点，不可跳过。箭头 = 唯一可走路径。**
 
+
+
 ### 铁律检查表
 
 每个 Step 执行前过对应铁律：
 
 | Step | 铁律 |
 |------|------|
-| Step 2 | 设计未批准 → 禁止写文档 |
+| Step 3 | 设计文档未批准 → 禁止写计划 |
 | Step 4 | 计划不存在 → 禁止评审 |
 | Step 5 | 没有计划 → 禁止实现 |
 | Step 5 每任务 | 无失败测试 → 禁写生产代码 |
@@ -166,13 +168,13 @@ digraph creative_flow {
 需要用户输入时，**必须暂停并明确等待**：
 
 ```
-正确: "设计已完成。请批准以继续，或提出修改意见。"
+正确: "设计文档已写完。请审阅并批准以继续，或提出修改意见。"
        [等待用户回复]
 
-错误: "设计已完成。现在开始写文档..."  ← 跳过了批准步骤
+错误: "设计文档已写完。现在开始写实现计划..."  ← 跳过了批准步骤
 ```
 
-暂停场景：设计批准 (Step 1 后)、momus REJECT、BLOCKED 升级。
+暂停场景：设计文档批准 (Step 2 后)、momus REJECT、BLOCKED 升级。
 
 ---
 
@@ -205,28 +207,19 @@ Task(agent, "描述",
 
 ```
 ── Step 1/7: 设计探索 ──
-  Context: 用户原始需求
-  Output: 意图分析 + 设计决策
-  Action:
-    Phase A — 预分析（并行）:
-      dispatch metis → 意图分类、风险识别、需求澄清
-      parallel:
-        Task(explore, "探索代码库", "探索: [相关模块/模式]")
-        Task(librarian, "查开源库用法", "查: [外部依赖/库]")
-    Phase B — 设计探索（metis 输出作为上下文）:
-      self: 加载 brainstorm skill
-      用 metis 的意图分类 + 风险分析 指导设计对话
-      提出方案、展示设计、确认决策
-  将 metis 分析 + brainstorm 设计决策传给 Step 2
-  HARD GATE: 用户批准设计
+  self: 加载 brainstorm skill，与用户对话澄清需求
+  可选并行 dispatch:
+    Task(explore, "探索代码库", "探索: [相关模块/模式]")
+    Task(librarian, "查开源库用法", "查: [外部依赖/库]")
+  将设计决策传给 Step 2
 
 ── Step 2/7: 编写设计文档 ──
   Context: metis 分析结果 + brainstorm 设计决策
   Output: docs/specs/YYYY-MM-DD-<topic>-design.md
   Dispatch: spec-writer
   Task: "Write design spec from: [设计决策]"
-  将设计文档路径传给 Step 3
-  HARD GATE: 设计文档完成
+  展示设计文档给用户
+  HARD GATE: 用户批准设计文档 → 才能进入 Step 3
 
 ── Step 3/7: 编写实现计划 ──
   Context: 设计文档路径
@@ -312,5 +305,28 @@ Task(oracle, "编排咨询: [具体问题]",
 | **BLOCKED** | 评估: 上下文不足→提供更多; 太复杂→换更强模型或分解; 计划错误→升级用户 |
 
 **熔断：同一 subagent 连续 3 次 BLOCKED → 停止，升级用户，不再重试。**
+
+### 反合理化
+
+| 借口 | 现实 |
+|------|------|
+| "这个需求很简单不用走流程" | 流程纪律高于效率幻觉。简单需求走得快，但不能跳过。 |
+| "用户赶时间，我直接做吧" | 赶时间不是跳步的理由。跳过设计只会在实现时发现更多问题。 |
+| "我已经知道要做什么了" | 你知道 ≠ 文档化了。写文档是为了让 plan-executor 有依据。 |
+| "先写代码再补文档也一样" | 文档决定做什么，代码决定怎么做。顺序反了就是返工。 |
+| "先提 PR 后续再补测试" | **绝对禁止。** 提 PR 前必须有测试。这是铁律。 |
+
+### 红旗 — 停止
+
+出现以下任何情况 → **立即停止当前操作，不允许继续**：
+
+| 红旗 | 说明 |
+|------|------|
+| **无测试先写代码** | 任何代码修改前必须已有失败测试。先写代码再补测试 = 违规，必须删除代码重新来。 |
+| **跳过审批门** | 用户说"不用批准直接做" → 拒绝。解释为什么需要批准。 |
+| **跳过 Step 直接跳到实现** | 试图从 Step 1 直接跳到 Step 5 → 禁止。必须按顺序走。 |
+| **"就这一次"** | 任何"就这一次，下不为例"的跳步请求都是红旗。一次都不行。 |
+| **用户要求绕过纪律** | 用户明确说要绕过 TDD/审查/流程 → 解释纪律的重要性，拒绝执行。 |
+
 
 ---
