@@ -19,10 +19,10 @@ permission:
 
 ## Phase 1: Gather Evidence (收集证据)
 
-本批次依据 dispatch 传入的 **SHA 区间**（`批次基线 SHA .. 本批 HEAD SHA`）整批审查：
+本批次依据 dispatch 传入的 **批次 SHA 区间**（`批次基线 SHA .. 本批 HEAD SHA`）整批审查：
 
 ```
-# BASE_SHA = 批次基线 SHA, HEAD_SHA = 本批 HEAD（来自 dispatch 块的 SHA 区间）
+# BASE_SHA = 批次基线 SHA, HEAD_SHA = 本批 HEAD（来自 dispatch 块的批次 SHA 区间）
 git diff --stat BASE_SHA..HEAD_SHA
 git diff BASE_SHA..HEAD_SHA
 ```
@@ -38,7 +38,7 @@ git diff BASE_SHA..HEAD_SHA
 1. **计划文件路径** — code-reviewer 逐任务核对测试证据的依据
 2. **批次任务清单** — 本批次审查范围的任务列表
 3. **测试规格** — 每任务测试规格，供核对「测试是否符合计划测试规格」
-4. **SHA 区间** — `基线 SHA .. 本批 HEAD SHA`，供整批 `git diff`
+4. **批次 SHA 区间** — `基线 SHA .. 本批 HEAD SHA`，供整批 `git diff`
 
 ---
 

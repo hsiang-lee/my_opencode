@@ -122,7 +122,7 @@ digraph creative_flow {
     gate2 [label="设计批准?", shape=diamond];
     gate4 [label="计划 OK?", shape=diamond];
     gate6 [label="审查通过?", shape=diamond];
-    loop [label="下一个任务", shape=ellipse];
+    loop [label="下一个批次", shape=ellipse];
     done [label="完成", shape=doublecircle];
 
     start -> step1;
@@ -138,7 +138,7 @@ digraph creative_flow {
     step6 -> gate6;
     gate6 -> loop [label="pass"];
     gate6 -> step5 [label="修复"];
-    loop -> step5 [label="还有任务"];
+    loop -> step5 [label="还有批次"];
     loop -> step7 [label="全部完成"];
     step7 -> done;
 }

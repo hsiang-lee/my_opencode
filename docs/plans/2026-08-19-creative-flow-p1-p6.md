@@ -37,7 +37,7 @@
 | **C** | 执行/审查协议 | Task 4 plan-executor.md + Task 5 code-reviewer.md | 批次 C GREEN 后一次提交 |
 | **D** | 文档同步 + 全局一致性收尾 | Task 6 README.md + Task 7 全局一致性检查 | 批次 D GREEN 后一次提交；Task 7 为验证型（若发现跨文件契约缺失，修复后并入同批 commit） |
 
-**预标注说明（P6a）:** 各批次按文件内聚划分，批内任务同属一个改动模块。每一批 1–2 个任务，均 ≤ 4 硬上限。Creative dispatch 时默认遵循本预标注，可在 dispatch 时调整批次内容与 SHA 基线。
+**预标注说明（P6a）:** 各批次按文件内聚划分，批内任务同属一个改动模块。**每批 2–4 个任务，硬上限 4**；单任务亦可独立成批——当该任务是后续批次的上游契约依赖时（如本计划批次 B 的 Task 3 为 Task 4/5 定义 dispatch 契约），可与 plan-writer 批次预标注规则一致地独立成批。Creative dispatch 时默认遵循本预标注，可在 dispatch 时调整批次内容与 SHA 基线。
 
 **关键依赖:**
 - Task 1（plan-writer 定义 WHAT/HOW/批次术语）→ 无前置，为源头。
@@ -81,6 +81,7 @@
 - `批次单 commit` 出现
 - `What（计划锁定，不可改）` 出现
 - `How（executor 在 HOW 内自由, plan 有意留白）` 出现
+- `声明式产物` 出现（补充：WHAT 模板的声明式产物章节必须被断言覆盖，避免测试盲区）
 
 负断言（旧措辞必须在 `agents/plan-writer.md` 中消失）:
 - `完整代码` grep 返回空
