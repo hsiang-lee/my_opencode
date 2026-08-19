@@ -83,7 +83,7 @@ cp -r skills/* ~/.config/opencode/skills/
 {
   "agent": {
     "plan-executor": {
-      "model": "bicv/deepseek-v4-flash"
+      "model": "zhipuai-coding-plan/glm-5.2"
     }
   }
 }
