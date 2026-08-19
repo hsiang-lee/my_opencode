@@ -201,6 +201,8 @@ Task(agent, "描述",
 
 可并行的必须并行 dispatch：✅独立 explore/librarian、独立 bash 命令 ❌有依赖的步骤、修改同一文件
 
+**批次级并行**: 计划依赖图标注独立且**文件集不相交**（不同仓库最佳，如 avm-api 批 ‖ avm-web 批）的批次，Creative 并行 dispatch executor；各自批次契约的 SHA 基线 = dispatch 时 HEAD，各自批次单 commit；汇合后审查覆盖合并 SHA 区间。禁止: 同文件集批次并行、有依赖批次并行。
+
 ---
 
 ### 流程
@@ -245,11 +247,12 @@ Task(agent, "描述",
   批次契约 (Step 5 dispatch 块, 全部字段必需):
     - 计划文件路径: [docs/plans/...md — 本批次依据的计划]
     - 批次任务清单: [本批次 Task 列表, 引用 plan-writer 预标注, dispatch 时可调整]
-    - 锚点: [每任务 file:line, 从计划携带]
-    - 测试规格: [每任务测试规格, 从计划携带或指明见计划 Phase 2 对应任务]
+    - 锚点: [引用计划对应 Task 的锚点, 不复制 file:line 清单]
+    - 测试规格: [引用计划对应 Task 的测试规格, 不复制断言详情]
     - SHA 基线: [本批次 commit 起点 — rebase 基线 / 上次 commit HEAD]
     - Required: Load tdd skill + refactoring skill
   批次协议: 批内逐任务完整 TDD 红绿循环 → 批次单 commit; 部分 BLOCKED → 抢救 commit + 逐任务状态清单
+  dispatch 原则: prompt 中**全文携带**的仅 计划文件路径 + 批次任务清单 + SHA 基线，其余字段一律**引用不复制**——减少编排 token 与复制漂移
 
 ── Step 6/7: 审查批次任务 ──
   Dispatch: code-reviewer
@@ -269,6 +272,14 @@ Task(agent, "描述",
   Required: Load using-git-worktrees skill
   注: branch-finisher 在创建 PR 前会确保 code-reviewer 审查已通过
 ```
+
+### 审查密度规则（P8）
+
+按批次类型决定审查密度。批次类型判定依据 plan-writer 预标注，Creative dispatch 时可调整:
+
+- **契约批**: 逐批审查（当批评，防缺陷向下游扩散）
+- **机械批**: 不逐批评——由计划内检查点任务（全量测试验收型）覆盖，末批或删除/收尾批审查一次（SHA 区间覆盖累积范围）
+- **回退**: 计划无检查点任务 → 全部批次逐批评（**保守回退**，不得以"有测试"为由跳过审查）
 
 ---
 
