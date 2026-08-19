@@ -115,8 +115,8 @@ digraph creative_flow {
     step2 [label="Step 2\nspec-writer 设计文档", shape=box];
     step3 [label="Step 3\nplan-writer 实现计划", shape=box];
     step4 [label="Step 4\nmomus 评审计划", shape=box];
-    step5 [label="Step 5\nplan-executor 执行任务", shape=box];
-    step6 [label="Step 6\ncode-reviewer 审查", shape=box];
+    step5 [label="Step 5\nplan-executor 执行批次任务", shape=box];
+    step6 [label="Step 6\ncode-reviewer 按批次审查", shape=box];
     step7 [label="Step 7\nbranch-finisher 收尾", shape=box];
 
     gate2 [label="设计批准?", shape=diamond];
@@ -156,7 +156,7 @@ digraph creative_flow {
 |------|------|
 | Step 3 | 设计文档未批准 → 禁止写计划 |
 | Step 4 | 计划不存在 → 禁止评审 |
-| Step 5 | 没有计划 → 禁止实现 |
+| Step 5 | 无计划/无批次预标注 → 禁止实现 |
 | Step 5 每任务 | 无失败测试 → 禁写生产代码 |
 | Step 7 | 审查发现问题未修复 → 禁止进入收尾 |
 | Step 8 | 没有验证 → 禁展示收尾 |
@@ -174,7 +174,7 @@ digraph creative_flow {
 错误: "设计文档已写完。现在开始写实现计划..."  ← 跳过了批准步骤
 ```
 
-暂停场景：设计文档批准 (Step 2 后)、momus REJECT、BLOCKED 升级。
+暂停场景：设计文档批准 (Step 2 后)、momus REJECT、BLOCKED 升级（批内部分 BLOCKED 抢救 commit 后重派或按既有升级逻辑）。
 
 ---
 
@@ -238,19 +238,27 @@ Task(agent, "描述",
   评审要点: 引用验证/可执行性/阻塞点/QA场景/设计完整性/任务分解/可验证性/TDD纪律
   OKAY → Step 5 | REJECT → 返回 Step 3 修复
 
-── Step 5/7: 执行任务 ──
-  Context: 计划文件路径
-  Output: 实现完成
+── Step 5/7: 执行批次任务 ──
   Dispatch: plan-executor
-  Task: "Execute plan at: docs/plans/...md"
+  Task: "执行本批次任务 (批次契约)"
   Required: Load tdd skill + refactoring skill
-  对每个任务: 宣布 → 执行 → 审查
+  批次契约 (Step 5 dispatch 块, 全部字段必需):
+    - 计划文件路径: [docs/plans/...md — 本批次依据的计划]
+    - 批次任务清单: [本批次 Task 列表, 引用 plan-writer 预标注, dispatch 时可调整]
+    - 锚点: [每任务 file:line, 从计划携带]
+    - 测试规格: [每任务测试规格, 从计划携带或指明见计划 Phase 2 对应任务]
+    - SHA 基线: [本批次 commit 起点 — rebase 基线 / 上次 commit HEAD]
+    - Required: Load tdd skill + refactoring skill
+  批次协议: 批内逐任务完整 TDD 红绿循环 → 批次单 commit; 部分 BLOCKED → 抢救 commit + 逐任务状态清单
 
-── Step 6/7: 审查任务 ──
-  Context: 变更文件列表
-  Output: 审查报告（Critical/Important/Minor）
+── Step 6/7: 审查批次任务 ──
   Dispatch: code-reviewer
-  Task: "Review implementation (diff: HEAD~N..HEAD)"
+  Task: "审查本批次实现 (按 SHA 区间整批)"
+  批次契约 (Step 6 dispatch 块, 全部字段必需):
+    - 计划文件路径: [code-reviewer 逐任务核对测试证据的依据]
+    - 批次任务清单: [本批次审查范围的任务列表]
+    - 测试规格: [每任务测试规格, 供核对测试是否符合计划测试规格]
+    - 批次 SHA 区间: [基线 SHA .. 本批 HEAD SHA, 供整批 git diff]
   Critical/Important → 返回 Step 5 修复
 
 ── Step 7/7: 分支收尾 ──
@@ -302,7 +310,7 @@ Task(oracle, "编排咨询: [具体问题]",
 | **DONE** | 继续下一步 |
 | **DONE_WITH_CONCERNS** | 读取疑虑。正确性/范围问题先解决再继续。观察性疑虑记录后继续。 |
 | **NEEDS_CONTEXT** | 提供缺失上下文，重新 dispatch |
-| **BLOCKED** | 评估: 上下文不足→提供更多; 太复杂→换更强模型或分解; 计划错误→升级用户 |
+| **BLOCKED** | **批内部分 BLOCKED** → 默认**单独重派该任务**（上下文最小、反馈最快）；**仅当与后续批次内聚时**才并入下一批重派；或按既有 BLOCKED 升级逻辑与 3 次熔断升级用户。接收 executor 返回的**逐任务状态清单**（哪些 DONE / 哪些 BLOCKED，Blocked 附原因）。非批次场景: 评估 上下文不足→提供更多; 太复杂→换更强模型或分解; 计划错误→升级用户 |
 
 **熔断：同一 subagent 连续 3 次 BLOCKED → 停止，升级用户，不再重试。**
 
