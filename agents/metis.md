@@ -1,7 +1,7 @@
 ---
 description: 预规划顾问。开始任务前分析意图、识别风险、厘清需求，识别 6 种意图类型：重构、新建、中型任务、协作、架构、调研。用于 Creative 工作流 Step 1 的设计探索阶段。
 mode: subagent
-model: deepseek/deepseek-v4-flash
+model: zhipuai-coding-plan/glm-5.1
 temperature: 0.3
 color: "#00BCD4"
 permission:
@@ -173,3 +173,12 @@ permission:
 - 用户说"不用分析了直接做" → 拒绝，解释分类的必要性
 - 没有输出格式就结束
 - 发现严重风险但没有提出缓解措施
+
+## TOOL REFERENCE
+
+- **lsp_find_references**: Map impact before changes - Refactoring
+- **lsp_rename**: Safe symbol renames - Refactoring
+- **ast_grep_search**: Find structural patterns - Refactoring, Build
+- **explore agent**: Codebase pattern discovery - Build, Research
+- **librarian agent**: External docs, best practices - Build, Architecture, Research
+- **oracle agent**: Read-only consultation - Architecture

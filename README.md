@@ -24,17 +24,17 @@ Tab 切换:
 
 | Agent | 功能 | 模型 |
 |-------|------|------|
-| brainstorm | 交互式设计探索 | deepseek/deepseek-v4-flash |
-| spec-writer | 设计文档编写 | deepseek/deepseek-v4-pro |
-| plan-writer | 实现计划编写 | deepseek/deepseek-v4-pro |
-| plan-executor | TDD 计划执行 + 防假测试 | deepseek/deepseek-v4-flash |
-| code-reviewer | 代码审查 + 假测试检测 | deepseek/deepseek-v4-pro |
-| branch-finisher | 分支收尾 | deepseek/deepseek-v4-flash |
-| explore | 代码库搜索 | deepseek/deepseek-v4-flash |
-| librarian | 外部研究 | deepseek/deepseek-v4-flash |
-| metis | 预规划分析 | deepseek/deepseek-v4-pro |
-| momus | 计划评审 | deepseek/deepseek-v4-pro |
-| oracle | 战略咨询 | deepseek/deepseek-v4-pro |
+| brainstorm | 交互式设计探索 | zhipuai-coding-plan/glm-5.1 |
+| spec-writer | 设计文档编写 | zhipuai-coding-plan/glm-5.1 |
+| plan-writer | 实现计划编写 | zhipuai-coding-plan/glm-5.2 |
+| plan-executor | TDD 计划执行 + 防假测试 | zhipuai-coding-plan/glm-5.2 |
+| code-reviewer | 代码审查 + 假测试检测 | zhipuai-coding-plan/glm-5.2 |
+| branch-finisher | 分支收尾 | zhipuai-coding-plan/glm-5-turbo |
+| explore | 代码库搜索 | zhipuai-coding-plan/glm-5-turbo |
+| librarian | 外部研究 | zhipuai-coding-plan/glm-5-turbo |
+| metis | 预规划分析 | zhipuai-coding-plan/glm-5.1 |
+| momus | 计划评审 | zhipuai-coding-plan/glm-5.2 |
+| oracle | 战略咨询 | zhipuai-coding-plan/glm-5.3 |
 
 ### Skill
 
@@ -83,7 +83,7 @@ cp -r skills/* ~/.config/opencode/skills/
 {
   "agent": {
     "plan-executor": {
-      "model": "deepseek/deepseek-v4-flash"
+      "model": "bicv/deepseek-v4-flash"
     }
   }
 }
