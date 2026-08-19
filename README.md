@@ -26,9 +26,9 @@ Tab 切换:
 |-------|------|------|
 | brainstorm | 交互式设计探索 | zhipuai-coding-plan/glm-5.1 |
 | spec-writer | 设计文档编写 | zhipuai-coding-plan/glm-5.1 |
-| plan-writer | 完整规格计划：WHAT 锁（锚点/测试规格/验证命令）+ HOW 留白 + 批次预标注 | zhipuai-coding-plan/glm-5.2 |
+| plan-writer | 完整规格计划：WHAT 锁（锚点/测试规格/验证命令）+ HOW 留白 + 批次预标注（含批次类型预标注） | zhipuai-coding-plan/glm-5.2 |
 | plan-executor | TDD 计划执行 + 防假测试；按批次执行 + 批次单 commit + 抢救协议 | zhipuai-coding-plan/glm-5.2 |
-| code-reviewer | 代码审查 + 假测试检测；按批次 SHA 区间审查 + 逐任务核对测试证据 | zhipuai-coding-plan/glm-5.2 |
+| code-reviewer | 代码审查 + 假测试检测 + 质量审计；按批次 SHA 区间审查 + 逐任务核对测试证据 | zhipuai-coding-plan/glm-5.2 |
 | branch-finisher | 分支收尾 | zhipuai-coding-plan/glm-5-turbo |
 | explore | 代码库搜索 | zhipuai-coding-plan/glm-5-turbo |
 | librarian | 外部研究 | zhipuai-coding-plan/glm-5-turbo |

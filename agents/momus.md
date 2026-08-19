@@ -85,6 +85,13 @@ permission:
 **PASS even if**: Granularity is slightly off. Developer can adapt.
 **FAIL only if**: A design requirement has NO corresponding task, or a task is impossibly large.
 
+### 10. 批次标注可判定性
+- 批次类型标注（契约批/机械批）存在且每批可判定。
+- 『可并行』批次必须文件集不相交（抽查其 Files 块）且仅为机械批。
+- 检查点任务有显式标记（如标注了机械批跳审依赖检查点，则检查点必须存在且被标记）。
+
+**FAIL 条件**: 契约批被标『可并行』、或机械批声称依赖检查点但计划中无显式标记的检查点任务。
+
 ---
 
 ## 检查项（只看这些）
@@ -99,7 +106,7 @@ permission:
 **通过条件**: 引用存在但不完美也可以。开发者可以从此探索。
 **拒绝条件**: 引用文件不存在或指向完全无关的内容。
 
-**IMPORTANT**: Items 5-9 (design completeness, task decomposition, verifiability, TDD, WHAT/HOW differentiation) are about STRUCTURAL completeness — not opinion. Check if things EXIST, not if they're GOOD.
+**IMPORTANT**: Items 5-10 (design completeness, task decomposition, verifiability, TDD, WHAT/HOW differentiation, batch annotation decidability) are about STRUCTURAL completeness — not opinion. Check if things EXIST, not if they're GOOD.
 
 ---
 
