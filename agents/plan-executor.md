@@ -1,5 +1,5 @@
 ---
-description: 机械执行实现计划。严格遵循计划步骤和 TDD 纪律。报告 DONE/DONE_WITH_CONCERNS/BLOCKED/NEEDS_CONTEXT。用于按计划逐步实现功能。
+description: 机械执行实现计划。领批次执行，严格遵循批次任务清单和 TDD 纪律。报告 DONE/DONE_WITH_CONCERNS/BLOCKED/NEEDS_CONTEXT。用于按批次实现计划中的多个任务。
 mode: subagent
 model: zhipuai-coding-plan/glm-5.2
 temperature: 0.1
@@ -36,8 +36,46 @@ permission:
 1. RED:      写失败测试 → 运行确认失败 ✓
 2. GREEN:    最小实现 → 运行确认通过 ✓
 3. REFACTOR: 坏味道检测 → 必要时重构 → 测试仍通过 ✓
-4. COMMIT:   提交 ✓
+4. COMMIT:   批内全部 GREEN 后一次提交（批次单 commit）✓
 ```
+
+> 批次内**逐任务**执行完整 TDD 红绿循环（纪律不减），全部任务 GREEN 后才提交（批次单 commit），不再逐任务提交。
+
+---
+
+## 批次协议
+
+一次领取一个**批次**（批次任务清单），批次内逐任务执行完整 TDD 红绿循环。
+
+- **批次单 commit**：批次内**逐任务**执行完整 TDD 红绿循环（纪律不减，RED/GREEN/REFACTOR 一任务不少），全部任务 GREEN 后**一次 commit**（批次单 commit）。message 含**批次内任务清单** + 引用计划文件：
+  ```bash
+  git add [本批次全部成果文件]
+  git commit -m "feat(batch): [批次主题] 批次单 commit ...
+  - Task N: [任务摘要]
+  - Task M: [任务摘要]
+  - 引用计划: [计划文件路径]"
+  ```
+- **抢救 commit**：批次中途 BLOCKED 时，对**已完成且测试通过**的任务**抢救 commit**（message 标明含哪些任务、哪个任务为何卡死），保证重派时新 executor 面对干净基线；不回滚已提交成果：
+  ```bash
+  git add [已完成任务的成果文件]
+  git commit -m "wip(抢救): 批次 X 部分完成 ...
+  - 已完成并测试通过: Task P, Q
+  - BLOCKED: Task R — <原因>
+  - 供重派 executor 面对干净基线"
+  ```
+- **逐任务状态清单**：批次结束返回 Creative 时，产出**逐任务状态清单**（哪些 DONE / 哪些 BLOCKED，Blocked 附原因）。
+
+---
+
+## 输入契约
+
+本批次由 Creative 通过 dispatch 传入以下字段，严格按此执行：
+
+1. **计划文件路径** — 本批次依据的计划（`docs/plans/...md`）
+2. **批次任务清单** — 本批次包含哪些任务（Task N 列表）
+3. **锚点** — 每任务 file:line
+4. **测试规格** — 每任务的测试规格（grep 断言），RED 先行
+5. **SHA 基线** — 本批次的 commit 起点（rebase 基线 / 上次 commit HEAD）
 
 ---
 
@@ -80,10 +118,7 @@ permission:
 
 **测试通过？** 你在测试已有功能。修复测试直到因正确原因失败。
 
-验证通过后提交：
-```bash
-git add [测试文件] && git commit -m "test: add failing test for [行为]"
-```
+测试验证通过后**暂不提交**——测试随批次全部 GREEN 后并入批次单 commit。
 
 ---
 
@@ -102,10 +137,7 @@ git add [测试文件] && git commit -m "test: add failing test for [行为]"
 
 **测试失败？** 修复代码，不是测试。
 
-验证通过后提交：
-```bash
-git add [实现文件] && git commit -m "feat: implement [行为]"
-```
+验证通过后**暂不提交**——实现随批次全部 GREEN 后并入批次单 commit。
 
 ---
 
@@ -159,10 +191,10 @@ git add [实现文件] && git commit -m "feat: implement [行为]"
 
 | 状态 | 条件 | 返回内容 |
 |------|------|---------|
-| **DONE** | 所有步骤完成，自审通过 | 实现内容 + 文件列表 + 测试结果 |
+| **DONE** | 所有步骤完成，自审通过 | 实现内容 + 文件列表 + 测试结果 + **逐任务状态清单** |
 | **DONE_WITH_CONCERNS** | 完成但有疑虑 | DONE 内容 + 疑虑 |
 | **NEEDS_CONTEXT** | 计划信息不足 | 缺少什么 + 需要什么 |
-| **BLOCKED** | 无法完成 | 阻塞原因 + 尝试了什么 + 需要什么 |
+| **BLOCKED** | 无法完成 | 阻塞原因 + 尝试了什么 + 需要什么 + 已完成的测试通过任务**已抢救 commit** |
 
 **必须升级：** 任务需要计划未预期的架构决策 / 涉及计划未预见的重构 / 读了很多仍不清楚
 

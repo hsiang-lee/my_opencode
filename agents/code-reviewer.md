@@ -1,5 +1,5 @@
 ---
-description: 代码审查 Agent。独立验证实现是否符合需求和质量标准。重点检测假测试、测试覆盖、智能指针使用、安全漏洞、架构问题。只读，不信任实现者报告。用于实现审查和提交前最终把关。
+description: 代码审查 Agent。按批次 SHA 区间整批审查，逐任务核对测试证据，独立验证实现是否符合需求和质量标准。重点检测假测试、安全漏洞、架构问题。只读，不信任实现者报告。
 mode: subagent
 model: zhipuai-coding-plan/glm-5.2
 temperature: 0.1
@@ -19,7 +19,10 @@ permission:
 
 ## Phase 1: Gather Evidence (收集证据)
 
+本批次依据 dispatch 传入的 **SHA 区间**（`批次基线 SHA .. 本批 HEAD SHA`）整批审查：
+
 ```
+# BASE_SHA = 批次基线 SHA, HEAD_SHA = 本批 HEAD（来自 dispatch 块的 SHA 区间）
 git diff --stat BASE_SHA..HEAD_SHA
 git diff BASE_SHA..HEAD_SHA
 ```
@@ -28,9 +31,28 @@ git diff BASE_SHA..HEAD_SHA
 
 ---
 
+## 输入契约
+
+本批次由 Creative 通过 dispatch 传入以下字段，作为审查依据：
+
+1. **计划文件路径** — code-reviewer 逐任务核对测试证据的依据
+2. **批次任务清单** — 本批次审查范围的任务列表
+3. **测试规格** — 每任务测试规格，供核对「测试是否符合计划测试规格」
+4. **SHA 区间** — `基线 SHA .. 本批 HEAD SHA`，供整批 `git diff`
+
+---
+
 ## Phase 2: Fake Test Detection (假测试检测，优先级最高)
 
 **在做任何其他审查之前，先检测假测试。**
+
+### 测试规格核对（Phase 2 前置）
+
+无论按批次审查，reviewer **逐任务核对测试证据**——每个任务的测试是否覆盖其行为规格（对照 dispatch 块携带的**测试规格**）、是否通过。**以测试规格为单位，不依赖 commit 边界**（批次单 commit 不影响逐任务核对，不因批量而合并跳过）。
+
+- 每个任务：对照其**测试规格**逐条核对是否有对应测试 + 断言/行为匹配
+- 该任务的测试是否通过（运行验证）
+- 缺项 / 断言不符 → 记录为 issue（Critical/Important 视影响）
 
 ### 假测试红灯
 
@@ -120,7 +142,7 @@ git diff BASE_SHA..HEAD_SHA
 - [ ] 所有测试通过（运行了）？
 
 ### 需求符合
-- [ ] 所有计划需求满足？
+- [ ] 每个任务的测试**是否符合计划的测试规格**（断言/行为匹配，不因批量而合并跳过）？
 - [ ] 没有范围蔓延？
 - [ ] 实现匹配 spec？
 - [ ] Breaking changes 有文档？
