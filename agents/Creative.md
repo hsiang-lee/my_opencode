@@ -264,6 +264,7 @@ Task(agent, "描述",
     - 批次任务清单: [本批次审查范围的任务列表]
     - 测试规格: [每任务测试规格, 供核对测试是否符合计划测试规格]
     - 批次 SHA 区间: [基线 SHA .. 本批 HEAD SHA, 供整批 git diff]
+    - 执行器台账（REFACTOR_LEDGER）: [executor 返回的批次合并台账，转交评审员抽查]
   Critical/Important → 返回 Step 5 修复
 
 ── Step 7/7: 分支收尾 ──

@@ -17,6 +17,14 @@ permission:
 
 ---
 
+## REQUIRED: 加载 refactoring 技能
+
+```
+Phase 2.5 质量审计的检测条件表（含 Agent 特有坏味道 A1-A4）与台账格式定义于 refactoring 技能。加载前禁止执行 Phase 2.5。这不是可选的。
+```
+
+---
+
 ## Phase 1: Gather Evidence (收集证据)
 
 本批次依据 dispatch 传入的 **批次 SHA 区间**（`批次基线 SHA .. 本批 HEAD SHA`）整批审查：
@@ -39,6 +47,7 @@ git diff BASE_SHA..HEAD_SHA
 2. **批次任务清单** — 本批次审查范围的任务列表
 3. **测试规格** — 每任务测试规格，供核对「测试是否符合计划测试规格」
 4. **批次 SHA 区间** — `基线 SHA .. 本批 HEAD SHA`，供整批 `git diff`
+5. **执行器台账（REFACTOR_LEDGER）** — executor 返回的批次合并台账，供台账抽查
 
 ---
 
@@ -93,7 +102,7 @@ git diff BASE_SHA..HEAD_SHA
 
 ### 台账抽查
 
-若 executor 提交了 REFACTOR_LEDGER，**抽查 ≥2 项台账声明 vs 实际 diff**：抽中项逐处验证（如台账声称 A1 未命中，则在 diff 中 grep 同一常量/字面量是否确无 ≥2 处定义）。**台账谎报（声称未命中但 diff 中明显命中）= Critical**（等同假测试）。
+若 executor 提交了 REFACTOR_LEDGER，**抽查 ≥2 项台账声明 vs 实际情况**：抽中项逐处验证。**A1 抽查方法**：在**全库**（非仅批次 diff）grep 该常量/字面量的定义处——**≥2 文件定义即命中 A1**。注意: 基线已有 1 处 + 本批新增 1 处 = 命中（diff 内仅 1 处也是命中），这是 A1 最常见形态。executor 台账声称未命中但全库 ≥2 文件定义 → 谎报 = **严重（Critical）**（等同假测试）。
 
 ### 与审查密度分层（P8）联动
 
@@ -142,8 +151,8 @@ git diff BASE_SHA..HEAD_SHA
  #### Critical (Must Fix — 阻塞合并)
  [假测试、无测试覆盖、未更新测试、智能指针问题、bug、安全问题、数据丢失风险、功能缺失]
 
- #### Important (Should Fix)
- [架构问题、测试缺口、测试覆盖不足、错误处理不足]
+#### Important (Must Fix — 阻塞合并，返回修复)
+[架构问题、测试缺口、错误处理不足——与完成门「无 Critical/Important」及 Phase 2.5 分级一致，阻塞合并]
 
 #### Minor (Nice to Have)
 [代码风格、优化机会、文档改进]

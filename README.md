@@ -42,7 +42,7 @@ Tab 切换:
 |-------|-------|------|
 | brainstorm | CREATIVE Step 1 | 设计探索方法：提问澄清、方案提出、展示设计、对比框架 |
 | tdd | plan-writer, plan-executor | TDD RED-GREEN-REFACTOR + 单元测试技术 + 防假测试 |
-| refactoring | plan-executor | REFACTOR 阶段坏味道检测与重构执行流程 |
+| refactoring | plan-executor, code-reviewer | REFACTOR 阶段坏味道检测与重构执行流程 |
 | using-git-worktrees | CREATIVE/Debug, branch-finisher | Git Worktree 管理 |
 | gdb | plan-executor (可选) | C/C++ 运行时调试：崩溃分析、变量检查、内存调试 |
 | init-deep | - | 层级 AGENTS.md 文件生成与维护 |
