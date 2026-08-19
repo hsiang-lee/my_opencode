@@ -37,6 +37,30 @@ description: Automatically detect and eliminate code smells during the REFACTOR 
 
 ---
 
+## Agent 特有坏味道 (Agent-Specific Bad Smells)
+
+AI 生成代码的系统性病灶（三仓库实证取证：相机 ID 常量 12 处/8 文件两种命名、MinIO key 格式串 15+ 处/5 文件、helper 已存在仍多处裸调用、测试 setup 样板同句重复 8 次）。与经典坏味道同权检测，且优先级更高（见下节优先级序）。
+
+| # | 坏味道 | 检测条件 | 处置 |
+|---|--------|----------|------|
+| A1 | **共享常量重复定义** | 同一常量/字面量（ID 数组、key 格式、队列名、超时值等）在 ≥2 文件重复定义 | 提取到共享模块，单一事实源，全库引用 |
+| A2 | **绕过现有封装** | HTTP/WS/队列/存储/工具已有封装（apiClient、push_task_to_redis 等）却在其外裸写等价调用 | 复用封装；封装不满足则扩展封装而非旁路 |
+| A3 | **测试 setup 复制** | 相同 mock 工厂/seed/样板在 ≥2 测试文件逐字重复 | 提取共享 testHelper |
+| A4 | **命名漂移** | 同一概念多种命名（如 CAMERA_IDS/REAL_CAMERA_IDS） | 统一命名并引用同一来源 |
+
+---
+
+## 优先级序 (Detection Priority)
+
+检测与处置按以下顺序执行，先消除高优先级再处理低优先级：
+
+1. **A1/A2（重复与复用）** — agent 头号病：共享常量重复定义与绕过现有封装，最优先消除。
+2. **A3（测试 setup 复制）** — 测试样板逐文件复制。
+3. **A4（命名漂移）** — 同一概念统一命名并引用同一来源。
+4. **经典结构类** — 过长函数/深嵌套等坏味道分类表条目。
+
+---
+
 ## 坏味道 → 重构技术对照表 (Smell-to-Technique Cheat Sheet)
 
 | 坏味道 | 推荐重构技术 |
@@ -81,6 +105,16 @@ description: Automatically detect and eliminate code smells during the REFACTOR 
 
 ---
 
+## 复用优先规则 (Reuse-First Rule)
+
+实现任何 helper、常量、基础设施调用之前，**先 grep 代码库已有同类**：
+
+- **grep 关键词**: 既有封装名（如 `apiClient`、`push_task_to_redis`）+ 语义关键词（如 `minio key`、`camera id`、`queue name`）。
+- **找到 → 复用。** 禁止"我知道要用但顺手再写一个"——这是 A1/A2 的直接来源。
+- **没找到 → 创建**，并放置在可被后续任务发现的位置（共享模块），不是埋在当前任务文件里。
+
+---
+
 ## 执行流程 (Execution Flow)
 
 在 TDD 绿色阶段通过后（所有测试通过），plan-executor 使用本流程执行重构：
@@ -121,6 +155,24 @@ description: Automatically detect and eliminate code smells during the REFACTOR 
 | `REFACTOR_SKIPPED` | 未检测到坏味道 | 返回外层 |
 | `REFACTOR_DONE` | 成功消除 N 种坏味道 | 返回外层，附变更内容 |
 | `REFACTOR_FAILED` | 某步重构导致测试失败（已回滚） | 返回外层，附失败详情 |
+
+---
+
+## 重构台账 (REFACTOR_LEDGER)
+
+REFACTOR 阶段必须**逐类核对并输出台账**。台账是报告的一部分，不是可选附件；谎报台账（声称未命中但 diff 中明显命中）= 假测试级违规。
+
+```
+REFACTOR_LEDGER:
+- A1 共享常量重复: [命中→已提取至 X（证据）| 未命中: 理由一句]
+- A2 绕过现有封装: [...]
+- A3 测试setup复制: [...]
+- A4 命名漂移: [...]
+- 过长函数(>40行): [...]
+- 深嵌套(≥3层): [...]
+```
+
+每一项要么给出命中后的处置与证据，要么给出一句未命中理由——不允许留空或省略。
 
 ---
 
