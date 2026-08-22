@@ -156,7 +156,8 @@ digraph creative_flow {
 | Step 4 | 计划不存在 → 禁止评审 |
 | Step 5 | 没有计划 → 禁止实现 |
 | Step 5 每任务 | 无失败测试 → 禁写生产代码 |
-| Step 7 | 没有验证 → 禁展示收尾 |
+| Step 7 | 审查发现问题未修复 → 禁止进入收尾 |
+| Step 8 | 没有验证 → 禁展示收尾 |
 
 **铁律违规时：** 拒绝 dispatch，告知用户缺失什么前置条件。
 
@@ -204,43 +205,68 @@ Task(agent, "描述",
 
 ```
 ── Step 1/7: 设计探索 ──
-  self: 加载 brainstorm skill，与用户对话澄清需求
-  可选并行 dispatch:
-    Task(explore, "探索代码库", "探索: [相关模块/模式]")
-    Task(librarian, "查开源库用法", "查: [外部依赖/库]")
+  Context: 用户原始需求
+  Output: 意图分析 + 设计决策
+  Action:
+    Phase A — 预分析（并行）:
+      dispatch metis → 意图分类、风险识别、需求澄清
+      parallel:
+        Task(explore, "探索代码库", "探索: [相关模块/模式]")
+        Task(librarian, "查开源库用法", "查: [外部依赖/库]")
+    Phase B — 设计探索（metis 输出作为上下文）:
+      self: 加载 brainstorm skill
+      用 metis 的意图分类 + 风险分析 指导设计对话
+      提出方案、展示设计、确认决策
+  将 metis 分析 + brainstorm 设计决策传给 Step 2
   HARD GATE: 用户批准设计
 
 ── Step 2/7: 编写设计文档 ──
+  Context: metis 分析结果 + brainstorm 设计决策
+  Output: docs/specs/YYYY-MM-DD-<topic>-design.md
   Dispatch: spec-writer
-  Task: "Write design spec"
+  Task: "Write design spec from: [设计决策]"
+  将设计文档路径传给 Step 3
   HARD GATE: 设计文档完成
 
 ── Step 3/7: 编写实现计划 ──
+  Context: 设计文档路径
+  Output: docs/plans/YYYY-MM-DD-<feature>.md
   Dispatch: plan-writer
-  Task: "Write implementation plan"
+  Task: "Write implementation plan from: docs/specs/...md"
   Required: Load tdd skill
+  将计划文件路径传给 Step 4
   HARD GATE: 计划评审通过
 
 ── Step 4/7: 评审计划 ──
+  Context: 计划文件路径 docs/plans/...md
+  Output: OKAY / REJECT + 阻塞问题
   Dispatch: momus
-  Task: "Review plan"
+  Task: "Review plan at: docs/plans/...md"
   评审要点: 引用验证/可执行性/阻塞点/QA场景/设计完整性/任务分解/可验证性/TDD纪律
+  OKAY → Step 5 | REJECT → 返回 Step 3 修复
 
 ── Step 5/7: 执行任务 ──
+  Context: 计划文件路径
+  Output: 实现完成
   Dispatch: plan-executor
-  Task: "Execute Task N"
+  Task: "Execute plan at: docs/plans/...md"
   Required: Load tdd skill + refactoring skill
   对每个任务: 宣布 → 执行 → 审查
 
 ── Step 6/7: 审查任务 ──
+  Context: 变更文件列表
+  Output: 审查报告（Critical/Important/Minor）
   Dispatch: code-reviewer
-  Task: "Review implementation"
+  Task: "Review implementation (diff: HEAD~N..HEAD)"
   Critical/Important → 返回 Step 5 修复
 
 ── Step 7/7: 分支收尾 ──
+  Context: 所有前序步骤通过确认
+  Output: 合并/PR/保持/丢弃
   Dispatch: branch-finisher
   Task: "Finish branch"
   Required: Load using-git-worktrees skill
+  注: branch-finisher 在创建 PR 前会确保 code-reviewer 审查已通过
 ```
 
 ---
@@ -288,4 +314,3 @@ Task(oracle, "编排咨询: [具体问题]",
 **熔断：同一 subagent 连续 3 次 BLOCKED → 停止，升级用户，不再重试。**
 
 ---
-

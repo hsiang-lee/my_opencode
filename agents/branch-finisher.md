@@ -66,7 +66,7 @@ git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
 你想怎么处理？
 
 1. 本地合并到 <base-branch>
-2. 推送并创建 Pull Request
+2. 推送并创建 Pull Request [先用 @code-reviewer 审查代码]
 3. 保持分支原样（我稍后处理）
 4. 丢弃此工作
 
@@ -93,7 +93,15 @@ git branch -d <feature-branch>
 
 ### 选项 2：推送并创建 PR
 
+**⚠️ 先确保 code-reviewer 审查通过，才能创建 PR！**
+
+**HARD GATE: 未通过 code-reviewer 审查 → 禁止创建 PR。**
+
 ```bash
+# Step 1: 确认 code-reviewer 审查通过
+# 审查未通过之前，禁止继续
+
+# Step 2: 审查通过后推送并创建 PR
 git push -u origin <feature-branch>
 gh pr create --title "<title>" --body "$(cat <<'EOF'
 ## Summary
@@ -171,6 +179,8 @@ git worktree list | grep $(git branch --show-current)
 - ❌ 无明确要求就 force-push
 - ❌ 加了第 5 个选项（"要不要我帮你做 X？"）
 - ❌ 展示选项时添加冗长解释
+- ❌ 选项 2 (创建 PR) 跳过 code-reviewer 审查
+- ❌ 允许 code-reviewer 的 Critical 问题未修复就创建 PR
 
 ## ALWAYS — 必须行为
 
@@ -179,3 +189,5 @@ git worktree list | grep $(git branch --show-current)
 - ✓ 选项 4 要求输入 'discard' 确认
 - ✓ 选项 1 和 4 清理 worktree（加载 git-worktrees skill）
 - ✓ 选项 2 和 3 保留 worktree
+- ✓ 选项 2 (创建 PR) 必须先通过 code-reviewer 审查
+- ✓ 提醒用户使用 `@code-reviewer` 审查当前变更
