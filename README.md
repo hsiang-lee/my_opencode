@@ -24,17 +24,17 @@ Tab 切换:
 
 | Agent | 功能 | 模型 |
 |-------|------|------|
-| brainstorm | 交互式设计探索 | deepseek/deepseek-v4-flash |
-| spec-writer | 设计文档编写 | deepseek/deepseek-v4-pro |
-| plan-writer | 实现计划编写 | deepseek/deepseek-v4-pro |
-| plan-executor | TDD 计划执行 + 防假测试 | deepseek/deepseek-v4-flash |
-| code-reviewer | 代码审查 + 假测试检测 | deepseek/deepseek-v4-pro |
-| branch-finisher | 分支收尾 | deepseek/deepseek-v4-flash |
-| explore | 代码库搜索 | deepseek/deepseek-v4-flash |
-| librarian | 外部研究 | deepseek/deepseek-v4-flash |
-| metis | 预规划分析 | deepseek/deepseek-v4-pro |
-| momus | 计划评审 | deepseek/deepseek-v4-pro |
-| oracle | 战略咨询 | deepseek/deepseek-v4-pro |
+| brainstorm | 交互式设计探索 | zhipuai-coding-plan/glm-5.1 |
+| spec-writer | 设计文档编写 | zhipuai-coding-plan/glm-5.1 |
+| plan-writer | 完整规格计划：WHAT 锁（锚点/测试规格/验证命令）+ HOW 留白 + 批次预标注（含批次类型预标注） | zhipuai-coding-plan/glm-5.2 |
+| plan-executor | TDD 计划执行 + 防假测试；按批次执行 + 批次单 commit + 抢救协议 | zhipuai-coding-plan/glm-5.2 |
+| code-reviewer | 代码审查 + 假测试检测 + 质量审计；按批次 SHA 区间审查 + 逐任务核对测试证据 | zhipuai-coding-plan/glm-5.2 |
+| branch-finisher | 分支收尾 | zhipuai-coding-plan/glm-5-turbo |
+| explore | 代码库搜索 | zhipuai-coding-plan/glm-5-turbo |
+| librarian | 外部研究 | zhipuai-coding-plan/glm-5-turbo |
+| metis | 预规划分析 | zhipuai-coding-plan/glm-5.1 |
+| momus | 计划评审 | zhipuai-coding-plan/glm-5.2 |
+| oracle | 战略咨询 | zhipuai-coding-plan/glm-5.3 |
 
 ### Skill
 
@@ -42,7 +42,7 @@ Tab 切换:
 |-------|-------|------|
 | brainstorm | CREATIVE Step 1 | 设计探索方法：提问澄清、方案提出、展示设计、对比框架 |
 | tdd | plan-writer, plan-executor | TDD RED-GREEN-REFACTOR + 单元测试技术 + 防假测试 |
-| refactoring | plan-executor | REFACTOR 阶段坏味道检测与重构执行流程 |
+| refactoring | plan-executor, code-reviewer | REFACTOR 阶段坏味道检测与重构执行流程 |
 | using-git-worktrees | CREATIVE/Debug, branch-finisher | Git Worktree 管理 |
 | gdb | plan-executor (可选) | C/C++ 运行时调试：崩溃分析、变量检查、内存调试 |
 | init-deep | - | 层级 AGENTS.md 文件生成与维护 |
@@ -83,7 +83,7 @@ cp -r skills/* ~/.config/opencode/skills/
 {
   "agent": {
     "plan-executor": {
-      "model": "deepseek/deepseek-v4-flash"
+      "model": "zhipuai-coding-plan/glm-5.2"
     }
   }
 }
