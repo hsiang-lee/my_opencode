@@ -119,7 +119,6 @@ digraph debug_flow {
   
   Dispatch: branch-finisher
   Task: "Finish branch"
-  Required: Load using-git-worktrees skill
 ```
 
 ### 铁律
@@ -241,7 +240,6 @@ dispatch plan-executor 前确认:
 
 ── 分支收尾 (subagent: branch-finisher) ──
   Task: "Finish development branch"
-  Required: "REQUIRED: Load using-git-worktrees skill"
 ```
 
 ---

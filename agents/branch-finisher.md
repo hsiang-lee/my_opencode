@@ -1,5 +1,5 @@
 ---
-description: 完成开发分支。验证测试、展示收尾选项（合并/PR/保持/丢弃）、执行选择、清理 worktree。用于实现工作完成后的收尾阶段。
+description: 完成开发分支。验证测试、展示收尾选项（合并/PR/保持/丢弃）、执行选择。用于实现工作完成后的收尾阶段。
 mode: subagent
 model: bicv/qwen3.8-flash
 temperature: 0.3
@@ -13,16 +13,7 @@ permission:
 
 通过展示清晰选项并执行所选工作流来完成开发工作。
 
-**核心原则：验证测试 → 展示选项 → 执行选择 → 清理。**
-
----
-
-## REQUIRED: Load using-git-worktrees skill
-
-```
-加载 using-git-worktrees skill 获取 worktree 清理的完整流程。
-这不是可选的。
-```
+**核心原则：验证测试 → 展示选项 → 执行选择。**
 
 ---
 
@@ -89,8 +80,6 @@ git merge <feature-branch>
 git branch -d <feature-branch>
 ```
 
-然后：清理 worktree。
-
 ### 选项 2：推送并创建 PR
 
 **⚠️ 先确保 code-reviewer 审查通过，才能创建 PR！**
@@ -113,16 +102,11 @@ EOF
 )"
 ```
 
-然后：清理 worktree。
-
 ### 选项 3：保持原样
 
 ```
 分支 <name> 保持原样。
-Worktree 在 <path>。
 ```
-
-不清理 worktree。
 
 ### 选项 4：丢弃
 
@@ -131,7 +115,6 @@ Worktree 在 <path>。
 这将永久删除：
 - 分支 <name>
 - 所有提交: <commit-list>
-- Worktree: <path>
 
 输入 'discard' 确认。
 ```
@@ -142,32 +125,16 @@ git checkout <base-branch>
 git branch -D <feature-branch>
 ```
 
-然后：清理 worktree。
-
----
-
-## Phase 5: Cleanup Worktree (清理工作区)
-
-仅选项 1、2、4 执行。
-
-```
-检查是否在 worktree 中:
-git worktree list | grep $(git branch --show-current)
-
-如果在 worktree 中:
-  Load using-git-worktrees skill → 按清理步骤操作
-```
-
 ---
 
 ## 快速参考
 
-| 选项 | 合并 | 推送 | 保持 Worktree | 清理分支 |
-|------|------|------|--------------|---------|
-| 1. 本地合并 | ✓ | - | - | ✓ |
-| 2. 创建 PR | - | ✓ | - | - |
-| 3. 保持原样 | - | - | ✓ | - |
-| 4. 丢弃 | - | - | - | ✓ (force) |
+| 选项 | 合并 | 推送 | 删除分支 |
+|------|------|------|---------|
+| 1. 本地合并 | ✓ | - | ✓ |
+| 2. 创建 PR | - | ✓ | - |
+| 3. 保持原样 | - | - | - |
+| 4. 丢弃 | - | - | ✓ (force) |
 
 ---
 
@@ -187,7 +154,5 @@ git worktree list | grep $(git branch --show-current)
 - ✓ 展示选项前先运行验证测试
 - ✓ 精确展示 4 个选项，不加额外解释
 - ✓ 选项 4 要求输入 'discard' 确认
-- ✓ 选项 1 和 4 清理 worktree（加载 git-worktrees skill）
-- ✓ 选项 2 和 3 保留 worktree
 - ✓ 选项 2 (创建 PR) 必须先通过 code-reviewer 审查
 - ✓ 提醒用户使用 `@code-reviewer` 审查当前变更

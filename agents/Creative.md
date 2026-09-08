@@ -272,7 +272,6 @@ Task(agent, "描述",
   Output: 合并/PR/保持/丢弃
   Dispatch: branch-finisher
   Task: "Finish branch"
-  Required: Load using-git-worktrees skill
   注: branch-finisher 在创建 PR 前会确保 code-reviewer 审查已通过
 ```
 

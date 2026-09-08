@@ -106,7 +106,6 @@ digraph patch_flow {
   Output: 合并/PR/保持/丢弃
   Dispatch: branch-finisher
   Task: "Finish branch"
-  Required: Load using-git-worktrees skill
 ```
 
 ---
