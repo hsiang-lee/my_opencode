@@ -1,7 +1,7 @@
 ---
 description: Specialized codebase understanding agent for multi-repository analysis, searching remote codebases, retrieving official documentation, and finding implementation examples using GitHub CLI, Context7, and Web Search. MUST BE USED when users ask to look up code in remote repositories or find usage examples.
 mode: subagent
-model: zhipuai-coding-plan/glm-5-turbo
+model: bicv/qwen3.8-flash
 temperature: 0.1
 color: "#FF9800"
 tools:
