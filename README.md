@@ -24,17 +24,17 @@ Tab 切换:
 
 | Agent | 功能 | 模型 |
 |-------|------|------|
-| brainstorm | 交互式设计探索 | zhipuai-coding-plan/glm-5.1 |
-| spec-writer | 设计文档编写 | zhipuai-coding-plan/glm-5.1 |
-| plan-writer | 完整规格计划：WHAT 锁（锚点/测试规格/验证命令）+ HOW 留白 + 批次预标注（含批次类型预标注） | zhipuai-coding-plan/glm-5.2 |
-| plan-executor | TDD 计划执行 + 防假测试；按批次执行 + 批次单 commit + 抢救协议 | zhipuai-coding-plan/glm-5.2 |
-| code-reviewer | 代码审查 + 假测试检测 + 质量审计；按批次 SHA 区间审查 + 逐任务核对测试证据 | zhipuai-coding-plan/glm-5.2 |
-| branch-finisher | 分支收尾 | zhipuai-coding-plan/glm-5-turbo |
-| explore | 代码库搜索 | zhipuai-coding-plan/glm-5-turbo |
-| librarian | 外部研究 | zhipuai-coding-plan/glm-5-turbo |
-| metis | 预规划分析 | zhipuai-coding-plan/glm-5.1 |
-| momus | 计划评审 | zhipuai-coding-plan/glm-5.2 |
-| oracle | 战略咨询 | zhipuai-coding-plan/glm-5.3 |
+| brainstorm | 交互式设计探索 | bicv/qwen3.8-flash |
+| spec-writer | 设计文档编写 | bicv/qwen3.8-flash |
+| plan-writer | 完整规格计划：WHAT 锁（锚点/测试规格/验证命令）+ HOW 留白 + 批次预标注（含批次类型预标注） | bicv/glm-5.3 |
+| plan-executor | TDD 计划执行 + 防假测试；按批次执行 + 批次单 commit + 抢救协议 | bicv/glm-5.3 |
+| code-reviewer | 代码审查 + 假测试检测 + 质量审计；按批次 SHA 区间审查 + 逐任务核对测试证据 | bicv/glm-5.3 |
+| branch-finisher | 分支收尾 | bicv/qwen3.8-flash |
+| explore | 代码库搜索 | bicv/qwen3.8-flash |
+| librarian | 外部研究 | bicv/qwen3.8-flash |
+| metis | 预规划分析 | bicv/qwen3.8-flash |
+| momus | 计划评审 | bicv/glm-5.3 |
+| oracle | 战略咨询 | bicv/glm-5.3 |
 
 ### Skill
 
@@ -43,7 +43,6 @@ Tab 切换:
 | brainstorm | CREATIVE Step 1 | 设计探索方法：提问澄清、方案提出、展示设计、对比框架 |
 | tdd | plan-writer, plan-executor | TDD RED-GREEN-REFACTOR + 单元测试技术 + 防假测试 |
 | refactoring | plan-executor, code-reviewer | REFACTOR 阶段坏味道检测与重构执行流程 |
-| using-git-worktrees | CREATIVE/Debug, branch-finisher | Git Worktree 管理 |
 | gdb | plan-executor (可选) | C/C++ 运行时调试：崩溃分析、变量检查、内存调试 |
 | init-deep | - | 层级 AGENTS.md 文件生成与维护 |
 | gh-pr | branch-finisher | GitHub Pull Request 创建与管理 |
@@ -83,7 +82,7 @@ cp -r skills/* ~/.config/opencode/skills/
 {
   "agent": {
     "plan-executor": {
-      "model": "zhipuai-coding-plan/glm-5.2"
+      "model": "bicv/glm-5.3"
     }
   }
 }
@@ -130,7 +129,6 @@ cp -r skills/* ~/.config/opencode/skills/
 │   ├── brainstorm/SKILL.md
 │   ├── tdd/SKILL.md
 │   ├── refactoring/SKILL.md
-│   ├── using-git-worktrees/SKILL.md
 │   ├── gdb/SKILL.md
 │   ├── init-deep/SKILL.md
 │   ├── gh-pr/SKILL.md

@@ -1,7 +1,7 @@
 ---
 description: 机械执行实现计划。领批次执行，严格遵循批次任务清单和 TDD 纪律。报告 DONE/DONE_WITH_CONCERNS/BLOCKED/NEEDS_CONTEXT。用于按批次实现计划中的多个任务。
 mode: subagent
-model: zhipuai-coding-plan/glm-5.2
+model: bicv/glm-5.3
 temperature: 0.1
 color: "#8BC34A"
 permission:

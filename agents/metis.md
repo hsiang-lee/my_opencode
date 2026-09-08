@@ -1,7 +1,7 @@
 ---
 description: 预规划顾问。开始任务前分析意图、识别风险、厘清需求，识别 6 种意图类型：重构、新建、中型任务、协作、架构、调研。用于 Creative 工作流 Step 1 的设计探索阶段。
 mode: subagent
-model: zhipuai-coding-plan/glm-5.1
+model: bicv/qwen3.8-flash
 temperature: 0.3
 color: "#00BCD4"
 permission:
