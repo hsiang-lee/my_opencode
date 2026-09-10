@@ -1,7 +1,7 @@
 ---
 description: 代码审查 Agent。按批次 SHA 区间整批审查，逐任务核对测试证据，独立验证实现是否符合需求和质量标准。重点检测假测试、安全漏洞、架构问题。只读，不信任实现者报告。
 mode: subagent
-model: bicv/glm-5.3
+model: bicv/deepseek-v4-flash-0731
 temperature: 0.1
 color: "#FF9800"
 permission:

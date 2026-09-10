@@ -1,7 +1,7 @@
 ---
 description: 计划评审专家。计划写完后检查可执行性、引用有效性，确保计划可执行无阻塞。用于 Creative 工作流 Step 4 的计划评审阶段。
 mode: subagent
-model: bicv/glm-5.3
+model: bicv/deepseek-v4-flash-0731
 temperature: 0.1
 color: "#FF5722"
 permission:

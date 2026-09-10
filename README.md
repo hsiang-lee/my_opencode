@@ -26,15 +26,15 @@ Tab 切换:
 |-------|------|------|
 | brainstorm | 交互式设计探索 | bicv/qwen3.8-flash |
 | spec-writer | 设计文档编写 | bicv/qwen3.8-flash |
-| plan-writer | 完整规格计划：WHAT 锁（锚点/测试规格/验证命令）+ HOW 留白 + 批次预标注（含批次类型预标注） | bicv/glm-5.3 |
-| plan-executor | TDD 计划执行 + 防假测试；按批次执行 + 批次单 commit + 抢救协议 | bicv/glm-5.3 |
-| code-reviewer | 代码审查 + 假测试检测 + 质量审计；按批次 SHA 区间审查 + 逐任务核对测试证据 | bicv/glm-5.3 |
+| plan-writer | 完整规格计划：WHAT 锁（锚点/测试规格/验证命令）+ HOW 留白 + 批次预标注（含批次类型预标注） | bicv/deepseek-v4-flash-0731 |
+| plan-executor | TDD 计划执行 + 防假测试；按批次执行 + 批次单 commit + 抢救协议 | bicv/deepseek-v4-flash-0731 |
+| code-reviewer | 代码审查 + 假测试检测 + 质量审计；按批次 SHA 区间审查 + 逐任务核对测试证据 | bicv/deepseek-v4-flash-0731 |
 | branch-finisher | 分支收尾 | bicv/qwen3.8-flash |
 | explore | 代码库搜索 | bicv/qwen3.8-flash |
 | librarian | 外部研究 | bicv/qwen3.8-flash |
 | metis | 预规划分析 | bicv/qwen3.8-flash |
-| momus | 计划评审 | bicv/glm-5.3 |
-| oracle | 战略咨询 | bicv/glm-5.3 |
+| momus | 计划评审 | bicv/deepseek-v4-flash-0731 |
+| oracle | 战略咨询 | bicv/deepseek-v4-flash-0731 |
 
 ### Skill
 
@@ -82,7 +82,7 @@ cp -r skills/* ~/.config/opencode/skills/
 {
   "agent": {
     "plan-executor": {
-      "model": "bicv/glm-5.3"
+      "model": "bicv/deepseek-v4-flash-0731"
     }
   }
 }
