@@ -91,28 +91,25 @@ git diff BASE_SHA..HEAD_SHA
 
 ## Phase 2.5 质量审计 (Quality Audit)
 
-对本批触碰模块**全量**跑 `bash tools/smell_gate.sh --path <本批触碰模块目录>`（A5-A7 自动检测；检测条件与处置定义见 refactoring skill——单一事实源，此处不复制表格），再人工核对 A1-A4 与经典结构类。脚本位于 ~/.config/opencode/tools/smell_gate.sh（install.sh 安装）；目标仓库未持有时用绝对路径调用。
+对本批整体 diff（含跨任务累积）按 refactoring skill 分类表逐类人工核对（含 Agent 特有坏味道 A1-A7 与经典结构类；检测条件与判断要点定义见 refactoring skill——单一事实源，此处不复制表格），并对本批触碰模块做逐类扫描（A5-A7 按各行「判断要点」判断：数据与操作的关系、同一概念的行为分派是否散落、out-param 语义）。
 
 ### 分级
 
 | 命中类别 | 严重级别 |
 |----------|----------|
 | A1 共享常量重复 / A2 绕过现有封装 / A3 测试 setup 复制 | **Important（阻塞，返回修复）** |
-| A5 贫血模型 / A6 伪多态（新增命中） | **Important（阻塞，返回修复）** |
-| A4 命名漂移 / A7 out-param 束（新增命中）/ 经典结构类（过长函数、深嵌套等） | Minor |
-| 存量命中未在 debt-ledger 登记 | Minor（提示登记，不阻塞） |
+| A5 贫血模型/职责错位 / A6 伪多态 | **Important（阻塞，返回修复）** |
+| A4 命名漂移 / A7 out-param 束 / 经典结构类（过长函数、深嵌套等） | Minor |
 
 ### 判定规则
 
-- **存量/新增边界：存量 = 命中位于本批未触碰文件（Minor，核对登记）；新增 = 本批触碰文件中的未登记命中（A5/A6=Important，A7=Minor）。**
-- **只判新增命中**（debt-ledger 未登记，且位于本批触碰文件）：A5/A6 = Important 阻塞；A7 = Minor。
-- **存量命中**（台账已登记）只核对登记完整性——未登记的存量 → Minor 提示登记，不阻塞。
+- 按分类表逐类核对，命中即判级；当前不修的命中 → 提示 executor 登记 debt-ledger（Minor，不阻塞）。
+- 人工判断以 refactoring skill 各行「检测条件/判断要点」为准；拿不准的命中在报告中列出证据（file:line + 现象），由裁决说明理由。
 
 ### 台账抽查
 
-- 抽查 `smell-ok` 豁免注释是否滥用：**≥2 处无理由豁免（无理由或理由明显不成立）= Important**。
-- executor 台账声称未命中、但 reviewer 重跑 smell_gate.sh 实际命中 → 谎报 = **Critical**（等同假测试）。
-- 人工 A1-A4 项谎报经 reviewer 复核证据认定 = **Critical**（等同假测试）。
+- executor 台账声称未命中、但 reviewer 按分类表人工核对实际命中（证据 file:line + 现象）→ 谎报 = **Critical**（等同假测试）。
+- 人工 A1-A7 各项谎报经 reviewer 复核证据认定 = **Critical**（等同假测试）。
 
 ### 与审查密度分层（P8）联动
 
