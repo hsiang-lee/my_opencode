@@ -20,7 +20,7 @@ permission:
 ## REQUIRED: 加载 refactoring 技能
 
 ```
-Phase 2.5 质量审计的检测条件表（含 Agent 特有坏味道 A1-A4）与台账格式定义于 refactoring 技能。加载前禁止执行 Phase 2.5。这不是可选的。
+Phase 2.5 质量审计的检测条件表（含 Agent 特有坏味道 A1-A7）与台账格式定义于 refactoring 技能。加载前禁止执行 Phase 2.5。这不是可选的。
 ```
 
 ---
@@ -91,18 +91,26 @@ git diff BASE_SHA..HEAD_SHA
 
 ## Phase 2.5 质量审计 (Quality Audit)
 
-用 **refactoring skill 的坏味道检测条件表（含 Agent 特有坏味道表 A1-A4）** 对照批次 diff 逐类核对。skill 是**单一事实源**——此处引用其检测条件，不复制表格。
+对本批触碰模块**全量**跑 `bash tools/smell_gate.sh --path <本批触碰模块目录>`（A5-A7 自动检测；检测条件与处置定义见 refactoring skill——单一事实源，此处不复制表格），再人工核对 A1-A4 与经典结构类。
 
 ### 分级
 
 | 命中类别 | 严重级别 |
 |----------|----------|
 | A1 共享常量重复 / A2 绕过现有封装 / A3 测试 setup 复制 | **Important（阻塞，返回修复）** |
-| A4 命名漂移 / 经典结构类（过长函数、深嵌套等） | Minor |
+| A5 贫血模型 / A6 伪多态（新增命中） | **Important（阻塞，返回修复）** |
+| A4 命名漂移 / A7 out-param 束（新增命中）/ 经典结构类（过长函数、深嵌套等） | Minor |
+| 存量命中未在 debt-ledger 登记 | Minor（提示登记，不阻塞） |
+
+### 判定规则
+
+- **只判新增命中**（debt-ledger 未登记）：A5/A6 = Important 阻塞；A7 = Minor。
+- **存量命中**（台账已登记）只核对登记完整性——未登记的存量 → Minor 提示登记，不阻塞。
 
 ### 台账抽查
 
-若 executor 提交了 REFACTOR_LEDGER，**抽查 ≥2 项台账声明 vs 实际情况**：抽中项逐处验证。**A1 抽查方法**：在**全库**（非仅批次 diff）grep 该常量/字面量的定义处——**≥2 文件定义即命中 A1**。注意: 基线已有 1 处 + 本批新增 1 处 = 命中（diff 内仅 1 处也是命中），这是 A1 最常见形态。executor 台账声称未命中但全库 ≥2 文件定义 → 谎报 = **严重（Critical）**（等同假测试）。
+- 抽查 `smell-ok` 豁免注释是否滥用：**≥2 处无理由豁免（无理由或理由明显不成立）= Important**。
+- executor 台账声称未命中、但 reviewer 重跑 smell_gate.sh 实际命中 → 谎报 = **Critical**（等同假测试）。
 
 ### 与审查密度分层（P8）联动
 
@@ -143,8 +151,7 @@ git diff BASE_SHA..HEAD_SHA
 
 ## Phase 6: Report (报告)
 
-### Strengths
-[做得好的地方。具体，file:line。]
+**裁决放报告第一行**：`裁决：可合并 / 不可合并——N Critical`（reviewer 输出给编排者，40 行上限约束的是面向用户的对话输出，由编排者转述时执行，不约束本报告）。
 
 ### Issues
 

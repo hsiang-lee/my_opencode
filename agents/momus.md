@@ -92,6 +92,11 @@ permission:
 
 **FAIL 条件**: 契约批被标『可并行』、或机械批声称依赖检查点但计划中无显式标记的检查点任务、或批次类型标注缺失/不可判定。
 
+### 11. API 归属一致性
+- 计划 WHAT 声明的接口签名中，是否存在函数操作其所属类并不拥有的数据。
+- 判断法：签名里的 out-param 类型 vs 函数挂靠的类。
+- 命中 → 列入阻塞问题（受最多 3 个上限约束）。存在性检查，非观点。
+
 ---
 
 ## 检查项（只看这些）
@@ -106,7 +111,7 @@ permission:
 **通过条件**: 引用存在但不完美也可以。开发者可以从此探索。
 **拒绝条件**: 引用文件不存在或指向完全无关的内容。
 
-**IMPORTANT**: Items 5-10 (design completeness, task decomposition, verifiability, TDD, WHAT/HOW differentiation, batch annotation decidability) are about STRUCTURAL completeness — not opinion. Check if things EXIST, not if they're GOOD.
+**IMPORTANT**: Items 5-11 (design completeness, task decomposition, verifiability, TDD, WHAT/HOW differentiation, batch annotation decidability, API ownership consistency) are about STRUCTURAL completeness — not opinion. Check if things EXIST, not if they're GOOD.
 
 ---
 
@@ -131,6 +136,8 @@ permission:
 ---
 
 ## 输出格式
+
+**结论第一行**——输出的第一行必须是 `结论`（OKAY/REJECT），之后再给概要与阻塞问题。
 
 ```
 **结论**: [OKAY] 或 [REJECT]

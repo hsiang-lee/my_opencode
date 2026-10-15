@@ -17,6 +17,8 @@ description: Use when clarifying requirements, exploring design approaches, or p
 | 约束 | 时间、技术栈、兼容性要求？ |
 | 成功标准 | 怎么知道做对了？ |
 | 范围 | 什么明确不做？ |
+| 结构归属 | 这些数据类拥有自己的操作吗？新操作的归属按"谁拥有它需要的数据"回答了吗？ |
+| 架构债 | 本次涉及文件在 debt-ledger 有登记的债吗？是否收编？ |
 
 **方式：** 优先选择题，也欢迎开放式回答。
 
