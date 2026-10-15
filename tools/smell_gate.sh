@@ -45,9 +45,11 @@ key_of() { # 文件路径 → 台账 key（相对 scan_dir 的父目录，与默
     *) printf '%s' "$1" ;;
   esac
 }
-is_registered() { # <file key> <ID> → 0 = 台账已登记（单行匹配: file 列（容忍 :line 后缀）与 ID 列同行，禁止跨行误放行）
+is_registered() { # <file key> <ID> → 0 = 台账已登记（单行匹配: file 列（容忍 :line 后缀）与 ID 列同行，禁止跨行误放行；file key 的 . 转义，防正则通配误放行相似文件名）
   [ -f "$baseline" ] || return 1
-  rg -q --no-messages -e "\\|[[:space:]]*$1(:[0-9]+)?[[:space:]]*\\|[[:space:]]*$2[[:space:]]*\\|" "$baseline"
+  local fkey
+  fkey="$(printf '%s' "$1" | sed 's/\./\\./g')"
+  rg -q --no-messages -e "\\|[[:space:]]*$fkey(:[0-9]+)?[[:space:]]*\\|[[:space:]]*$2[[:space:]]*\\|" "$baseline"
 }
 add_hit() { # <file> <line> <ID> → 追加命中
   hits="${hits}$(key_of "$1"):${2}|${3}"$'\n'
@@ -65,10 +67,14 @@ while IFS= read -r a5_file; do
     a5_line="${a5_pair%%|*}"; a5_name="${a5_pair#*|}"
     rg -qF "$a5_name::" "$a5_file" && continue
     case "$(sed -n "${a5_line}p" "$a5_file")" in *"smell-ok(A5)"*) continue ;; esac
-    # 两步法: 抓他文件 Name& 引用行, 再排除其中 const Name& 行（const 入参不是 out-param 证据）
-    a5_refs="$(rg -n "$a5_name\\s*&" "${rgx[@]}" "$scan_dir" | grep -vF "$a5_file" | rg -v "const[[:space:]]+${a5_name}[[:space:]]*&" || true)"
+    # 两步法: 抓他文件 Name& 引用行, 再 token 计数——非 const Name& 数 = 总数 - const Name& 数 (const 入参不是 out-param 证据; 行级剔除会吞掉 (const S& in, S& out) 混合签名行)
+    a5_refs="$(rg -n "$a5_name\\s*&" "${rgx[@]}" "$scan_dir" | grep -vF "$a5_file" || true)"
     if [ -n "$a5_refs" ]; then
-      add_hit "$a5_file" "$a5_line" A5
+      a5_all="$(printf '%s\n' "$a5_refs" | rg -o "${a5_name}[[:space:]]*&" | wc -l)"
+      a5_const="$(printf '%s\n' "$a5_refs" | rg -o "const[[:space:]]+${a5_name}[[:space:]]*&" | wc -l)"
+      if [ $((a5_all - a5_const)) -ge 1 ]; then
+        add_hit "$a5_file" "$a5_line" A5
+      fi
     fi
   done
 done < <(rg -lU 'struct\s+\w+\s*\{[^}]*\};' "${rgx[@]}" "$scan_dir" || true)

@@ -38,8 +38,9 @@ mkdir -p "${SKILLS_DIR}"
 cp -r "${SCRIPT_DIR}"/skills/* "${SKILLS_DIR}/"
 echo "      ✅ 完成"
 
-# 6. 安装 tools
+# 6. 安装 tools（先删后装，与 agents/skills 对称）
 echo "[6/6] 安装 tools: ${SCRIPT_DIR}/tools/ → ${TOOLS_DIR}"
+rm -rf "${TOOLS_DIR}"
 mkdir -p "${TOOLS_DIR}"
 cp "${SCRIPT_DIR}"/tools/*.sh "${TOOLS_DIR}/"
 echo "      ✅ 完成"

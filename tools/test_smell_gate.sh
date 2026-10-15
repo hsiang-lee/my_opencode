@@ -145,6 +145,30 @@ else
   FAIL=$((FAIL+1)); echo "  FAIL: 未知参数 (rc=$rc13b out=$out13b)"
 fi
 
+# ---- 测试14: A5——混合签名行（const 入参 + 非 const 出参同行）→ 行级剔除不得整行吞掉出参，exit 2
+mkdir -p "$TMP/a5m/src"
+cat > "$TMP/a5m/src/mix.h" <<'CPP'
+struct Mix { int v; };
+CPP
+cat > "$TMP/a5m/src/use.cpp" <<'CPP'
+#include "mix.h"
+void u(const Mix& in, Mix& out);
+CPP
+GATE_BASELINE="$TMP/none.md" bash "$GATE" --path "$TMP/a5m/src" >/dev/null 2>&1; check "A5 混合签名行(const入参+非const出参)命中 (exit 2)" 2 $?
+
+# ---- 测试15: file key 正则转义——台账登记 src/foo_cpp:1 (X 非点字符)，src/foo.cpp 新 A6 命中不得被 . 通配误放行，exit 2
+mkdir -p "$TMP/fkey/src"
+cat > "$TMP/fkey/src/foo.cpp" <<'CPP'
+void f(std::shared_ptr<ModifierBase> m) {
+  if (std::dynamic_pointer_cast<const KeepPositionModifier>(m)) { a(); }
+  else if (std::dynamic_pointer_cast<const KeepLaneModifier>(m)) { b(); }
+}
+CPP
+cat > "$TMP/debt_fkey.md" <<'DEBT'
+- 2026-10-15 | src/foo_cpp:1 | A6 | 处置方向
+DEBT
+GATE_BASELINE="$TMP/debt_fkey.md" bash "$GATE" --path "$TMP/fkey/src" >/dev/null 2>&1; check "file key 转义(台账相似名文件不误放行新A6, exit 2)" 2 $?
+
 echo ""
 echo "通过 $PASS / $((PASS+FAIL))"
 [ "$FAIL" -eq 0 ]

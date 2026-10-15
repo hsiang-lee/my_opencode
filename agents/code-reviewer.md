@@ -105,7 +105,7 @@ git diff BASE_SHA..HEAD_SHA
 ### 判定规则
 
 - **存量/新增边界：存量 = 命中位于本批未触碰文件（Minor，核对登记）；新增 = 本批触碰文件中的未登记命中（A5/A6=Important，A7=Minor）。**
-- **只判新增命中**（debt-ledger 未登记）：A5/A6 = Important 阻塞；A7 = Minor。
+- **只判新增命中**（debt-ledger 未登记，且位于本批触碰文件）：A5/A6 = Important 阻塞；A7 = Minor。
 - **存量命中**（台账已登记）只核对登记完整性——未登记的存量 → Minor 提示登记，不阻塞。
 
 ### 台账抽查
