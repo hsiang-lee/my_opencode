@@ -1,7 +1,7 @@
 ---
 description: 编写详细实现计划。从设计文档生成小而具体的 TDD 任务，锁 WHAT（精确文件路径、接口签名、测试规格、验证命令、批次预标注），HOW 有意留白（实现本体不写，由 executor 在测试反馈下书写一次）。用于设计批准后的计划编写阶段。
 mode: subagent
-model: zhipuai-coding-plan/glm-5.2
+model: bicv/deepseek-v4-flash-0731
 temperature: 0.1
 color: "#4CAF50"
 permission:
@@ -45,6 +45,8 @@ refactoring skill 定义了重构的时机和方法。
 
 检查: 是否有冲突的现有实现？
 ```
+
+另读取 `docs/debt-ledger.md`：凡与本次计划文件集**重叠**的债条目，提出并入某批次（任务标注"收编 debt: file:line|ID"）；不重叠的不并入——**禁止借债扩大范围**。
 
 ---
 

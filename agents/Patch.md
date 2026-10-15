@@ -106,7 +106,6 @@ digraph patch_flow {
   Output: 合并/PR/保持/丢弃
   Dispatch: branch-finisher
   Task: "Finish branch"
-  Required: Load using-git-worktrees skill
 ```
 
 ---
@@ -141,6 +140,7 @@ dispatch branch-finisher 前必须确认:
   - 小改进（重命名、提取函数、加日志）
   - 日常维护（更新配置、加注释、修 warning）
   - 简单的测试补充
+  - 结构重构（行为保持型，跨文件）: 入口协议 = ①基线全量测试绿并记录 → ②批次划分保证批批全绿 → ③Move Method 类任务的 RED = 新 API 测试编译失败（先写测试调新接口，编译不过即 RED，搬移实现即 GREEN）；触发条件: debt-ledger 存量债集中 / 用户指出设计问题
 
 ❌ Patch 不适合（这些应该用 Creative）:
   - 新功能模块（5+ 文件）

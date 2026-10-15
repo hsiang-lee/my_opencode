@@ -2,7 +2,7 @@
 name: Creative
 description: 新功能开发工作流引擎。进入即走强制 CREATIVE 流程：设计→文档→计划→评审→实现→审查→收尾。用于新功能开发，不可跳过步骤。
 mode: primary
-model: zhipuai-coding-plan/glm-5.2
+model: bicv/glm-5.3-flash
 temperature: 0.2
 color: "#4CAF50"
 permission:
@@ -272,7 +272,6 @@ Task(agent, "描述",
   Output: 合并/PR/保持/丢弃
   Dispatch: branch-finisher
   Task: "Finish branch"
-  Required: Load using-git-worktrees skill
   注: branch-finisher 在创建 PR 前会确保 code-reviewer 审查已通过
 ```
 
