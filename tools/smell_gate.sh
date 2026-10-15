@@ -59,11 +59,32 @@ add_hit() { # <file> <line> <ID> → 追加命中
 while IFS= read -r a5_file; do
   [ -n "$a5_file" ] || continue
   for a5_pair in $(awk '
-    in_struct { if ($0 ~ /\};/) { print start "|" name; in_struct = 0; next } if ($0 ~ /\}/) in_struct = 0 }
+    # struct 块提取: 花括号深度计数——遇 { 深度+1, } 深度-1, 归零即闭合。
+    # 不用 }; 子串匹配: 方法体内 }; 子串 (如 speed = {lo, hi, target};) 会被误判为 struct 闭合。
+    in_struct {
+      if ($0 ~ /[A-Za-z_][A-Za-z0-9_]*[[:space:]]*\([^)]*\)[[:space:]]*(const)?[[:space:]]*\{/) has_method = 1
+      n = gsub(/\{/, "{"); m = gsub(/\}/, "}")
+      depth += n - m
+      if (depth <= 0) {
+        # 块内曾出现函数签名 (引用返回 double& GetRef 亦算) → 非贫血, 不产出
+        if (!has_method) print start "|" name
+        in_struct = 0; depth = 0; has_method = 0
+      }
+      next
+    }
     /^[[:space:]]*struct[[:space:]]+[A-Za-z_][A-Za-z0-9_]*[[:space:]]*[{]/ && !in_struct {
       tmp = $0; sub(/^[[:space:]]*struct[[:space:]]+/, "", tmp); sub(/[[:space:]]*[{].*/, "", tmp)
-      if (tmp ~ /^[A-Za-z_][A-Za-z0-9_]*$/) { if ($0 ~ /\};/) print NR "|" tmp; else { name = tmp; start = NR; in_struct = 1 } }
-    }' "$a5_file"); do
+      if (tmp ~ /^[A-Za-z_][A-Za-z0-9_]*$/) {
+        name = tmp; start = NR; in_struct = 1; has_method = 0
+        if ($0 ~ /[(]/) has_method = 1   # 单行含方法形态
+        depth = gsub(/\{/, "{") - gsub(/\}/, "}")  # 起始行当场计深度 (单行 struct → 0 即闭合)
+        if (depth <= 0) {
+          if (!has_method) print start "|" name
+          in_struct = 0; depth = 0; has_method = 0
+        }
+      }
+    }
+  ' "$a5_file"); do
     a5_line="${a5_pair%%|*}"; a5_name="${a5_pair#*|}"
     rg -qF "$a5_name::" "$a5_file" && continue
     case "$(sed -n "${a5_line}p" "$a5_file")" in *"smell-ok(A5)"*) continue ;; esac
@@ -79,21 +100,37 @@ while IFS= read -r a5_file; do
   done
 done < <(rg -lU 'struct\s+\w+\s*\{[^}]*\};' "${rgx[@]}" "$scan_dir" || true)
 
-# ---- A6 伪多态: 同文件 dynamic(_pointer_)cast ≥2 处行号差 ≤10 且含 if/else if 上下文
+# ---- A6 伪多态: 同函数内 dynamic(_pointer_)cast ≥2 处行号差 ≤10 且含 if/else if 上下文
+# 跨函数的独立 cast 不拼簇 (花括号深度 + 函数签名行识别切分函数); 异基类独立 cast 属误报, 人工 smell-ok 豁免
 while IFS= read -r a6_hit; do
   [ -n "$a6_hit" ] || continue
   add_hit "${a6_hit%:*}" "${a6_hit##*:}" A6
-done < <(rg -n 'dynamic_pointer_cast|dynamic_cast' "${rgx[@]}" "$scan_dir" | awk '
-  { p1 = index($0, ":"); rest = substr($0, p1 + 1); p2 = index(rest, ":")
-    f = substr($0, 1, p1 - 1); l = substr(rest, 1, p2 - 1) + 0; t = substr(rest, p2 + 1)
-    if (t ~ /smell-ok\(A6\)/) next
-    n = ++c[f]; L[f, n] = l; T[f, n] = t }
-  END { for (f in c) { i = 1
-    while (i <= c[f]) { j = i
-      while (j < c[f] && L[f, j + 1] - L[f, j] <= 10) j++
-      if (j - i + 1 >= 2) { for (k = i; k <= j && !ctx; k++) if (T[f, k] ~ /if[[:space:]]*\(/) ctx = 1
-        if (ctx) print f ":" L[f, i]; ctx = 0 }
-      i = j + 1 } } }')
+done < <(
+  rg -l 'dynamic_pointer_cast|dynamic_cast' "${rgx[@]}" "$scan_dir" |
+  while IFS= read -r a6_file; do
+    [ -n "$a6_file" ] || continue
+    awk '
+      { ln++
+        lead = $0; sub(/^[[:space:]]+/, "", lead)
+        # 函数签名行识别: 标识符首词 (非控制关键字) + 同行含 ( 与 { → 新函数, func 计数+1
+        # 用首词判定而非 alternation 正则: mawk 对长行 alternation+space 组合匹配失灵
+        w = lead; sub(/[^A-Za-z_].*$/, "", w)
+        is_ctrl = (w == "if" || w == "for" || w == "while" || w == "switch" || w == "catch" || w == "else" || w == "do" || w == "try")
+        if (!is_ctrl && w != "" && lead ~ /[ (]/ && lead ~ /\{/) func++
+        # 必须先于 fid 赋值: 本行的 cast 属于本行开启的新函数
+        fid[ln] = func
+        if ($0 ~ /dynamic_pointer_cast|dynamic_cast/ && $0 !~ /smell-ok\(A6\)/) { cast_ln[++nc] = ln; cast_t[nc] = $0 }
+        depth += gsub(/\{/, "{") - gsub(/\}/, "}")
+      }
+      END {
+        i = 1
+        while (i <= nc) { j = i
+          while (j < nc && cast_ln[j+1] - cast_ln[j] <= 10 && fid[cast_ln[j+1]] == fid[cast_ln[i]]) j++
+          if (j > i) { ctx = 0
+            for (k = i; k <= j && !ctx; k++) if (cast_t[k] ~ /if[[:space:]]*\(/) ctx = 1
+            if (ctx) printf "%s:%d\n", FILENAME, cast_ln[i] }
+          i = j + 1 } }' "$a6_file"
+  done)
 
 # ---- A7 out-param 束: 函数签名含 ≥2 个非 const 左值引用（仅引用, 指针不检测; 右值引用 && 与 const 引用不计, 启发式人工兜底）
 while IFS= read -r a7_hit; do
@@ -101,8 +138,8 @@ while IFS= read -r a7_hit; do
   a7_file="${a7_hit%%:*}"; a7_rest="${a7_hit#*:}"; a7_line="${a7_rest%%:*}"; a7_content="${a7_rest#*:}"
   case "$a7_content" in *"smell-ok(A7)"*) continue ;; esac
   a7_norv="${a7_content//&&/}" # 先剔除右值引用, 剩余 & 均为左值引用
-  a7_total="$(printf '%s\n' "$a7_norv" | rg -o '\w+\s*&' | wc -l)"
-  a7_const="$(printf '%s\n' "$a7_norv" | rg -o 'const\s+\w+\s*&' | wc -l)"
+  a7_total="$(printf '%s\n' "$a7_norv" | rg -o '[\w:]+\s*&' | wc -l)"
+  a7_const="$(printf '%s\n' "$a7_norv" | rg -o 'const\s+[\w:]+\s*&' | wc -l)"
   if [ $((a7_total - a7_const)) -ge 2 ]; then
     add_hit "$a7_file" "$a7_line" A7
   fi

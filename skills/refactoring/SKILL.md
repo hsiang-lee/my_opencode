@@ -58,9 +58,9 @@ AI 生成代码的系统性病灶（三仓库实证取证：相机 ID 常量 12 
 | A2 | **绕过现有封装** | HTTP/WS/队列/存储/工具已有封装（apiClient、push_task_to_redis 等）却在其外裸写等价调用 | 复用封装；封装不满足则扩展封装而非旁路 |
 | A3 | **测试 setup 复制** | 相同 mock 工厂/seed/样板在 ≥2 测试文件逐字重复 | 提取共享 testHelper |
 | A4 | **命名漂移** | 同一概念多种命名（如 CAMERA_IDS/REAL_CAMERA_IDS） | 统一命名并引用同一来源 |
-| A5 | **贫血模型** | struct 仅字段无成员方法 + 他文件存在以其为 out-param 的自由函数（脚本检测为启发式：非 const 引用证据，允许保守误报，人工兜底；检测由 `tools/smell_gate.sh` 自动执行，此处为分类定义） | Move Method 收编（操作归数据专家） |
-| A6 | **伪多态** | 同文件 dynamic_(pointer_)cast if/else 链 ≥2 分支、行号差 ≤10（检测由 `tools/smell_gate.sh` 自动执行，此处为分类定义） | Replace Conditional with Polymorphism |
-| A7 | **out-param 束** | 自由函数 ≥2 个非 const 左值引用参数（实际覆盖：非 const 左值引用；const 引用/右值引用/指针不检测——脚本启发式边界，人工兜底；检测由 `tools/smell_gate.sh` 自动执行，此处为分类定义） | Introduce Parameter Object / 收编为成员 |
+| A5 | **贫血模型** | struct 仅字段无成员方法 + 他文件存在以其为 out-param 的自由函数（脚本检测为启发式：非 const 引用证据，允许保守误报，人工兜底；方法探测容忍引用返回与多行体——struct 块提取用花括号深度计数，不按 `};` 子串判闭合；检测由 `tools/smell_gate.sh` 自动执行，此处为分类定义） | Move Method 收编（操作归数据专家） |
+| A6 | **伪多态** | 同函数内 dynamic_(pointer_)cast if/else 链 ≥2 分支、行号差 ≤10（同函数聚类——跨函数的独立 cast 不拼簇；异基类独立 cast 属误报，留人工 smell-ok 豁免；检测由 `tools/smell_gate.sh` 自动执行，此处为分类定义） | Replace Conditional with Polymorphism |
+| A7 | **out-param 束** | 自由函数 ≥2 个非 const 左值引用参数（实际覆盖：非 const 左值引用；const 引用/右值引用/指针不检测——剥 cv 含命名空间限定（`const std::string&` 类）；脚本启发式边界，人工兜底；检测由 `tools/smell_gate.sh` 自动执行，此处为分类定义） | Introduce Parameter Object / 收编为成员 |
 
 ---
 

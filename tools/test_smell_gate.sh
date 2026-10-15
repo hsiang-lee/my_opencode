@@ -169,6 +169,59 @@ cat > "$TMP/debt_fkey.md" <<'DEBT'
 DEBT
 GATE_BASELINE="$TMP/debt_fkey.md" bash "$GATE" --path "$TMP/fkey/src" >/dev/null 2>&1; check "file key 转义(台账相似名文件不误放行新A6, exit 2)" 2 $?
 
+# ---- 测试16: A7——const 引用剥 cv 需含命名空间限定 (const std::string& 不计入 out-param) → 放行
+mkdir -p "$TMP/a7ns/src"
+cat > "$TMP/a7ns/src/bt.cpp" <<'CPP'
+struct Config { int v; };
+void bt_node(const std::string& name, const Config& cfg, Config& out);
+CPP
+GATE_BASELINE="$TMP/none.md" bash "$GATE" --path "$TMP/a7ns/src" >/dev/null 2>&1; check "A7 const 命名空间限定引用不计入(混合签名)" 0 $?
+
+# ---- 测试17: A5——struct 含 inline 方法（体内含 }; 子串形态）+ 他文件非 const 引用 → 有方法不判贫血, 放行
+mkdir -p "$TMP/a5im/src"
+cat > "$TMP/a5im/src/tp.h" <<'CPP'
+struct SpeedChannel { double min; double max; };
+struct TracePoint {
+    double x_ = 0.0;
+    double y_ = 0.0;
+    void SetX(double v) { x_ = {v}; }
+    void SetAccel(double lo, double hi) {
+        x_ = lo;
+        y_ = hi;
+    }
+    double& GetRef() { return x_; }
+};
+CPP
+cat > "$TMP/a5im/src/use.cpp" <<'CPP'
+#include "tp.h"
+void touch(TracePoint& s) { s.SetX(1.0); }
+CPP
+GATE_BASELINE="$TMP/none.md" bash "$GATE" --path "$TMP/a5im/src" >/dev/null 2>&1; check "A5 有 inline 方法的 struct 不判贫血(方法体内 }; 子串不失明)" 0 $?
+
+# ---- 测试18: A6——同文件不同函数各 1 个 cast (行号差 ≤10) 不得拼簇 → 放行; 对照: 同函数相邻双 cast 仍命中
+mkdir -p "$TMP/a6xf/src" "$TMP/a6sf/src"
+cat > "$TMP/a6xf/src/two_fn.cpp" <<'CPP'
+void f(std::shared_ptr<Base> m) {
+  if (std::dynamic_pointer_cast<const A>(m)) { a(); }
+}
+void g(std::shared_ptr<Base> m) {
+  if (std::dynamic_pointer_cast<const B>(m)) { b(); }
+}
+CPP
+cat > "$TMP/a6sf/src/one_fn.cpp" <<'CPP'
+void f(std::shared_ptr<Base> m) {
+  if (std::dynamic_pointer_cast<const A>(m)) { a(); }
+  if (std::dynamic_pointer_cast<const B>(m)) { b(); }
+}
+CPP
+GATE_BASELINE="$TMP/none.md" bash "$GATE" --path "$TMP/a6xf/src" >/dev/null 2>&1; rc18a=$?
+GATE_BASELINE="$TMP/none.md" bash "$GATE" --path "$TMP/a6sf/src" >/dev/null 2>&1; rc18b=$?
+if [ "$rc18a" -eq 0 ] && [ "$rc18b" -eq 2 ]; then
+  PASS=$((PASS+1)); echo "  ok: A6 跨函数不拼簇(0) 且 同函数相邻仍命中(2)"
+else
+  FAIL=$((FAIL+1)); echo "  FAIL: A6 跨函数 rc=$rc18a (期望 0) / 同函数 rc=$rc18b (期望 2)"
+fi
+
 echo ""
 echo "通过 $PASS / $((PASS+FAIL))"
 [ "$FAIL" -eq 0 ]
