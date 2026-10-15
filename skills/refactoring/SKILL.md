@@ -13,6 +13,17 @@ description: Automatically detect and eliminate code smells during the REFACTOR 
 
 ---
 
+## 代码放置第一问 (Information Expert)
+
+任何操作（函数/方法）落位前先回答：**这个操作需要哪些数据？谁对执行它最在行就放谁那里。**
+
+- 操作的数据全来自类 X → 放 X 身上（成员方法），不是 X 旁边的自由函数
+- 判断/采样/写入混合多类数据 → 拆开，各部分归各自数据专家，协调逻辑留给编排者
+- **负参考模式：贫血模型** —— 数据在类里、操作全在类外的自由函数里（字段被外部扒开写）。
+  症状：`struct` 只有字段无方法 + 其他文件存在拿它当 out-param 的自由函数（= A5）。
+
+---
+
 ## 坏味道分类 (Bad-Smell Classification)
 
 以下表格列出常见的代码坏味道及其检测条件。由执行者（plan-executor）人工判断检测，不使用自动化静态分析工具。
@@ -47,6 +58,9 @@ AI 生成代码的系统性病灶（三仓库实证取证：相机 ID 常量 12 
 | A2 | **绕过现有封装** | HTTP/WS/队列/存储/工具已有封装（apiClient、push_task_to_redis 等）却在其外裸写等价调用 | 复用封装；封装不满足则扩展封装而非旁路 |
 | A3 | **测试 setup 复制** | 相同 mock 工厂/seed/样板在 ≥2 测试文件逐字重复 | 提取共享 testHelper |
 | A4 | **命名漂移** | 同一概念多种命名（如 CAMERA_IDS/REAL_CAMERA_IDS） | 统一命名并引用同一来源 |
+| A5 | **贫血模型** | struct 仅字段无成员方法 + 他文件存在以其为 out-param 的自由函数（检测由 `tools/smell_gate.sh` 自动执行，此处为分类定义） | Move Method 收编（操作归数据专家） |
+| A6 | **伪多态** | 同文件 dynamic_(pointer_)cast if/else 链 ≥2 分支、行号差 ≤10（检测由 `tools/smell_gate.sh` 自动执行，此处为分类定义） | Replace Conditional with Polymorphism |
+| A7 | **out-param 束** | 自由函数 ≥2 个非 const 引用/指针参数（检测由 `tools/smell_gate.sh` 自动执行，此处为分类定义） | Introduce Parameter Object / 收编为成员 |
 
 ---
 
@@ -124,7 +138,7 @@ AI 生成代码的系统性病灶（三仓库实证取证：相机 ID 常量 12 
    │
 2. 所有测试通过？──否──► 停止。修复代码。不进入重构。
    │是
-3. 扫描代码：按台账 8 项逐项核对（A1-A4 / 过长 / 深嵌套 / 批级 / 经典类汇总）
+3. 扫描代码：先跑 bash tools/smell_gate.sh --path <本批触碰目录>（A5-A7 自动检测），对输出逐条三选一：修复 / 行内豁免 smell-ok / 登记 debt-ledger；再人工核对 A1-A4 与经典结构类（过长函数/深嵌套等）
    │
    4. 发现坏味道？──否──► 该项记入台账（未命中+理由一句），核对下一项。
    5. 选择对应的重构技术（从对照表中选择）
@@ -173,7 +187,7 @@ REFACTOR_LEDGER:
 - A4 命名漂移: [...]
 - 过长函数(>40行): [...]
 - 深嵌套(≥3层): [...]
-- 批级质量遍(本批整体 diff, 含跨任务累积): [触发器命中与处置| 未触发: 理由]
+- 批级质量遍(脚本输出 + A1-A4 人工核对): [脚本命中与三选一处置 | A1-A4 人工核对命中与处置 | 未命中: 理由]
 - 其他经典类(分类表中未被 A1-A4/过长/深嵌套覆盖的条目): [命中(指明编号+位置)| 未命中]
 ```
 
@@ -203,6 +217,6 @@ REFACTOR_LEDGER:
 
 ## 假设 (Assumptions)
 
-- 坏味道检测依赖执行者的人工判断（不引入自动化静态分析工具）。
+- 症状类坏味道（A1-A7 + 结构阈值：过长函数/深嵌套）由 `tools/smell_gate.sh`（bash+rg，非重型静态分析工具链）自动检测；判断类（smell-ok 豁免合理性、处置方向、原则层落位如 Information Expert）留人工判断。
 - 本技能不替换或修改现有 TDD 技能——它补充 REFACTOR 阶段。
 - Plan-executor 已通过 `Required` 指令加载本技能。
