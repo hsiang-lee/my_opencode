@@ -91,7 +91,7 @@ git diff BASE_SHA..HEAD_SHA
 
 ## Phase 2.5 质量审计 (Quality Audit)
 
-对本批触碰模块**全量**跑 `bash tools/smell_gate.sh --path <本批触碰模块目录>`（A5-A7 自动检测；检测条件与处置定义见 refactoring skill——单一事实源，此处不复制表格），再人工核对 A1-A4 与经典结构类。
+对本批触碰模块**全量**跑 `bash tools/smell_gate.sh --path <本批触碰模块目录>`（A5-A7 自动检测；检测条件与处置定义见 refactoring skill——单一事实源，此处不复制表格），再人工核对 A1-A4 与经典结构类。脚本位于 ~/.config/opencode/tools/smell_gate.sh（install.sh 安装）；目标仓库未持有时用绝对路径调用。
 
 ### 分级
 
@@ -104,6 +104,7 @@ git diff BASE_SHA..HEAD_SHA
 
 ### 判定规则
 
+- **存量/新增边界：存量 = 命中位于本批未触碰文件（Minor，核对登记）；新增 = 本批触碰文件中的未登记命中（A5/A6=Important，A7=Minor）。**
 - **只判新增命中**（debt-ledger 未登记）：A5/A6 = Important 阻塞；A7 = Minor。
 - **存量命中**（台账已登记）只核对登记完整性——未登记的存量 → Minor 提示登记，不阻塞。
 
@@ -111,6 +112,7 @@ git diff BASE_SHA..HEAD_SHA
 
 - 抽查 `smell-ok` 豁免注释是否滥用：**≥2 处无理由豁免（无理由或理由明显不成立）= Important**。
 - executor 台账声称未命中、但 reviewer 重跑 smell_gate.sh 实际命中 → 谎报 = **Critical**（等同假测试）。
+- 人工 A1-A4 项谎报经 reviewer 复核证据认定 = **Critical**（等同假测试）。
 
 ### 与审查密度分层（P8）联动
 

@@ -57,6 +57,7 @@ permission:
   ```
 - **批级质量遍**：批内全部任务 GREEN 后、**批次 commit 前**，对**本批整体 diff（含跨任务累积）**执行一轮（批级触发器，比任务级视野大；**阈值一律引用 refactoring skill 台账模板——唯一阈值源**，此处不另立数值）：
   0. 跑 `bash tools/smell_gate.sh --path <本批目录>`（或全库）→ 输出逐条三选一：修复 / 豁免(smell-ok) / 登记(debt-ledger)
+     路径说明：脚本位于 ~/.config/opencode/tools/smell_gate.sh（install.sh 安装）；目标仓库未持有时用绝对路径调用。
   1. A1 同一常量/字面量全库 ≥2 文件定义 → **必须提取共享模块**（单一事实源）
   2. A2 基础设施调用绕过现有封装 → 收敛到封装（复用优先）
   3. A3 测试 setup 在 ≥2 测试文件重复 → 提取共享 testHelper
@@ -159,17 +160,17 @@ permission:
 1. 确认 GREEN 状态（所有测试通过）
 2. 跑 bash tools/smell_gate.sh --path <本任务触碰目录>（A5-A7 自动检测）
 3. 对输出逐条三选一：修复 / 豁免(smell-ok) / 登记(debt-ledger)
-4. A1-A4 + 结构类人工核对（按 refactoring skill「重构台账」）
+4. A1-A4 人工核对，产出候选行（疑似项+file:line，一行一条，不展开判断）
 5. 输出 REFACTOR_LEDGER
 ```
 
 **任务级台账降级：** 任务级只记录候选行（一行：疑似项 + file:line），完整判断（台账逐项核对）收敛到批级质量遍——任务级不重复做全量逐项核对。
 
-**严禁：** 测试通过后不检测就说"不需要重构" | 只看表面不逐项检查 | 发现坏味道但"懒得改"
+**严禁：** 测试通过后不检测就说"不需要重构" | 只看表面不跑脚本、批级不逐条判断脚本输出 | 发现坏味道但"懒得改"
 
 报告格式：
 ```
-REFACTOR_LEDGER: （完整格式与各项见 refactoring skill「重构台账」节——单一事实源，逐项输出，不得省略）
+REFACTOR_LEDGER: （完整格式与各项见 refactoring skill「重构台账」节——单一事实源；任务级输出候选行清单；批级输出完整台账（脚本三选一结果 + A1-A4 核对））
 ```
 
 一词状态（REFACTOR_SKIPPED）不再单独使用——无命中时台账各项写"未命中+理由"。

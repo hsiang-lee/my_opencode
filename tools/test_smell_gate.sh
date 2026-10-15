@@ -22,9 +22,9 @@ CPP
 # 测试1: 无 baseline 时新增命中 → 退出码 2（阻塞）
 GATE_BASELINE="$TMP/none.md" bash "$GATE" --path "$TMP/repo/src" >/dev/null 2>&1; check "A6 新增命中阻塞" 2 $?
 
-# 测试2: 全部登记为债后 → 退出码 0（存量豁免）
+# 测试2: 全部登记为债后 → 退出码 0（存量豁免；登记用文档格式 file:line）
 cat > "$TMP/debt.md" <<'DEBT'
-- 2026-10-15 | src/foo.cpp | A6 | 处置方向
+- 2026-10-15 | src/foo.cpp:2 | A6 | 处置方向
 DEBT
 GATE_BASELINE="$TMP/debt.md" bash "$GATE" --path "$TMP/repo/src" >/dev/null 2>&1; check "登记为债后放行" 0 $?
 
@@ -48,6 +48,102 @@ cat > "$TMP/a7/src/baz.cpp" <<'CPP'
 void h(TracePoint& s, TracePoint& e, double d) { s.road_s = d; }
 CPP
 GATE_BASELINE="$TMP/none.md" bash "$GATE" --path "$TMP/a7/src" >/dev/null 2>&1; check "A7 新增命中阻塞" 2 $?
+
+# ---- 测试6: 按文档格式（file:line）登记 → 放行，且命中出现在"存量"节
+cat > "$TMP/debt_fmt.md" <<'DEBT'
+- 2026-10-15 | src/foo.cpp:7 | A6 | 处置方向
+DEBT
+out6="$(GATE_BASELINE="$TMP/debt_fmt.md" bash "$GATE" --path "$TMP/repo/src" 2>&1)"; check "文档格式(file:line)登记放行" 0 $?
+if printf '%s\n' "$out6" | grep -q '存量命中' && printf '%s\n' "$out6" | sed -n '/存量命中/,$p' | grep -q 'src/foo.cpp'; then
+  PASS=$((PASS+1)); echo "  ok: 命中出现在存量节"
+else
+  FAIL=$((FAIL+1)); echo "  FAIL: 命中应出现在存量节"
+fi
+
+# ---- 测试7: 跨行负例——x.cpp 登记 A5、other.cpp 登记 A6，x.cpp 新 A6 命中 → 判新增 (exit 2)
+mkdir -p "$TMP/xline/src"
+cat > "$TMP/xline/src/x.cpp" <<'CPP'
+void h(std::shared_ptr<BaseX> m) {
+  if (std::dynamic_pointer_cast<const D1>(m)) { a(); }
+  else if (std::dynamic_pointer_cast<const D2>(m)) { b(); }
+}
+CPP
+echo 'int other() { return 0; }' > "$TMP/xline/src/other.cpp"
+cat > "$TMP/debt_xline.md" <<'DEBT'
+- 2026-10-15 | src/x.cpp | A5 | 处置方向
+- 2026-10-15 | src/other.cpp | A6 | 处置方向
+DEBT
+GATE_BASELINE="$TMP/debt_xline.md" bash "$GATE" --path "$TMP/xline/src" >/dev/null 2>&1; check "跨行登记不误放行新 A6 (exit 2)" 2 $?
+
+# ---- 测试8: stdout 分类——测试6 场景：stdout 含"存量"，且"新增（阻塞）"节不含该命中
+out8="$(GATE_BASELINE="$TMP/debt_fmt.md" bash "$GATE" --path "$TMP/repo/src" 2>&1)"; check "分类验证: exit 0" 0 $?
+new_sec="$(printf '%s\n' "$out8" | sed -n '/^新增命中（阻塞）/,/^存量命中/p')"
+if printf '%s\n' "$out8" | grep -q '存量' && ! printf '%s\n' "$new_sec" | grep -q 'src/foo.cpp'; then
+  PASS=$((PASS+1)); echo "  ok: 存量进存量节且未入新增节"
+else
+  FAIL=$((FAIL+1)); echo "  FAIL: 分类错误（新增节内容: $new_sec）"
+fi
+
+# ---- 测试9: 行号通配——登记 :3，实际命中在 :9（同文件不同行）→ 放行（file+ID 对即可）
+mkdir -p "$TMP/drift/src"
+cat > "$TMP/drift/src/foo.cpp" <<'CPP'
+void pad1() {}
+void pad2() {}
+void pad3() {}
+void pad4() {}
+void pad5() {}
+void pad6() {}
+void pad7() {}
+void f(std::shared_ptr<ModifierBase> m) {
+  if (std::dynamic_pointer_cast<const KeepPositionModifier>(m)) { a(); }
+  else if (std::dynamic_pointer_cast<const KeepLaneModifier>(m)) { b(); }
+}
+CPP
+cat > "$TMP/debt_drift.md" <<'DEBT'
+- 2026-10-15 | src/foo.cpp:3 | A6 | 处置方向
+DEBT
+GATE_BASELINE="$TMP/debt_drift.md" bash "$GATE" --path "$TMP/drift/src" >/dev/null 2>&1; check "行号漂移(登记:3 命中:9)放行" 0 $?
+
+# ---- 测试10: A7——const 引用不计入 out-param，仅 1 个非 const 引用 → 不命中 (exit 0)
+mkdir -p "$TMP/a7c/src"
+cat > "$TMP/a7c/src/cfg.cpp" <<'CPP'
+struct Alpha { int x; };
+struct Beta { int x; };
+void f(const Alpha& in, Beta& out) { out.x = in.x; }
+CPP
+GATE_BASELINE="$TMP/none.md" bash "$GATE" --path "$TMP/a7c/src" >/dev/null 2>&1; check "A7 const 引用不计入(仅1个非const引用)放行" 0 $?
+
+# ---- 测试11: A7——2 个非 const 引用 → 仍命中（回归保护）
+mkdir -p "$TMP/a7r/src"
+cat > "$TMP/a7r/src/ro.cpp" <<'CPP'
+void g(Alpha& a, Beta& b) { a.x = b.x; }
+CPP
+GATE_BASELINE="$TMP/none.md" bash "$GATE" --path "$TMP/a7r/src" >/dev/null 2>&1; check "A7 2个非const引用仍命中 (exit 2)" 2 $?
+
+# ---- 测试12: A5——struct 仅被他文件以 const 入参引用（无 out-param 证据）→ 不命中
+mkdir -p "$TMP/a5/src"
+cat > "$TMP/a5/src/config.h" <<'CPP'
+struct ServerConfig { int port; int timeout; };
+CPP
+cat > "$TMP/a5/src/server.cpp" <<'CPP'
+#include "config.h"
+void start(const ServerConfig& cfg) { (void)cfg; }
+CPP
+GATE_BASELINE="$TMP/none.md" bash "$GATE" --path "$TMP/a5/src" >/dev/null 2>&1; check "A5 const 入参不计(无out-param证据)放行" 0 $?
+
+# ---- 测试13: 参数健壮性——--path 缺值 / 未知参数 → 输出 usage 并 exit 1（不崩溃）
+out13a="$(bash "$GATE" --path 2>&1)"; rc13a=$?
+if [ "$rc13a" -eq 1 ] && printf '%s' "$out13a" | grep -qi 'usage'; then
+  PASS=$((PASS+1)); echo "  ok: --path 缺值 → usage+exit 1"
+else
+  FAIL=$((FAIL+1)); echo "  FAIL: --path 缺值 (rc=$rc13a out=$out13a)"
+fi
+out13b="$(bash "$GATE" --bogus 2>&1)"; rc13b=$?
+if [ "$rc13b" -eq 1 ] && printf '%s' "$out13b" | grep -qi 'usage'; then
+  PASS=$((PASS+1)); echo "  ok: 未知参数 → usage+exit 1"
+else
+  FAIL=$((FAIL+1)); echo "  FAIL: 未知参数 (rc=$rc13b out=$out13b)"
+fi
 
 echo ""
 echo "通过 $PASS / $((PASS+FAIL))"
