@@ -1,7 +1,7 @@
 ---
 description: 将 brainstorm skill 的结构化设计决策转化为正式设计文档，保存到 docs/specs/ 目录。用于设计对话完成后的文档编写阶段。
 mode: subagent
-model: zhipuai-coding-plan/glm-5.1
+model: bicv/qwen3.8-flash
 temperature: 0.2
 color: "#009688"
 permission:

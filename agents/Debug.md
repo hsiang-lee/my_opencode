@@ -2,7 +2,7 @@
 name: Debug
 description: Bug 修复工作流引擎。进入即走强制 DEBUG 流程：复现→根因调查→TDD修复→审查→收尾。用于 bug 修复，不可跳过步骤。
 mode: primary
-model: zhipuai-coding-plan/glm-5.2
+model: bicv/glm-5.3-flash
 temperature: 0.1
 color: "#F44336"
 permission:
@@ -119,7 +119,6 @@ digraph debug_flow {
   
   Dispatch: branch-finisher
   Task: "Finish branch"
-  Required: Load using-git-worktrees skill
 ```
 
 ### 铁律
@@ -241,7 +240,6 @@ dispatch plan-executor 前确认:
 
 ── 分支收尾 (subagent: branch-finisher) ──
   Task: "Finish development branch"
-  Required: "REQUIRED: Load using-git-worktrees skill"
 ```
 
 ---
