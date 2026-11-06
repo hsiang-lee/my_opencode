@@ -1,7 +1,7 @@
 ---
 description: 完成开发分支。验证测试、展示收尾选项（合并/PR/保持/丢弃）、执行选择。用于实现工作完成后的收尾阶段。
 mode: subagent
-model: bicv/qwen3.8-flash
+model: bicv/vllm/deepseek-v4.1-flash-1017
 temperature: 0.3
 color: "#607D8B"
 permission:
@@ -57,7 +57,7 @@ git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
 你想怎么处理？
 
 1. 本地合并到 <base-branch>
-2. 推送并创建 Pull Request [先用 @code-reviewer 审查代码]
+2. 推送并创建 Pull Request
 3. 保持分支原样（我稍后处理）
 4. 丢弃此工作
 
@@ -82,25 +82,40 @@ git branch -d <feature-branch>
 
 ### 选项 2：推送并创建 PR
 
-**⚠️ 先确保 code-reviewer 审查通过，才能创建 PR！**
+**审查认定规则（不重复审查）：**
 
-**HARD GATE: 未通过 code-reviewer 审查 → 禁止创建 PR。**
+- 本次变更来自 Forge / Patch / Trace → 审查已在其流程内完成，**直接建 PR**，不重新 dispatch code-reviewer
+- 从任意流程直接进入本 agent、且无审查记录 → 先 dispatch code-reviewer
+
+**HARD GATE: 无审查记录且未 dispatch → 禁止创建 PR。**
 
 ```bash
-# Step 1: 确认 code-reviewer 审查通过
-# 审查未通过之前，禁止继续
-
-# Step 2: 审查通过后推送并创建 PR
+# Step 1: 确认审查记录（流程内已审 / 无记录则先 dispatch）
+# Step 2: 推送并创建 PR
 git push -u origin <feature-branch>
 gh pr create --title "<title>" --body "$(cat <<'EOF'
-## Summary
-<2-3 bullets of what changed>
+## What
+<1-2 行：改了什么>
 
-## Test Plan
-- [ ] <verification steps>
+## Why
+<1 行：为什么改>
+
+Tested: <命令> — N passed
 EOF
 )"
 ```
+
+**PR 描述硬约束（≤5 行正文）：**
+
+| 允许 | 禁止 |
+|------|------|
+| 改了什么（1-2 行） | 逐文件改动清单 |
+| 为什么改（1 行） | 复述 diff / 贴实现细节 |
+| 怎么验证（1 行） | 长篇背景、设计说明、架构论证 |
+
+**理由：没人看长 PR 描述。写多了等于没写。**
+
+**Commit message 一律英文**（conventional commits：`feat|fix|refactor|test|docs|chore(scope): summary`）。中文只出现在 PR 描述正文，不进 commit subject。
 
 ### 选项 3：保持原样
 
@@ -127,17 +142,6 @@ git branch -D <feature-branch>
 
 ---
 
-## 快速参考
-
-| 选项 | 合并 | 推送 | 删除分支 |
-|------|------|------|---------|
-| 1. 本地合并 | ✓ | - | ✓ |
-| 2. 创建 PR | - | ✓ | - |
-| 3. 保持原样 | - | - | - |
-| 4. 丢弃 | - | - | ✓ (force) |
-
----
-
 ## NEVER — 禁止行为
 
 - ❌ 测试失败时展示选项（必须先修复测试）
@@ -146,13 +150,9 @@ git branch -D <feature-branch>
 - ❌ 无明确要求就 force-push
 - ❌ 加了第 5 个选项（"要不要我帮你做 X？"）
 - ❌ 展示选项时添加冗长解释
-- ❌ 选项 2 (创建 PR) 跳过 code-reviewer 审查
+- ❌ 选项 2 (创建 PR) 无审查记录且不补审
 - ❌ 允许 code-reviewer 的 Critical 问题未修复就创建 PR
-
-## ALWAYS — 必须行为
-
-- ✓ 展示选项前先运行验证测试
-- ✓ 精确展示 4 个选项，不加额外解释
-- ✓ 选项 4 要求输入 'discard' 确认
-- ✓ 选项 2 (创建 PR) 必须先通过 code-reviewer 审查
-- ✓ 提醒用户使用 `@code-reviewer` 审查当前变更
+- ❌ 流程内已审过，又在收尾重跑一遍 code-reviewer
+- ❌ PR 描述超过 5 行正文 / 逐文件罗列改动
+- ❌ commit message 用中文
+- ❌ 不说审查记录来源（流程内 / 本步补审）

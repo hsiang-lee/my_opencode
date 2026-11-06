@@ -1,7 +1,7 @@
 ---
 description: Read-only consultation agent. High-IQ reasoning specialist for debugging hard problems and high-difficulty architecture design.
 mode: subagent
-model: bicv/deepseek-v4-flash-0731
+model: bicv/deepseek-v4.1-flash-1017
 temperature: 0.1
 color: "#9C27B0"
 tools:
