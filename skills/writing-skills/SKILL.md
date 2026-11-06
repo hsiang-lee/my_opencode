@@ -13,7 +13,7 @@ You write test cases (pressure scenarios with subagents), watch them fail (basel
 
 **Core principle:** If you didn't watch an agent fail without the skill, you don't know if the skill teaches the right thing.
 
-**REQUIRED BACKGROUND:** Understand tdd before using this skill.
+**REQUIRED BACKGROUND:** 理解 RED-GREEN-REFACTOR（见 agents/story-executor.md「每故事循环」）。
 
 **Official guidance:** See anthropic-best-practices.md for Anthropic's official skill authoring best practices.
 
@@ -179,7 +179,7 @@ Use active voice, verb-first: `creating-skills` not `skill-creation`, `condition
 ### Cross-Referencing
 
 Use skill name only with explicit markers:
-- `**REQUIRED SUB-SKILL:** Use tdd`
+- `**REQUIRED SUB-SKILL:** Use testing-techniques`
 - `**REQUIRED BACKGROUND:** You MUST understand debugging`
 
 ❌ Bad: `See skills/testing/test-driven-development` (unclear if required)
