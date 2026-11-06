@@ -50,10 +50,10 @@ Tab 切换:
 | Skill | 消费者 | 内容 |
 |-------|--------|------|
 | brainstorm | Forge Step 1（唯一加载方） | 设计探索：提问澄清、方案对比、决策清单输出（契约 + 关键选择，不含结构设计） |
-| design | code-reviewer（brainstorm 仅在用户明确要求选模式时例外） | 索引层（决策顺序 / YAGNI 闸门 / 自检）+ references/（GRASP 9、SOLID+包原则、DbC 精确语义、GoF 23）按需读 |
+| design | code-reviewer, story-executor（brainstorm 仅在用户明确要求选模式时例外） | 索引层（决策顺序 / YAGNI 闸门 / 自检）+ references/（GRASP 9、SOLID+包原则、DbC 精确语义、GoF 23）按需读 |
 | testing-techniques | story-executor, code-reviewer | 索引层（四属性 / 假测试闸门 / 坏味道判级）+ references/（测试结构、替身、夹具、坏味道全集）按需读 |
 | refactoring | story-executor, code-reviewer | 索引层（阈值/台账/红线）+ references/（坏味道 24 类 + A1-A7、手法、重构到模式、遗留代码接缝/解依赖、流程、台账、Clean Code）按需读 |
-| functional | code-reviewer | 范式选型 / 五构建块 / 错误容器 / 微规则 / 反 FP 闸门 |
+| functional | code-reviewer, story-executor | 索引层（范式选型 / 反 FP 闸门 / 评审 16 项）+ references/（构建块 C++&Rust、FP↔OO、错误处理、性能）按需读 |
 | gdb | Trace（根因调查 / 崩溃复现时） | GDB 调试：崩溃分析、运行时变量、core dump |
 | init-deep / gh-pr / glab / issue-master / writing-skills / qnx / vcpkg / mull | 按需 | 见各自 SKILL.md |
 
@@ -120,7 +120,7 @@ Tab 切到 Trace，给出复现步骤。Trace 在根因调查后判定测试覆�
 │   ├── design/SKILL.md + references/*.md
 │   ├── refactoring/SKILL.md + references/*.md
 │   ├── testing-techniques/SKILL.md + references/*.md
-│   ├── functional/SKILL.md
+│   ├── functional/SKILL.md + references/*.md
 │   └── ...（gdb / init-deep / gh-pr / glab / issue-master / mull / qnx / vcpkg / writing-skills）
 └── AGENTS.md
 ```

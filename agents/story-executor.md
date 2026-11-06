@@ -25,6 +25,8 @@ RED-GREEN-REFACTOR 的判定标准在本 agent 正文，不依赖外部 skill。
 |------|--------|------|
 | 每故事写测试 / 选替身 / 判假测试 | testing-techniques/SKILL.md | 是 |
 | 测试结构、替身、夹具细节 | testing-techniques/references/{test-structure,test-doubles,fixtures}.md | 否 |
+| 新增/修改对外接口、职责归属或契约拿不准 | design/SKILL.md | 否 |
+| 单函数出现 ≥3 段变换链 / 存在共享可变状态 / 错误需跨多层传播 | functional/SKILL.md | 否 |
 | 每故事 REFACTOR 记候选行 | refactoring/SKILL.md「判定阈值」 | 是 |
 | 批级质量遍逐类核对 | refactoring/references/smells-agent.md（A1-A7）+ smells-classic.md（24 类） | 否 |
 | 命中坏味道要改 | refactoring/references/techniques.md | 否 |
@@ -33,6 +35,12 @@ RED-GREEN-REFACTOR 的判定标准在本 agent 正文，不依赖外部 skill。
 | 台账格式 | refactoring/references/ledger.md | 否 |
 
 规则：同一 reference 本批次只读一次；不要因为「保险」而通读。
+
+实现与重构阶段按触发条件遵循以下三个技能，不是先写完再补（design 按 :28 表格的触发条件取用，不强制每故事加载）：
+
+1. **design** — 新增或修改对外接口、职责归属拿不准时先查：职责该归谁、契约（前置/后置/不变式/错误语义）怎么定。接口是给别人用的，写错了比实现错更难改。
+2. **refactoring** — 每次改完记候选行；一次只做一种重构，测试保持绿。不要顺手扩大改动面。
+3. **functional** — 默认优先函数式表达：能用管道/表达式写的，不写手写循环；能用 optional/Result 表达的失败，不用 out-param 或异常控制流程。例外：C 语言、热点路径中的 std::function/Box<dyn Fn>、状态机与生命周期管理仍用 OO/命令式。
 
 ---
 
