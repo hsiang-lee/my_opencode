@@ -1,208 +1,95 @@
 ---
 name: refactoring
-description: Automatically detect and eliminate code smells during the REFACTOR phase of the TDD cycle. Provides bad-smell classification, technique cheat sheet, and test-gated execution flow. One smell at a time, no behavior change.
+description: Use during the REFACTOR phase after tests are green, when detecting and eliminating code smells, when refactoring toward a design pattern, when modifying code that has no tests, or when reviewing code for smell and Clean Code violations. SKILL.md holds the judging thresholds, the ledger's required items and the hard constraints; smell catalogs, techniques, pattern-directed refactoring, legacy seams and dependency-breaking, workflow and Clean Code rules are in references/ and read on demand.
 ---
 
 # Refactoring — 代码重构
 
-在 TDD 的 REFACTOR 阶段自动检测并消除代码坏味道。每次只处理一种坏味道，每个步骤由测试验证。
-
 **核心原则：测试失败时禁止重构。重构只改变结构，不改变行为。**
 
-违反这条规则的文字就是违反规则的精神。
+| 谁用 | 用来做什么 |
+|------|------------|
+| story-executor | REFACTOR 阶段检测 → 重构 → 记台账 |
+| code-reviewer | Phase 2.5 质量审计（坏味道 + Clean Code 判级） |
+
+**本文件常驻 = 判定层**（阈值、台账必填项、红线）。下面索引里的文件只在需要时读，不要一次全读。
 
 ---
 
-## 坏味道分类 (Bad-Smell Classification)
+## 索引 — 要做什么 → 读哪个文件
 
-以下表格列出常见的代码坏味道及其检测条件。由执行者（plan-executor）人工判断检测，不使用自动化静态分析工具。
+| 要做的事 | 文件 |
+|----------|------|
+| 判断某种经典坏味道存不存在（24 类检测条件） | `references/smells-classic.md` |
+| 判断 A1-A7（AI 生成代码特有病灶）+ 代码放置第一问 + 检测优先级 + 复用优先 | `references/smells-agent.md` |
+| 查某种坏味道该用哪个重构手法、手法怎么做 | `references/techniques.md` |
+| 走完整执行流程（两顶帽子 / 步骤 / 失败处理） | `references/workflow.md` |
+| 写台账（完整格式与示例） | `references/ledger.md` |
+| Clean Code 10 条（评审用判据） | `references/clean-code.md` |
+| 坏味道指向某个设计模式：TO / TOWARDS / AWAY 三种方向、演化链、评审表 | `references/to-patterns.md` |
+| 目标代码**没有测试**：接缝三类型、特征测试、安全修改五步 | `references/legacy-seams.md` |
+| 解依赖：24 种技术、场景→技术对照、私有方法判定 | `references/legacy-techniques.md` |
 
-| # | 坏味道 | 描述 | 检测条件 |
-|---|--------|------|----------|
-| 1 | **重复代码 (Duplicated Code)** | 相同或相似的代码出现在多个位置 | 同一结构出现在 ≥2 个方法/类/文件中 |
-| 2 | **过长方法 (Long Method)** | 一个方法承担了过多职责 | 方法长度 > 20 行，或包含多个明显可提取的段落（经典参考线 20 行；台账执行线 >40 行，以台账为准） |
-| 3 | **过大类 (Large Class)** | 一个类承担了过多职责 | 类有 > 10 个方法，或包含多个不相关的功能组 |
-| 4 | **过长参数列表 (Long Parameter List)** | 方法参数过多 | 参数个数 > 4 |
-| 5 | **依恋情结 (Feature Envy)** | 方法更多使用另一个类的特性而非自身 | 方法中超过 50% 的调用是对另一个类/对象的操作 |
-| 6 | **基本类型偏执 (Primitive Obsession)** | 使用基本类型表示领域概念，没有封装 | 存在重复出现的字符串/数值参数，应封装为值对象 |
-| 7 | **switch 语句 (Switch Statements)** | 根据类型代码做分支判断 | switch/case 或 if/else-if 链可根据对象类型替换 |
-| 8 | **冗赘类 (Lazy Class)** | 类承担的职责太少 | 类只有 1-2 个简单方法，可以内联到使用处 |
-| 9 | **过度泛化 (Speculative Generality)** | 为不存在的未来需求设计的抽象 | 抽象类只有一个实现，或参数有从不使用的标志位 |
-| 10 | **消息链 (Message Chains)** | 长链的方法调用 | 形如 `a.getB().getC().doSomething()` 的调用链长度 > 2 |
-| 11 | **中间人 (Middle Man)** | 类的大部分方法只是委托给其他类 | 类中 > 60% 的方法只是委托调用 |
-| 12 | **过度亲密 (Inappropriate Intimacy)** | 类之间过多访问彼此的私有成员 | 类 A 在方法中多次调用类 B 的 getter/setter |
-| 13 | **异曲同工的类 (Alternative Classes)** | 类似功能的类有不同的接口 | 两个类做相似的事情但方法名/签名不一致 |
-| 14 | **注释 (Comments)** | 代码不易读，用注释解释行为 | 注释在解释"做了什么"而不是"为什么这么做" |
-| 15 | **嵌套层次过深 (Deep Nesting)** | if/for/while 多层嵌套导致可读性差 | 嵌套层次 ≥ 3 层，或单方法包含 ≥ 2 个嵌套块（优先用卫语句重构） |
+规则：**只读当前任务需要的那一个**。核对台账 ≠ 通读全部；先按下面阈值定位嫌疑项，再按嫌疑项查对应文件。
 
 ---
 
-## Agent 特有坏味道 (Agent-Specific Bad Smells)
+## 判定阈值（常驻，唯一来源）
 
-AI 生成代码的系统性病灶（三仓库实证取证：相机 ID 常量 12 处/8 文件两种命名、MinIO key 格式串 15+ 处/5 文件、helper 已存在仍多处裸调用、测试 setup 样板同句重复 8 次）。与经典坏味道同权检测，且优先级更高（见下节优先级序）。
+所有阈值以本表为准；references 与 agent 正文出现不同数值一律以本表覆盖。
 
-| # | 坏味道 | 检测条件 | 处置 |
-|---|--------|----------|------|
-| A1 | **共享常量重复定义** | 同一常量/字面量（ID 数组、key 格式、队列名、超时值等）在 ≥2 文件重复定义 | 提取到共享模块，单一事实源，全库引用 |
-| A2 | **绕过现有封装** | HTTP/WS/队列/存储/工具已有封装（apiClient、push_task_to_redis 等）却在其外裸写等价调用 | 复用封装；封装不满足则扩展封装而非旁路 |
-| A3 | **测试 setup 复制** | 相同 mock 工厂/seed/样板在 ≥2 测试文件逐字重复 | 提取共享 testHelper |
-| A4 | **命名漂移** | 同一概念多种命名（如 CAMERA_IDS/REAL_CAMERA_IDS） | 统一命名并引用同一来源 |
+| 项 | 触发阈值 |
+|----|----------|
+| 过长函数 | > 40 行（经典参考线 20 行仅作提示） |
+| 嵌套层次过深 | ≥ 3 层 |
+| 参数过多 | > 4 个 |
+| 过大类 | > 10 个方法 |
+| 重复代码 | 同一结构出现在 ≥ 2 处方法/类/文件 |
+| A1 共享常量重复 | 同一常量/字面量在 ≥ 2 个文件重复定义 |
+| A2 绕过现有封装 | 已有封装（apiClient / push_task_to_redis 等）外裸写等价调用 |
+| A3 测试 setup 复制 | 相同 setup 样板在 ≥ 2 个测试文件逐字重复 |
+| A4 命名漂移 | 同一概念 ≥ 2 种命名 |
+| A5 贫血 / 职责错位 | 操作所需数据在类 X，操作却落在类外（判据是数据与操作的关系，不是有无成员方法） |
+| A6 伪多态 | 分派同一概念行为的 cast/instanceof/类型 switch 散落多处（新增子类要改 N 处） |
+| A7 out-param 束 | 签名含 ≥ 2 个非 const 引用 out-param（刻意 in-out 钳制不算） |
+| 数据泥团 | ≥ 3 个字段/参数总是同时出现 |
+| 消息链 | 调用链长度 > 2 |
+| 中间人 | > 60% 的方法只是委托 |
+| 依恋情结 | > 50% 的访问指向另一个对象 |
+| 重复的 switch | 同一类型分支出现在 ≥ 2 处 |
+| 霰弹式修改 | 一个变更要改 ≥ 2 个类的多处 |
 
----
-
-## 优先级序 (Detection Priority)
-
-检测与处置按以下顺序执行，先消除高优先级再处理低优先级：
-
-1. **A1/A2（重复与复用）** — agent 头号病：共享常量重复定义与绕过现有封装，最优先消除。
-2. **A3（测试 setup 复制）** — 测试样板逐文件复制。
-3. **A4（命名漂移）** — 同一概念统一命名并引用同一来源。
-4. **经典结构类** — 过长函数/深嵌套等坏味道分类表条目。
-
----
-
-## 坏味道 → 重构技术对照表 (Smell-to-Technique Cheat Sheet)
-
-| 坏味道 | 推荐重构技术 |
-|--------|-------------|
-| 重复代码 | Extract Method / Pull Up Method / Form Template Method |
-| 过长方法 | Extract Method / Replace Temp with Query / Introduce Parameter Object |
-| 过大类 | Extract Class / Extract Subclass / Extract Interface |
-| 过长参数列表 | Introduce Parameter Object / Preserve Whole Object |
-| 依恋情结 | Move Method / Extract Method |
-| 基本类型偏执 | Replace Primitive with Object / Replace Type Code with Subclasses |
-| switch 语句 | Replace Type Code with Strategy/State / Replace Conditional with Polymorphism |
-| 冗赘类 | Inline Class / Collapse Hierarchy |
-| 过度泛化 | Collapse Hierarchy / Inline Class / Remove Parameter |
-| 消息链 | Hide Delegate / Extract Method |
-| 中间人 | Remove Middle Man / Inline Method |
-| 过度亲密 | Move Method / Change Bidirectional Association to Unidirectional |
-| 异曲同工的类 | Rename Method / Move Method |
-| 注释 | Extract Method / Rename Method / Introduce Assertion |
-| 嵌套层次过深 | Replace Nested Conditional with Guard Clauses / Extract Method |
+检测优先级：A1/A2 → A3 → A4 → 经典结构类。纯人工逐类核对，不使用静态分析工具。
 
 ---
 
-## 重构技术速查 (Technique Quick Reference)
+## 台账必填项（常驻）
 
-| 技术 | 描述 | 操作指引 |
-|------|------|----------|
-| **Extract Method** | 将一段代码提取为独立方法 | 选中代码段 → 创建新方法 → 传入需要的参数 → 替换原位置为方法调用 |
-| **Move Method** | 将方法移动到更合适的类 | 确认方法应属于目标类 → 复制方法到目标类 → 在原类中委托调用 |
-| **Rename Method** | 改进方法名使其意图清晰 | 改为"做什么"的描述（动词+名词），不是"怎么做" |
-| **Extract Class** | 将类的一部分职责分离到新类 | 识别内聚的功能组 → 创建新类 → 移动相关字段和方法 |
-| **Inline Class** | 将职责少的类合并到使用它的类 | 把类的字段和方法移入调用方 → 删除原类 |
-| **Introduce Parameter Object** | 将多个参数封装为一个对象 | 创建参数对象类 → 替换方法签名 → 更新调用方 |
-| **Preserve Whole Object** | 传递整个对象而不是从中提取值 | 修改方法签名接收对象 → 方法内直接使用对象字段 |
-| **Replace Primitive with Object** | 将基本类型替换为值对象 | 创建值对象类 → 封装行为和验证 → 替换所有使用处 |
-| **Replace Conditional with Polymorphism** | 用多态替换条件分支 | 提取各分支为子类方法 → 父类声明虚方法 → 调用处改用多态分发 |
-| **Pull Up Method** | 将相同的方法提升到父类 | 确认子类中有相同方法 → 复制到父类 → 删除子类版本 |
-| **Form Template Method** | 用模板方法模式统一算法骨架 | 提取算法步骤为方法 → 父类定义模板方法 → 子类实现步骤差异 |
-| **Hide Delegate** | 隐藏委托关系 | 在委托类中添加方法 → 调用方改为直接调用委托类的方法 |
-| **Remove Middle Man** | 移除中间委托层 | 调用方直接调用实际执行者 → 删除中间方法 |
-| **Introduce Assertion** | 将隐式假设转为显式断言 | 识别前置条件 → 添加 `assert` 或条件检查 |
-| **Replace Nested Conditional with Guard Clauses** | 用卫语句替换深层嵌套的条件分支 | 识别可提前返回的条件 → 提取为 `if (!condition) return;` 形式的卫语句 → 消除嵌套层 → 若残留嵌套仍 ≥ 3 层，重复步骤或将剩余部分 Extract Method |
-
----
-
-## 复用优先规则 (Reuse-First Rule)
-
-实现任何 helper、常量、基础设施调用之前，**先 grep 代码库已有同类**：
-
-- **grep 关键词**: 既有封装名（如 `apiClient`、`push_task_to_redis`）+ 语义关键词（如 `minio key`、`camera id`、`queue name`）。
-- **找到 → 复用。** 禁止"我知道要用但顺手再写一个"——这是 A1/A2 的直接来源。
-- **没找到 → 创建**，并放置在可被后续任务发现的位置（共享模块），不是埋在当前任务文件里。
-
----
-
-## 执行流程 (Execution Flow)
-
-在 TDD 绿色阶段通过后（所有测试通过），plan-executor 使用本流程执行重构：
+REFACTOR 是唯一输出 = `REFACTOR_LEDGER`。以下 11 项**每项**必须给出「命中 + 处置与证据」或「未命中 + 理由一句」，不许留空、不许省略：
 
 ```
-1. 确认所有测试通过 (GREEN confirmed)
-   │
-2. 所有测试通过？──否──► 停止。修复代码。不进入重构。
-   │是
-3. 扫描代码：按台账 8 项逐项核对（A1-A4 / 过长 / 深嵌套 / 批级 / 经典类汇总）
-   │
-   4. 发现坏味道？──否──► 该项记入台账（未命中+理由一句），核对下一项。
-   5. 选择对应的重构技术（从对照表中选择）
-   │
-   6. 应用重构：仅做结构性变更，不改变行为
-   │
-   7. 运行所有测试
-   │
-   8. 测试通过？──否──► 回滚本次重构改动，台账对应项标注「已回滚: 该步重构导致测试失败，附详情」后停止继续重构。返回外层。
-   │是
-   9. 还有更多坏味道？──是──► 回到步骤 3（一次只处理一种）
-   │否
-   10. 输出 REFACTOR_LEDGER——REFACTOR 阶段的唯一输出（每项命中+证据或未命中+理由）。返回外层。
+A1 A2 A3 A4 A5 A6 A7 / 过长函数(>40行) / 深嵌套(≥3层) /
+批级质量遍(本批整体 diff，含跨任务累积) / 其他经典类
 ```
 
-### 执行规则
-
-- **一次一种坏味道。** 每次只应用一种重构技术，验证通过后才处理下一个。
-- **不变更行为。** 重构只改变结构：不添加新功能、不修改公共 API、不添加新的公开接口。
-- **测试通过后才继续。** 任何一步测试失败 -> 回滚该步 -> 报告 -> 停止。
-
-### 输出状态
-
-**REFACTOR_LEDGER 是 REFACTOR 阶段的唯一输出**——每项要么命中+证据（处置内容），要么未命中+理由，不允许留空或省略。旧三态一词状态不再单独输出：
-
-| 旧状态 | 并入台账后的语义 |
-|--------|------------------|
-| `REFACTOR_DONE` | 语义并入台账正常输出（命中项附处置与证据） |
-| `REFACTOR_FAILED` | 并入台账：对应项标注「已回滚: 该步重构导致测试失败，附详情」后**停止**继续重构（红线不变） |
-
-（无命中不是一种状态——台账各项写未命中+理由即可，无需状态词。）
+格式模板见 `references/ledger.md`。谎报台账（声称未命中但 diff 中明显命中）= 假测试级违规。
 
 ---
 
-## 重构台账 (REFACTOR_LEDGER)
+## 执行流程（4 条，细节见 `references/workflow.md`）
 
-REFACTOR 阶段必须**逐类核对并输出台账**。台账是报告的一部分，不是可选附件；谎报台账（声称未命中但 diff 中明显命中）= 假测试级违规。
-
-**本模板是所有阈值的唯一来源**——executor / 评审员 / 批级触发器一律引用此处数值，不得另立阈值。
-
-```
-REFACTOR_LEDGER:
-- A1 共享常量重复(≥2 文件): [命中→已提取至 X（证据）| 未命中: 理由一句]
-- A2 绕过现有封装: [...]
-- A3 测试setup复制(≥2 测试文件): [...]
-- A4 命名漂移: [...]
-- 过长函数(>40行): [...]
-- 深嵌套(≥3层): [...]
-- 批级质量遍(本批整体 diff, 含跨任务累积): [触发器命中与处置| 未触发: 理由]
-- 其他经典类(分类表中未被 A1-A4/过长/深嵌套覆盖的条目): [命中(指明编号+位置)| 未命中]
-```
-
-每一项要么给出命中后的处置与证据，要么给出一句未命中理由——不允许留空或省略。
+1. **测试必须全绿**才能开始；红着不进入重构。
+2. **一次一种坏味道**：逐类核对 → 命中即用一种手法重构 → 跑测试 → 绿了再下一项。
+3. **不改行为**：不加功能、不改公共 API、不新增公开接口。期望值变了 = 在加功能，停下先写测试。
+4. **回滚红色**：某步重构导致测试失败 → 回滚该步 → 台账标注「已回滚」→ 停止继续重构。
 
 ---
 
-## 错误处理
+## 红线
 
-| 场景 | 处理方式 |
-|------|----------|
-| GREEN 后测试失败 | 不进入重构。先修复生产代码。 |
-| 重构步骤导致测试失败 | 回滚该单步重构改动，台账对应项标注「已回滚: 该步重构导致测试失败，附详情」，停止继续重构，返回外层。 |
-| 检测到多种坏味道 | 一次处理一种。每一步独立验证。 |
-| 未检测到坏味道 | 台账该项写未命中+理由一句（REFACTOR_LEDGER 是唯一输出，无单独状态词）。返回外层。 |
-
----
-
-## 红线 (Hard Constraints)
-
-- **测试失败时禁止重构。** 只有测试全部通过后才能开始重构。
-- **一次一种坏味道。** 应用一种重构技术，验证，重复。
-- **不变更行为。** 重构只改变结构——不添加功能、不修改 API、不新增公开接口。
-- **回滚红色。** 重构步骤导致测试失败，立即回滚该步。
-
----
-
-## 假设 (Assumptions)
-
-- 坏味道检测依赖执行者的人工判断（不引入自动化静态分析工具）。
-- 本技能不替换或修改现有 TDD 技能——它补充 REFACTOR 阶段。
-- Plan-executor 已通过 `Required` 指令加载本技能。
+- 测试失败时禁止重构
+- 一次只处理一种坏味道
+- 重构不改变行为
+- 重构步骤导致测试失败 → 立即回滚该步
+- 实现任何 helper/常量前先 grep 已有同类：找到就复用，找不到才创建（详见 `references/smells-agent.md` 复用优先规则）
+- 引入模式前必须有坏味道；抽象的真实使用者 ≤1 且无排期中的第二个 → inline 掉（AWAY，见 `references/to-patterns.md`）

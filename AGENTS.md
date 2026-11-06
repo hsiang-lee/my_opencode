@@ -1,180 +1,70 @@
-# 全局 Agent 规则
+# 全局 Agent 规则（所有 OpenCode 项目）
 
-**应用范围：所有通过 OpenCode 管理的项目**
+## 输出风格
 
-## 输出风格（所有 Agent 必须遵守）
+- 结论先行，只给必要依据；不重复已知信息，无客套与空泛总结
+- 顺利 = 1 行；异常、风险、需决策才展开
+- 面向用户 ≤40 行，超出写入报告文件，对话内留摘要 + 路径
+- 用数字不用形容词（"62/62 通过"）；说人话（"卡住：缺 XXX"）
 
-- 不要说废话，不要啰嗦：简要输出要点信息即可
-- 结论先行，再给必要的最小依据；不重复已知信息，不加客套与空洞总结
+## 变更分级
 
----
+| 条件 | 去向 |
+|------|------|
+| 文件 ≤2 且改动 ≤50 行 且不改公共接口 | Patch |
+| 文件 3-8 且无新增模块 / 公共接口 / 数据模型 | Forge 精简档 |
+| 文件 >8，或新增模块 / 公共接口 / 数据结构 / 并发 / 权限 / 迁移 | Forge 完整档 |
+| 行为与预期不符（bug） | Trace |
 
-## Agent 使用指南
+超界即停，不「先做一点看看」。
 
-| Agent | 功能 | 使用时机 | 调用方式 |
-|-------|------|----------|----------|
-| **Patch** | 日常小修改 | 小功能、小改进、日常维护，需要 TDD + 审查但不用完整 Creative 流程 | `@Patch` 或 `Task("Patch", "Make small change")` |
-| **branch-finisher** | 分支收尾 | 实现完成、测试通过后，收尾分支（合并/PR/保持/丢弃） | `Task("branch-finisher", "Finish branch")` |
-| **code-reviewer** | 代码审查 | 实现完成后，独立验证代码质量和测试真实性 | `Task("code-reviewer", "Review implementation")` |
-| **explore** | 代码库搜索专家 | 查找"X在哪里实现"、"哪个文件包含Y"、"找到做Z的代码"时 | `@explore` 或 `Task("explore", "Find code that does X")` |
-| **librarian** | 外部代码理解专家 | 搜索远程代码库、查找开源库用法、获取官方文档时 | `@librarian` 或 `Task("librarian", "How to use X library")` |
-| **metis** | 预规划顾问 | 开始任务前需要分析意图、识别风险、厘清需求时 | `@metis` 或 `Task("metis", "Analyze this request")` |
-| **momus** | 计划评审专家 | 计划写完后需要检查可执行性、引用有效性时 | `@momus` 或 `Task("momus", "Review plan at path")` |
-| **oracle** | 战略技术顾问 | 遇到复杂调试问题、高难度架构设计需要深度推理时 | `@oracle` 或 `Task("oracle", "Debug why X is failing")` |
-| **plan-executor** | 计划执行 | 有实现计划时，按 TDD 纪律逐个任务执行实现 | `Task("plan-executor", "Execute plan")` |
-| **plan-writer** | 计划编写 | 设计文档完成后，生成包含文件路径和验证命令的可执行计划 | `Task("plan-writer", "Write plan")` |
-| **spec-writer** | 设计文档编写 | 设计批准后，将设计决策转化为正式文档 | `Task("spec-writer", "Write spec")` |
+## Agent
 
-### 快速参考
+| Agent | 用途 | 调用 |
+|-------|------|------|
+| Patch | 小改工作流 | Tab |
+| Forge | feature 工作流 | Tab |
+| Trace | bug 修复工作流 | Tab |
+| QA-Explorer | 前端探索测试 | Tab |
+| story-writer | 决策确认后产出 Epic + 故事清单 | `Task("story-writer", ...)` |
+| story-executor | 按批次执行 TDD 故事 | `Task("story-executor", ...)` |
+| code-reviewer | 实现完成后独立审查 | `Task("code-reviewer", ...)` |
+| branch-finisher | 分支收尾 | `Task("branch-finisher", ...)` |
+| metis | 任务前厘清意图与风险 | `@metis` |
+| momus | 故事评审（可执行性 / AC / 契约） | `@momus` |
+| explore | 代码库搜索 | `@explore` |
+| librarian | 外部库与文档 | `@librarian` |
+| oracle | 复杂调试 / 高难度架构 | `@oracle` |
 
-- **日常小修改** → `@Patch`
-- **分支收尾** → `@branch-finisher`
-- **代码审查** → `@code-reviewer`
-- **探索代码库** → `@explore`
-- **查开源库用法/文档** → `@librarian`
-- **任务开始前厘清需求** → `@metis`
-- **计划评审** → `@momus`
-- **复杂问题深度分析** → `@oracle`
-- **计划执行** → `@plan-executor`
-- **计划编写** → `@plan-writer`
-- **设计文档编写** → `@spec-writer`
+## Skill 加载
 
----
+- `SKILL.md` 是索引 + 判定层：先读它，再按「要做什么 → 读哪个文件」表只打开当前任务需要的 1 个 reference。
+- 同一 reference 本会话不重读；不确定读哪个就看索引，不猜、不通读。
+- 阈值冲突以 SKILL.md 为准；加载声明只写在 agent 正文，dispatch 不重复指定。
 
-## TDD 工作模式
+## TDD
 
-**重要提醒：所有代码实现必须遵循 TDD (Test-Driven Development) 工作模式。**
+- 执行侧（story-executor / branch-finisher）：RED-GREEN-REFACTOR，先写失败测试；判定标准在 story-executor 正文。
+- 编排侧（Forge / Patch / Trace）：不写代码、不跑测试；dispatch 要求先给失败测试，核对 RED 证据，无证据不验收。
 
-### 核心原则
+## 红线
 
-1. **写代码前先添加测试** - 先写测试，再写实现
-2. **小步前进，频繁测试** - 步骤要小，每一步都确保测试通过
-3. **红绿循环**:
-   - Red: 写一个会失败的测试
-   - Green: 写最少的代码让测试通过
-   - Refactor: 重构代码，保持测试通过
+- 禁止直推 main / master，一律 PR/MR。
+- 禁止 `git checkout` / `git restore` 丢弃改动。编译报错：看错误 → `git diff` 定位 → 手改；暂存用 `git stash`。
+- 删改一行前先答：它做什么？没有它会怎样？删分配前先找到释放点。
+- 修完 A 仍有问题 → 重查根因，不顺手改 B；每个 bug 单独验证。
 
-### 操作规范
+## Build
 
-- 实现任何功能前，先写测试
-- 每个小步骤后运行测试确认通过
-- 不要一次性实现大量代码
-- 测试应该原子化，一个测试只验证一个行为
+增量编译优先，不轻易 `rm -rf build`（vcpkg 全量重编）。编译错误先修代码，不清缓存。
 
-### 示例流程
+## 依赖（vcpkg）
 
-```bash
-# 1. 写测试 (RED)
-# 2. 运行测试确认失败
-# 3. 写最小实现 (GREEN)
-# 4. 运行测试确认通过
-# 5. 重构 (REFACTOR)
-# 6. 提交
-```
+`vcpkg.json` 声明 → `find_package(X CONFIG REQUIRED)` → `target_link_libraries(... X::X)`。
+禁止硬编码 `-I/-L`、绝对路径、手链 `.a/.so`。
 
----
+## 分支与提交
 
-## Anti-Patterns (STRICTLY PROHIBITED)
-
-- **严禁直接向 main 或 master 主分支推送代码** — 必须通过 PR/MR 合并
-  - Never push directly to protected main/master branches
-  - Always use PR/MR workflow for changes
-
----
-
-## ⚠️ CRITICAL WARNINGS
-
-### 严禁使用 `git checkout` 恢复代码
-
-**绝对禁止使用 `git checkout` 或类似命令恢复代码！**
-
-- `git checkout` 会直接撤销所有未提交的修改，导致大量工作成果丢失
-- 如果编译出错需要修复，应该：
-  1. 仔细分析错误信息
-  2. 使用 `git diff` 查看具体改动
-  3. 使用 `git stash` 暂存改动（如果需要）
-  4. 手动编辑修复问题，而不是恢复整个文件
-- 正确的做法是：逐步定位问题，然后针对性地修复有问题的代码
-
----
-
-## Build Directory Management
-
-**编译时不要轻易删除 build 目录！**
-
-- 能增量编译就增量编译，不要 `rm -rf build` 再重新配置
-- 删除 build 会导致：
-  - vcpkg 依赖全部重新编译安装（耗时数分钟）
-  - CMake 缓存丢失
-  - 已编译的目标文件全部丢失
-- 只有遇到以下情况才删除 build：
-  - CMake 配置错误且无法通过增量修复
-  - 依赖库的链接器路径发生变化
-  - 需要完全干净的重配置
-- 如果只是编译错误，优先检查并修复代码，而不是清理缓存
-
----
-
-## 依赖管理规则
-
-**优先使用 vcpkg 管理所有第三方依赖！**
-
-- **必须使用 `find_package()` 机制** 导入 vcpkg 管理的库
-- **严禁手动指定路径**（如 `-I/path/to/include` 或 `-L/path/to/lib`）
-- 正确做法：
-  1. 确保库在 `vcpkg.json` 中声明
-  2. 使用 `find_package(XYZ CONFIG REQUIRED)` 导入
-  3. 使用 `target_link_libraries(... XYZ::XYZ)` 连接目标
-- 错误做法（**极其糟糕，禁止使用**）：
-  - 手动 `target_include_directories(..., "/custom/path/...")`
-  - 手动 `target_link_libraries(..., "/path/to/libxxx.a")`
-  - 通过设置环境变量或硬编码路径绕过 vcpkg
-- vcpkg 提供 CMake 目标（如 `pugixml::pugixml`、`osg::osgDB`）时必须使用这些目标
-
----
-
-## Branch Naming Conventions
-
-- Feature branches: `feature/issue-{id}-{description}`
-- Bug fixes: `fix/issue-{id}-{description}`
-- Hotfixes: `hotfix/issue-{id}-{description}`
-
----
-
-## Critical Lessons Learned
-
-### Lesson 1: 不要猜测，要追踪
-
-**错误做法**: "我觉得这个调用不需要了"，然后删掉
-
-**正确做法**:
-- 找到分配代码
-- 找到释放代码
-- 确认路径是否匹配
-- 不匹配就不能删
-
----
-
-### Lesson 2: 每个bug单独验证
-
-**错误做法**: 修了A之后还有问题，就觉得是B引起的，把B也改了
-
-**正确做法**:
-- 验证A确实修好了
-- 如果还有问题，重新分析，不是直接改别的代码
-
----
-
-### Lesson 3: 删代码前先问自己
-
-1. 这行代码的作用是什么？
-2. 没有它会发生什么？
-3. 如果我不确定 → 不要删，查清楚再说
-
----
-
-### Lesson 4: Commit message 要写清楚为什么
-
-**错误**: "Remove XXX call"
-
-**正确**: "Remove XXX call because XXX returns internal buffer, not allocated memory"
+- 分支：`feature|fix|hotfix/issue-{id}-{description}`
+- Commit 英文：`type(scope): summary`；正文只写「为什么」
+- PR 正文 ≤5 行：What / Why / `Tested: <命令> — N passed`；禁止逐文件清单与长篇论证

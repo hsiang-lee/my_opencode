@@ -50,20 +50,20 @@ gh pr create \
 gh pr view --web
 ```
 
-### PR 描述模板
+### PR 描述模板（≤5 行正文）
 
 ```
-## Summary
-[1-3 bullet points]
+## What
+[1-2 行：改了什么]
 
-## Changes
-- [具体改动]
+## Why
+[1 行：为什么改]
 
-## Testing
-[测试方式]
-
-## Screenshots (if UI)
+Tested: [命令] — N passed
 ```
+
+**禁止**：逐文件清单、复述 diff、长篇背景、设计论证。
+**理由**：长 PR 描述没人看，等于没写。细节让 reviewer 看 diff。
 
 ## 常见错误
 

@@ -1,57 +1,61 @@
-# CREATIVE & Debug 工作流 Agent 系统
+# Patch / Forge / Trace — OpenCode 代码工作流系统
 
-> 为 OpenCode 设计的双主 Agent 工作流系统
+> 为 OpenCode 设计的三档工作流 Agent 系统：按变更规模选档位，纪律不随规模下降。
 
 ## 概述
 
-**2 个 Primary Agent，各一个固定工作流，用户 Tab 切换选择。**
+**3 个代码工作流 Primary Agent + 1 个 QA Agent，用户 Tab 切换选择。**
 
- - **Creative** — 新功能开发强制流程：设计 → 文档 → 计划 → 评审 → 实现 → 审查 → 收尾
-- **Debug** — Bug 修复强制流程：复现 → 根因调查 → TDD修复 → 审查 → 收尾
+- **Patch** — 小改：≤2 文件且 ≤50 行且不改公共接口 → 理解 → TDD → 审查 → 收尾（4 步）
+- **Forge** — feature：设计 → 用户故事 → 评审 → 实现 → 审查 → 收尾（6 步，分精简/完整档）
+- **Trace** — bug：复现 → 根因 → 测试覆盖分叉 → TDD 修复 → 审查 → 收尾（5 步）
+- **QA-Explorer** — 前端探索测试：生成/执行用例，产出证据化 finding 报告（只报告，不修复）
 
-**核心设计：Agent 不做意图判断，用户选择走哪个流程。**
+**核心设计：Agent 不做意图猜测，用户选流程；档位由机械阈值判定，不凭感觉。**
+
+## 变更分级
+
+| 条件 | 去向 |
+|------|------|
+| 文件 ≤2 且改动 ≤50 行 且不改公共接口 | Patch |
+| 文件 3-8 且无新增模块/公共接口/数据模型 | Forge 精简档（跳过 momus 评审） |
+| 文件 >8，或新增模块/公共接口/数据结构/并发/权限/迁移 | Forge 完整档 |
+| 行为与预期不符 | Trace |
 
 ## 架构
 
 ```
 Tab 切换:
 
-  Creative (新功能)       Debug (Bug修复)        build (灵活开发)     plan (只读分析)
-  强制 CREATIVE 流程      强制 DEBUG 流程         日常编码             代码阅读
+  Patch (小改)      Forge (feature)      Trace (bug)       QA-Explorer (前端)
+  4 步              6 步 / 精简5步        5 步              探索测试
 ```
 
 ### 共享 Subagent
 
-| Agent | 功能 | 模型 |
-|-------|------|------|
-| brainstorm | 交互式设计探索 | bicv/qwen3.8-flash |
-| spec-writer | 设计文档编写 | bicv/qwen3.8-flash |
-| plan-writer | 完整规格计划：WHAT 锁（锚点/测试规格/验证命令）+ HOW 留白 + 批次预标注（含批次类型预标注） | bicv/deepseek-v4-flash-0731 |
-| plan-executor | TDD 计划执行 + 防假测试；按批次执行 + 批次单 commit + 抢救协议 | bicv/deepseek-v4-flash-0731 |
-| code-reviewer | 代码审查 + 假测试检测 + 质量审计；按批次 SHA 区间审查 + 逐任务核对测试证据 | bicv/deepseek-v4-flash-0731 |
-| branch-finisher | 分支收尾 | bicv/qwen3.8-flash |
-| explore | 代码库搜索 | bicv/qwen3.8-flash |
-| librarian | 外部研究 | bicv/qwen3.8-flash |
-| metis | 预规划分析 | bicv/qwen3.8-flash |
-| momus | 计划评审 | bicv/deepseek-v4-flash-0731 |
-| oracle | 战略咨询 | bicv/deepseek-v4-flash-0731 |
+| Agent | 功能 |
+|-------|------|
+| story-writer | 用户故事：Epic 契约 + [story]/[enabler] + AC + 批次标注，不写结构设计 |
+| story-executor | 逐故事 TDD（循环定义在 agent 正文）+ 特征测试门槛 + 批次单 commit |
+| code-reviewer | 假测试 + 测试坏味道 + 设计审计 + Clean Code 审查 |
+| branch-finisher | 分支收尾 |
+| explore / librarian | 代码库搜索 / 外部研究 |
+| metis / momus | 预规划分析 / 故事评审（含 AC 映射与契约完整性） |
+| oracle | 战略咨询 |
+
+所有 agent 模型统一通过 `opencode.json` 或各文件 frontmatter 配置。
 
 ### Skill
 
 | Skill | 消费者 | 内容 |
-|-------|-------|------|
-| brainstorm | CREATIVE Step 1 | 设计探索方法：提问澄清、方案提出、展示设计、对比框架 |
-| tdd | plan-writer, plan-executor | TDD RED-GREEN-REFACTOR + 单元测试技术 + 防假测试 |
-| refactoring | plan-executor, code-reviewer | REFACTOR 阶段坏味道检测与重构执行流程 |
-| gdb | plan-executor (可选) | C/C++ 运行时调试：崩溃分析、变量检查、内存调试 |
-| init-deep | - | 层级 AGENTS.md 文件生成与维护 |
-| gh-pr | branch-finisher | GitHub Pull Request 创建与管理 |
-| glab | - | GitLab CLI (glab 命令) |
-| issue-master | - | 需求拆分与 Issue 创建 |
-| writing-skills | - | Skill 编写方法论 |
-| qnx | - | QNX 目标系统连接与部署 |
-| vcpkg | - | vcpkg 包管理：CMakePresets 集成、自定义端口/Registry、依赖管理 |
-| mull | - | Mull mutation testing 工具 |
+|-------|--------|------|
+| brainstorm | Forge Step 1（唯一加载方） | 设计探索：提问澄清、方案对比、决策清单输出（契约 + 关键选择，不含结构设计） |
+| design | code-reviewer（brainstorm 仅在用户明确要求选模式时例外） | 索引层（决策顺序 / YAGNI 闸门 / 自检）+ references/（GRASP 9、SOLID+包原则、DbC 精确语义、GoF 23）按需读 |
+| testing-techniques | story-executor, code-reviewer | 索引层（四属性 / 假测试闸门 / 坏味道判级）+ references/（测试结构、替身、夹具、坏味道全集）按需读 |
+| refactoring | story-executor, code-reviewer | 索引层（阈值/台账/红线）+ references/（坏味道 24 类 + A1-A7、手法、重构到模式、遗留代码接缝/解依赖、流程、台账、Clean Code）按需读 |
+| functional | code-reviewer | 范式选型 / 五构建块 / 错误容器 / 微规则 / 反 FP 闸门 |
+| gdb | Trace（根因调查 / 崩溃复现时） | GDB 调试：崩溃分析、运行时变量、core dump |
+| init-deep / gh-pr / glab / issue-master / writing-skills / qnx / vcpkg / mull | 按需 | 见各自 SKILL.md |
 
 ## 安装
 
@@ -69,75 +73,62 @@ cp -r skills/* ~/.config/opencode/skills/
 
 ### 3. 更新 AGENTS.md
 
-在现有 `~/.config/opencode/AGENTS.md` 中更新 Agent 使用指南：
+把本仓库的 `AGENTS.md` 合并进 `~/.config/opencode/AGENTS.md`。
 
-```markdown
-| **CREATIVE** | 新功能开发强制流程 | 新功能开发，Tab 切换到 Creative |
-| **Debug** | Bug修复强制流程 | Bug 修复，Tab 切换到 Debug |
-```
+### 4. 生效
 
-### 4. 配置模型 (可选)
-
-```json
-{
-  "agent": {
-    "plan-executor": {
-      "model": "bicv/deepseek-v4-flash-0731"
-    }
-  }
-}
-```
+重启 OpenCode 或新开会话。
 
 ## 使用
 
-### Creative (新功能开发)
+### Patch (小改)
 
-1. Tab 切换到 Creative
-2. 描述你要做的功能
-3. CREATIVE 自动走 7 步流程，每一步不可跳过
+Tab 切到 Patch，描述改动。Step 1 判定超界会直接让你切 Forge/Trace，不会「先做一点看看」。
 
-### Debug (Bug 修复)
+### Forge (feature)
 
-1. Tab 切换到 Debug
-2. 描述 bug 和复现步骤
-3. Debug 自动走 5 步流程，先找根因再修复
+Tab 切到 Forge，描述功能。Forge 先定档位：精简档跳过 momus，完整档走满 6 步。
 
-### build / plan (日常开发)
+### Trace (bug)
 
-- build: 灵活编码，小改动和探索
-- plan: 只读分析，阅读和规划
+Tab 切到 Trace，给出复现步骤。Trace 在根因调查后判定测试覆盖：有测试走 TDD，无测试先写特征测试再改。
+
+### QA-Explorer (前端探索测试)
+
+提供目标 URL 与环境名称（必须非生产）。产出写入 `docs/qa/`。
 
 ## 文件结构
 
 ```
 ~/.config/opencode/
 ├── agents/
-│   ├── Creative.md      # Primary: 新功能 CREATIVE 流程
-│   ├── Debug.md         # Primary: Bug DEBUG 流程
-│   ├── brainstorm.md    # Subagent: 交互式设计探索
-│   ├── spec-writer.md   # Subagent: 设计文档编写
-│   ├── plan-writer.md   # Subagent: 实现计划编写
-│   ├── plan-executor.md # Subagent: TDD 计划执行
-│   ├── code-reviewer.md # Subagent: 代码审查 + 假测试检测
-│   ├── branch-finisher.md # Subagent: 分支收尾
-│   ├── explore.md       # Subagent: 代码库搜索
-│   ├── librarian.md     # Subagent: 外部研究
-│   ├── metis.md         # Subagent: 预规划分析
-│   ├── momus.md         # Subagent: 计划评审
-│   └── oracle.md        # Subagent: 战略咨询
+│   ├── Patch.md          # Primary: 小改
+│   ├── Forge.md          # Primary: feature（精简/完整档）
+│   ├── Trace.md          # Primary: bug
+│   ├── QA-Explorer.md    # Primary: 前端探索测试
+│   ├── story-writer.md
+│   ├── story-executor.md
+│   ├── code-reviewer.md
+│   ├── branch-finisher.md
+│   ├── explore.md
+│   ├── librarian.md
+│   ├── metis.md
+│   ├── momus.md
+│   └── oracle.md
 ├── skills/
 │   ├── brainstorm/SKILL.md
-│   ├── tdd/SKILL.md
-│   ├── refactoring/SKILL.md
-│   ├── gdb/SKILL.md
-│   ├── init-deep/SKILL.md
-│   ├── gh-pr/SKILL.md
-│   ├── glab/SKILL.md
-│   ├── issue-master/SKILL.md
-│   ├── mull/SKILL.md
-│   ├── mull/mull.yml
-│   ├── qnx/SKILL.md
-│   ├── vcpkg/SKILL.md
-│   └── writing-skills/SKILL.md
-└── AGENTS.md           # Agent 使用指南
+│   ├── design/SKILL.md + references/*.md
+│   ├── refactoring/SKILL.md + references/*.md
+│   ├── testing-techniques/SKILL.md + references/*.md
+│   ├── functional/SKILL.md
+│   └── ...（gdb / init-deep / gh-pr / glab / issue-master / mull / qnx / vcpkg / writing-skills）
+└── AGENTS.md
 ```
+
+### 项目内产物
+
+| 路径 | 产出者 | 内容 |
+|------|--------|------|
+| `docs/stories/YYYY-MM-DD-<epic>.md` | story-writer | Epic 契约表 + `[story]` / `[enabler]` 故事清单 + 批次标注 |
+| `docs/qa/`、`docs/qa-findings/` | QA-Explorer | 用例表与探索结果 |
+| `docs/debt-ledger.md` | Patch / story-writer | 技术债登记，按文件集重叠并入批次 |

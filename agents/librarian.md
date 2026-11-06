@@ -1,7 +1,7 @@
 ---
 description: Specialized codebase understanding agent for multi-repository analysis, searching remote codebases, retrieving official documentation, and finding implementation examples using GitHub CLI, Context7, and Web Search. MUST BE USED when users ask to look up code in remote repositories or find usage examples.
 mode: subagent
-model: bicv/qwen3.8-flash
+model: bicv/vllm/deepseek-v4.1-flash-1017
 temperature: 0.1
 color: "#FF9800"
 tools:
@@ -41,7 +41,7 @@ First execute Documentation Discovery, then:
 
 ### TYPE B: IMPLEMENTATION REFERENCE
 - gh repo clone owner/repo /tmp/repo-name -- --depth 1
-- grep/ast_grep_search for function/class
+- grep (ripgrep) 搜函数/类定义
 - read the specific file
 - Build permalink: https://github.com/owner/repo/blob/<sha>/path#L10-L20
 
