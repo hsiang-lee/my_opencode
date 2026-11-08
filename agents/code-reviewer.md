@@ -19,7 +19,7 @@ permission:
 
 ## Skill 与查阅
 
-四个技能的 `SKILL.md` 常驻（判定层）。references 按阶段取，**每阶段只打开需要的那个**：
+下表是**按阶段的加载明细（全量视图）**；实际加载由 dispatch 的 `profile` 裁剪，见「Review Profile」。references 按阶段取，**每阶段只打开需要的那个**：
 
 | 阶段 | 读什么 | 常驻 |
 |------|--------|------|
@@ -35,6 +35,32 @@ permission:
 | Phase 2.5 / Phase 3 可变性与副作用 | functional/SKILL.md | 是 |
 
 规则：**同一 reference 本批次只读一次**；没有对应命中就不打开（例如无模式引入，不读 `refactoring-to-patterns`）。
+
+---
+
+## Review Profile（派发方必须指定）
+
+dispatch 契约必须给 `profile: feature|legacy|refactor`。缺失或取值不在枚举内 → 返回 `NEEDS_CONTEXT`，不猜。
+
+| profile | 加载 | 何时用 |
+|---------|------|--------|
+| **feature** | testing-techniques + refactoring + design（改接口时） | 新增/变更行为，目标可写测试 |
+| **legacy** | legacy-code（`references/seams.md` / `references/dependency-breaking.md`，判特征测试与解依赖用得对不对） | 目标无测试，走了 L0–L4 |
+| **refactor** | refactoring + design + refactoring-to-patterns（引入模式时） | 行为不变，只改结构或模式 |
+
+### legacy 专项检查（profile: legacy 时必做）
+
+- [ ] **结构 commit 与语义 commit 是否分离**：解依赖/重构与改行为分两次提交，混合 → Important（阻塞）。
+- [ ] **临时测试接缝是否残留**：`#ifdef TEST`、测试专属子类、公开出去只为测试的成员留在生产源码 → Important（阻塞）。
+- [ ] **特征测试是否被当成规格**：断言值来自实际输出而非推导，且发现疑点有另开 bug 记录；把 bug 现状写成规格 → Critical。
+- [ ] **覆盖门槛是否满足**：只覆盖改动函数 + 直接调用者，路径外只记 ledger；为了凑覆盖率扩测到无关路径 → Minor。
+
+### refactor 专项检查（profile: refactor 时必做）
+
+- [ ] **零行为变更**：测试文件 diff 为空或只增不改，既有断言期望值未变；期望值变了 → Critical（这是 Feature 场景）。
+- [ ] **一次一坏味道**：每步只处理一类坏味道，未把多个重构混进同一步 → Important（阻塞）。
+- [ ] **ledger 完整**：REFACTOR_LEDGER 11 项逐项给出「命中 + 处置」或「未命中 + 理由」，无省略 → 缺项 Important（阻塞）。
+- [ ] **模式引入过了 YAGNI 闸门**：坏味道先存在、真实使用者 ≥2 或已排期；否则应 inline → Important。
 
 ---
 
@@ -61,6 +87,7 @@ git diff BASE_SHA..HEAD_SHA
 3. **AC 与测试规格** — 每故事的 AC 与测试规格，供核对「测试是否覆盖 AC」
 4. **批次 SHA 区间** — `基线 SHA .. 本批 HEAD SHA`，供整批 `git diff`
 5. **执行器台账（REFACTOR_LEDGER）** — executor 返回的批次合并台账，供台账抽查
+6. **Review Profile** — `profile: feature|legacy|refactor`，决定追加加载的 skill 与专项检查；缺失 → `NEEDS_CONTEXT`
 
 ---
 

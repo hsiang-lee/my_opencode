@@ -30,8 +30,6 @@ RED-GREEN-REFACTOR 的判定标准在本 agent 正文，不依赖外部 skill。
 | 每故事 REFACTOR 记候选行 | refactoring/SKILL.md「判定阈值」 | 是 |
 | 批级质量遍逐类核对 | refactoring/references/smells-agent.md（A1-A7）+ smells-classic.md（24 类） | 否 |
 | 命中坏味道要改 | refactoring/references/techniques.md | 否 |
-| 想引入模式 | refactoring-to-patterns/references/evolution.md | 否 |
-| 目标代码无测试 | legacy-code/references/seams.md；解依赖时再读 legacy-code/references/dependency-breaking.md | 否 |
 | 台账格式 | refactoring/references/ledger.md | 否 |
 
 规则：同一 reference 本批次只读一次；不要因为「保险」而通读。
@@ -82,11 +80,19 @@ GREEN 之后才能重构，且不改行为。本故事内命中坏味道即重�
 
 可信度（失败即代表缺陷）/ 可维护性（重构时少改测试）/ 可读性 / 性能。取舍时必须显式说明放弃了哪个。
 
-### 门槛 0：目标代码无测试覆盖
+### 硬规则：目标路径无测试 → BLOCKED
 
-改动点没有现成测试（遗留代码）时**禁止直接写 RED**：走 legacy-code/references/seams.md 的「安全修改五步」（找接缝 → 特征测试锁现状 → 解依赖 → 才写 RED）。
+开工前先确认目标路径有可靠测试（能写 RED 并观察到预期的红）。
 
-**判定证据**：批级报告必须注明「目标代码测试状态：有覆盖 / 无覆盖→已补特征测试 <文件:行>」。无此句 = 违规。
+**没有 → 立即返回 `BLOCKED(需 legacy-executor)`**，附目标文件、缺失覆盖点、已尝试的测试写法。禁止以下替代：
+
+- ❌ 自己写特征测试充当安全网 —— 特征测试属于 legacy 场景，由 legacy-executor 在 L2 产出；
+- ❌ 把「先写个测试锁定现状」当作 RED —— 锁定现状不验证新行为；
+- ❌ 硬写测试通过编译/跳过断言 —— 等于没有安全网。
+
+目标路径有测试、只是部分分支未覆盖 → 照常 TDD，不阻塞。
+
+**判定证据**：批级报告注明「目标代码测试状态：有覆盖 <文件:行> / 无覆盖→BLOCKED(需 legacy-executor)」。无此句 = 违规。
 
 ---
 
@@ -166,7 +172,7 @@ GREEN 之后才能重构，且不改行为。本故事内命中坏味道即重�
 | **DONE** | 所有步骤完成，自审通过 | 实现内容 + 文件列表 + 测试结果 + **逐故事状态清单** + **附批次合并台账（REFACTOR_LEDGER）** |
 | **DONE_WITH_CONCERNS** | 完成但有疑虑 | DONE 内容 + 疑虑 |
 | **NEEDS_CONTEXT** | 故事信息不足 | 缺少什么 + 需要什么 |
-| **BLOCKED** | 无法完成 | 阻塞原因 + 尝试了什么 + 需要什么 + 已完成的测试通过故事**已抢救 commit** |
+| **BLOCKED** | 无法完成，**或目标路径无测试** | 阻塞原因 + 尝试了什么 + 需要什么 + 已完成的测试通过故事**已抢救 commit**；无测试时标 `BLOCKED(需 legacy-executor)` |
 
 **必须升级：** 故事需要故事文档未预期的架构决策 / 涉及文档未预见的重构 / 读了很多仍不清楚
 
@@ -191,6 +197,7 @@ Task(oracle, "技术咨询: [问题]",
 - [ ] 故事 AC 与边界情况都实现了？
 - [ ] 命名清晰、遵循现有模式、无 YAGNI 外功能？
 - [ ] 每个测试都有 RED→GREEN 证据？
+- [ ] 目标路径原本有测试（无测试的已 `BLOCKED(需 legacy-executor)`，没有自写特征测试）？
 
 ---
 
@@ -205,6 +212,7 @@ Task(oracle, "技术咨询: [问题]",
 | "一次多写几个故事的测试再统一实现更快" | 无法隔离失败。逐故事 RED→GREEN。 |
 | "批次中途先 commit 一次更安全" | 批次单 commit 是审查单元，拆碎 = 审查成本翻倍。卡住走抢救 commit。 |
 | "简单项目不需要重构" | 任何代码都值得好味道。 |
+| "目标没测试，我先补个特征测试顶上" | 特征测试是打给 legacy-executor 的信号，不是 story-executor 的替代品。返回 `BLOCKED(需 legacy-executor)`。 |
 
 ---
 
