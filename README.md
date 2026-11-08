@@ -26,11 +26,20 @@
 
 ### 档位（Feature / Refactor 入口）
 
+**Feature**（行为变更）
+
 | 档位 | 判据 | 效果 |
 |------|------|------|
-| 轻量档 | ≤2 文件且 ≤50 行且不改公共接口（Feature）／单一坏味道且 ≤2 文件（Refactor） | 跳过设计、故事、计划与评审，保留执行、审查、收尾 |
+| 轻量档 | ≤2 文件且 ≤50 行且不改公共接口 | 跳过设计与故事，保留 TDD、审查、收尾 |
 | 精简档 | 3-8 文件且无新增模块/公共接口/数据模型 | 跳过 momus，其余照走 |
 | 完整档 | >8 文件，或新增模块/公共接口/数据结构/并发/权限/迁移 | 走满全流程 |
+
+**Refactor**（行为保持）
+
+| 档位 | 判据 | 效果 |
+|------|------|------|
+| 轻量档 | 单一坏味道且 ≤2 文件 | 跳过 planner 与 momus，直接执行、审查、收尾 |
+| 完整档 | 多处坏味道 / 跨模块 / 涉及模式引入 | planner → momus → 分批执行 → 审查 → 收尾 |
 
 ## 架构
 
@@ -38,7 +47,7 @@
 Tab 切换:
 
   Fix (bug)     Legacy (无测试)     Refactor (结构)     Feature (行为)      QA-Explorer
-  5 步          L0-L4 + 审查收尾    5 步 / 轻量3步      6 步 / 精简5步      探索测试
+  5 步          L0-L4 + 审查收尾    5 步 / 轻量3步      6 步 / 精简5步 / 轻量3步  探索测试
      │               │                   │                  │                  │
      └───────────────┴───────── shared subagents ──────────┴──────────────────┘
 ```
@@ -66,9 +75,9 @@ Tab 切换:
 | Skill | 消费者 | 内容 |
 |-------|--------|------|
 | brainstorm | Feature Step 1（唯一加载方） | 设计探索：提问澄清、方案对比、决策清单输出（契约 + 关键选择，不含结构设计） |
-| design | Feature Step 1, code-reviewer, story-executor | 索引层（决策顺序 / YAGNI 闸门 / 自检）+ references/（GRASP 9、SOLID+包原则、DbC、GoF 23、分析模型 UML）按需读 |
-| testing-techniques | story-executor, code-reviewer | 索引层（四属性 / 假测试闸门 / 坏味道判级）+ references/（测试结构、替身、夹具、坏味道全集）按需读 |
-| refactoring | story-executor, code-reviewer, refactor-executor | 小步行为保持：阈值/台账/红线 + references/（坏味道 24 类 + A1-A7、手法、流程、台账、Clean Code） |
+| design | Feature Step 1, code-reviewer, story-executor, refactor-planner, refactor-executor | 索引层（决策顺序 / YAGNI 闸门 / 自检）+ references/（GRASP 9、SOLID+包原则、DbC、GoF 23、分析模型 UML）按需读 |
+| testing-techniques | story-executor, code-reviewer, legacy-executor, refactor-executor, refactor-planner | 索引层（四属性 / 假测试闸门 / 坏味道判级）+ references/（测试结构、替身、夹具、坏味道全集）按需读 |
+| refactoring | story-executor, code-reviewer, refactor-executor, legacy-analyst, legacy-executor, refactor-planner | 小步行为保持：阈值/台账/红线 + references/（坏味道 24 类 + A1-A7、手法、流程、台账、Clean Code） |
 | legacy-code | legacy-analyst, legacy-executor, code-reviewer | 遗留代码 L0-L4 节奏 + 7 参数 + 3 红线 + references/（接缝与特征测试、24 种解依赖、Sprout/Wrap） |
 | refactoring-to-patterns | refactor-planner, refactor-executor, code-reviewer | 坏味道→模式：YAGNI 三问 + TO/TOWARDS/AWAY + references/（模式导向重构、演化链、评审表） |
 | functional | code-reviewer, story-executor | 索引层（范式选型 / 反 FP 闸门 / 评审 16 项）+ references/（构建块 C++&Rust、FP↔OO、错误处理、性能）按需读 |
@@ -169,4 +178,4 @@ Tab 切到 Feature，描述功能。入口先定档位：轻量档跳过设计/�
 | `docs/stories/YYYY-MM-DD-<epic>.md` | story-writer | Epic 契约表 + `[story]` / `[enabler]` 故事清单 + 批次标注 |
 | `docs/plans/*.md` | refactor-planner | 坏味道清单 + 分步重构计划 + 批次 |
 | `docs/qa/`、`docs/qa-findings/` | QA-Explorer | 用例表与探索结果 |
-| `docs/debt-ledger.md` | legacy-executor / story-writer | 技术债登记，按文件集重叠并入批次 |
+| `docs/debt-ledger.md` | story-executor / legacy-executor / refactor-executor | 技术债登记，按文件集重叠并入批次 |

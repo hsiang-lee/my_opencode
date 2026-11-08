@@ -39,7 +39,7 @@ dispatch 必须给：
 
 1. **侦察报告**（legacy-analyst 的 `CHANGE_POINTS` / `EFFECT_SKETCH` / `TEST_INVENTORY` / `STRATEGY` / `RISKS`）
 2. **变更意图**：要改成的行为，或只改结构
-3. **L1 拍板结果**：Sprout / Wrap / Direct Edit（Sprout/Wrap 跳过 L2）
+3. **L1 拍板结果**：Sprout / Wrap / Direct Edit + 选择理由（Sprout/Wrap 跳过 L2）
 4. **测试命令**：全量命令 + 目标测试命令
 5. **SHA 基线**：本任务起点 commit
 
@@ -47,7 +47,9 @@ dispatch 必须给：
 
 ---
 
-## 节奏（L0–L4，唯一权威）
+## 节奏（L0–L4）
+
+> 本正文是 `legacy-code/SKILL.md` 节奏的逐字副本；冲突以 SKILL.md 为准。
 
 ```
 L0 侦察（禁改代码）：change points + effect sketch + 现有测试盘点

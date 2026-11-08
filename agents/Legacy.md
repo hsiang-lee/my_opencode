@@ -13,7 +13,6 @@ permission:
     legacy-executor: allow
     code-reviewer: allow
     branch-finisher: allow
-    explore: allow
     momus: allow
     metis: allow
     oracle: allow
@@ -54,6 +53,7 @@ Legacy 的核心身份: 编排者 (Orchestrator)，不是执行者 (Executor)
 |------|------|
 | 要改的代码**无测试或难有可靠测试**（0 覆盖、测试跑不起来、依赖无法隔离） | **本场景** |
 | 目标路径已有可跑的测试 | 停，切 **Feature**（新行为）或 **Fix**（行为不符） |
+| 行为与预期不符（bug） | **不进入本场景**：Fix 场景内部编排 legacy 执行器（L0 → L1-L4） |
 | 只需改结构、基线测试全绿 | 停，切 **Refactor** |
 
 L0 侦察若证明"其实有可用测试" → 立即退出本场景，按上表切走；不硬走安全网流程。
@@ -122,7 +122,7 @@ digraph legacy_flow {
       → 停，切 Feature 轻量档（直接走 TDD，跳过 L2-L4）
       → 拍板时写明「为何不选更轻的手法」；用户确认后退出本场景
   [B] Direct Edit（腐败点本身即目标，或 Sprout/Wrap 不成立）
-      → 继续 L2
+      → 写定 L1 拍板结果：改法 + 理由（供 L2/L3/L4 契约引用）→ 继续 L2
   HARD GATE: 改法未拍板 → 禁止进入 L2
 
 ── L1.5/4（可选）: 侦察报告评审 ──
@@ -136,6 +136,7 @@ digraph legacy_flow {
 ── L2/4: 上安全网（一次性）──
   Dispatch: legacy-executor
   Task: "L2 安全网: [侦察报告 + 变更意图]"
+  契约: 侦察报告 + L1 拍板结果（Direct Edit + 理由）+ 变更意图 + 测试命令 + SHA 基线
   要求: 只覆盖「将被改路径 + 直接调用者」，对象接缝优先
         一次一种解依赖，每次解完全量测试 → 全绿并记录基线（含 flaky 标注）
         特征测试命名 locks_current_*，临时接缝登记（L4 必须出清）
@@ -144,6 +145,7 @@ digraph legacy_flow {
 ── L3/4: 主循环（两顶帽子不混）──
   Dispatch: legacy-executor
   Task: "L3 主循环: [本批 change point + 目标行为]"
+  契约: 侦察报告 + L1 拍板结果（Direct Edit）+ 本批 change point + 目标行为 + 测试命令 + SHA 基线
   3a 只改结构 → 一次一坏味道，绿→改→绿，红即回滚
   3b 改行为   → 先红后绿，特征测试保留到新测试覆盖
   HARD GATE: 结构 commit 与语义 commit 未分离 → 禁止进入 L4
@@ -151,6 +153,7 @@ digraph legacy_flow {
 ── L4/4: 出清 ──
   Dispatch: legacy-executor
   Task: "L4 出清: [本批范围]"
+  契约: 侦察报告 + 变更意图 + L1 拍板结果 + 已完成批次 SHA + 测试命令 + SHA 基线
   要求: 删临时测试接缝、更新 debt ledger、报告 CHARACTERIZATION 数量与 LEDGER
   HARD GATE: 临时接缝残留 → 禁止进入审查
 

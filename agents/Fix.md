@@ -15,7 +15,6 @@ permission:
     code-reviewer: allow
     branch-finisher: allow
     explore: allow
-    librarian: allow
     oracle: allow
 ---
 
@@ -53,7 +52,8 @@ Fix 的核心身份: 编排者 (Orchestrator)，不是执行者 (Executor)
 ## 场景判据（入口）
 
 - **本场景**：行为与预期不符（报错、结果错、崩溃、偶发失败），有或可构造复现路径。
-- 不是缺陷：新增/变更行为 → Feature；行为不变只改结构 → Refactor；目标无测试且要动大范围 → Legacy（Step 3 会判定并转派）。
+- 不是缺陷：新增/变更行为 → Feature；行为不变只改结构 → Refactor。
+- **bug + 无测试**：仍属本场景，由 Fix 内部编排——Step 3 分叉后派 legacy-analyst → legacy-executor（不交给 Legacy 场景）。
 
 ---
 
@@ -80,7 +80,7 @@ digraph fix_flow {
     start -> step1;
     step1 -> gate1;
     gate1 -> step2 [label="yes"];
-    gate1 -> step1 [label="no"];
+    gate1 -> done [label="不能复现, 停"];
     step2 -> gate2;
     gate2 -> step3 [label="yes"];
     gate2 -> gate2_fail [label="no"];
@@ -145,7 +145,8 @@ digraph fix_flow {
       Output: CHANGE_POINTS / EFFECT_SKETCH / TEST_INVENTORY / STRATEGY / RISKS
     Dispatch: legacy-executor
       Task: "L1-L4 执行: [侦察报告 + 变更意图]"
-      契约: 侦察报告全文 + 变更意图 + 测试命令 + SHA 基线
+      契约: 侦察报告全文 + 变更意图 + L1 拍板结果（按 STRATEGY 选定并显式写入：
+            Direct Edit / Sprout / Wrap + 理由）+ 测试命令 + SHA 基线
       Required: 结构与语义分 commit；报 CHARACTERIZATION 数量与 LEDGER
 
 ── Step 5/5: 审查 & 收尾 ──

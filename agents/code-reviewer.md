@@ -63,6 +63,7 @@ dispatch 契约必须给 `profile: feature|legacy|refactor`。缺失或取值不
 - [ ] **一次一坏味道**：每步只处理一类坏味道，未把多个重构混进同一步 → Important（阻塞）。
 - [ ] **ledger 完整**：REFACTOR_LEDGER 11 项逐项给出「命中 + 处置」或「未命中 + 理由」，无省略 → 缺项 Important（阻塞）。
 - [ ] **模式引入过了 YAGNI 闸门**：坏味道先存在、真实使用者 ≥2 或已排期；否则应 inline → Important。
+- [ ] **无计划外改动**：diff 未超出批次范围、未夹带其他坏味道 → 超出 → Important（阻塞）。
 
 ---
 

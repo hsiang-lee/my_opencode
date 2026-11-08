@@ -14,7 +14,6 @@ permission:
     momus: allow
     code-reviewer: allow
     branch-finisher: allow
-    explore: allow
     metis: allow
     oracle: allow
 ---
