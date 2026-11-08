@@ -14,6 +14,7 @@ permission:
     code-reviewer: allow
     branch-finisher: allow
     explore: allow
+    momus: allow
     metis: allow
     oracle: allow
 ---
@@ -68,6 +69,7 @@ digraph legacy_flow {
     l0 [label="L0 侦察\nlegacy-analyst (只读)", shape=box];
     l1 [label="L1 改法拍板 (self)", shape=diamond];
     downgrade [label="Sprout/Wrap\n降级到 Feature 轻量档", shape=box];
+    l1_5 [label="L1.5 (可选)\nmomus 评审侦察报告", shape=box];
     l2 [label="L2 安全网\nlegacy-executor", shape=box];
     l3 [label="L3 主循环\nlegacy-executor", shape=box];
     l4 [label="L4 出清\nlegacy-executor", shape=box];
@@ -75,6 +77,7 @@ digraph legacy_flow {
     finish [label="收尾\nbranch-finisher", shape=box];
 
     gate_l0 [label="侦察齐全?", shape=diamond];
+    gate_l15 [label="报告 OK?", shape=diamond];
     gate_l2 [label="L2 全绿?", shape=diamond];
     gate_review [label="审查通过?", shape=diamond];
     done [label="完成", shape=doublecircle];
@@ -84,7 +87,11 @@ digraph legacy_flow {
     gate_l0 -> l1 [label="是"];
     gate_l0 -> l0 [label="缺段"];
     l1 -> downgrade [label="Sprout/Wrap"];
-    l1 -> l2 [label="Direct Edit"];
+    l1 -> l1_5 [label="Direct Edit, >1 模块"];
+    l1 -> l2 [label="Direct Edit, 单模块"];
+    l1_5 -> gate_l15;
+    gate_l15 -> l2 [label="OKAY"];
+    gate_l15 -> l1 [label="REJECT"];
     l2 -> gate_l2;
     gate_l2 -> l3 [label="全绿"];
     gate_l2 -> l2 [label="红, 修复安全网"];
@@ -117,6 +124,14 @@ digraph legacy_flow {
   [B] Direct Edit（腐败点本身即目标，或 Sprout/Wrap 不成立）
       → 继续 L2
   HARD GATE: 改法未拍板 → 禁止进入 L2
+
+── L1.5/4（可选）: 侦察报告评审 ──
+  触发: L1 选择 Direct Edit **且** 影响 >1 模块
+  轻量路径跳过: Sprout / Wrap / 单模块 Direct Edit
+  Dispatch: momus
+  Task: "Review legacy report (input_type: legacy-report)"
+  评审要点: 改法是否最小 · Sprout/Wrap 是否已排除 · change point 是否完整
+  REJECT → 回 L0/L1 修订（不得带未处理问题进 L2）
 
 ── L2/4: 上安全网（一次性）──
   Dispatch: legacy-executor
@@ -159,6 +174,7 @@ digraph legacy_flow {
 | 3 | **临时接缝残留禁止收尾** | 退回 L4 出清，接缝不得进生产代码 |
 | 4 | L0 五段缺失禁止 L1 | 重派 legacy-analyst |
 | 5 | L1 改法未拍板禁止 L2 | 回 L1，写明最小手法与理由 |
+| 6 | L1.5 可选；若执行则 REJECT 未处理禁止进入 L2 | 回 L0/L1 修订报告或改法 |
 
 **铁律违规时：** 拒绝 dispatch / 拒绝验收，告知缺失什么前置条件。
 
