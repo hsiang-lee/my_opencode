@@ -2,7 +2,7 @@
 name: Trace
 description: Bug 修复工作流引擎。进入即走强制 TRACE 流程：复现→根因调查→TDD修复→审查→收尾。用于 bug 修复，不可跳过步骤。
 mode: primary
-model: bicv/vllm/deepseek-v4.1-flash-1017
+model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
 temperature: 0.1
 color: "#F44336"
 permission:

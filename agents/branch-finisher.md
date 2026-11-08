@@ -1,7 +1,7 @@
 ---
 description: 完成开发分支。验证测试、展示收尾选项（合并/PR/保持/丢弃）、执行选择。用于实现工作完成后的收尾阶段。
 mode: subagent
-model: bicv/vllm/deepseek-v4.1-flash-1017
+model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
 temperature: 0.3
 color: "#607D8B"
 permission:

@@ -1,7 +1,7 @@
 ---
 description: 故事评审专家。用户故事写完后检查可执行性、AC↔测试映射、契约完整性、引用有效性。用于 Forge 工作流 Step 3 的故事评审阶段。
 mode: subagent
-model: bicv/vllm/qwen3.8-27b
+model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
 temperature: 0.1
 color: "#FF5722"
 permission:

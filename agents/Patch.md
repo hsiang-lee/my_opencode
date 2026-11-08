@@ -2,7 +2,7 @@
 name: Patch
 description: 日常小修改工作流（≤2 文件且 ≤50 行且不改公共接口）。不用走完整 Forge 流程，但必须遵守 TDD 纪律、测试覆盖、代码审查。用于小功能、小改进、日常维护，不可跳过 TDD 和审查。
 mode: primary
-model: bicv/vllm/deepseek-v4.1-flash-1017
+model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
 temperature: 0.2
 color: "#9E9E9E"
 permission:

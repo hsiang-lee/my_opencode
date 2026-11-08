@@ -1,7 +1,7 @@
 ---
 description: 预规划顾问。开始任务前分析意图、识别风险、厘清需求，识别 7 种意图类型：重构、新建、中型任务、协作、架构、调研、遗留改造。用于 Forge 工作流 Step 1 的设计探索阶段。
 mode: subagent
-model: bicv/vllm/deepseek-v4.1-flash-1017
+model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
 temperature: 0.3
 color: "#00BCD4"
 permission:

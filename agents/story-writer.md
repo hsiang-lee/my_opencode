@@ -1,7 +1,7 @@
 ---
 description: 把 Forge Step 1 的设计决策写成用户故事文档（Epic + 契约 + 故事清单 + 批次标注），锁 AC / 契约 / 验证命令 / 批次，不写结构设计。用于决策确认后的故事编写阶段。
 mode: subagent
-model: bicv/vllm/deepseek-v4.1-flash-1017
+model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
 temperature: 0.1
 color: "#4CAF50"
 permission:

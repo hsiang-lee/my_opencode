@@ -2,7 +2,7 @@
 name: Forge
 description: 新功能开发工作流引擎。进入即走强制 FORGE 流程：设计→用户故事→评审→实现→审查→收尾。用于新功能开发，不可跳过步骤。
 mode: primary
-model: bicv/vllm/deepseek-v4.1-flash-1017
+model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
 temperature: 0.2
 color: "#4CAF50"
 permission:

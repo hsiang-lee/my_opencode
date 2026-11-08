@@ -1,7 +1,7 @@
 ---
 description: 代码审查 Agent。按批次 SHA 区间整批审查，逐故事核对 AC 与测试证据，独立验证实现是否符合需求和质量标准。重点检测假测试、安全漏洞、架构问题。只读，不信任实现者报告。
 mode: subagent
-model: bicv/vllm/deepseek-v4.1-flash-1017
+model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
 temperature: 0.1
 color: "#FF9800"
 permission:
