@@ -15,7 +15,7 @@
 | 2 | 要改的代码无测试 / 难有可靠测试 | **Legacy** |
 | 3 | 行为不变，只改结构或模式，基线全绿 | **Refactor** |
 | 4 | 新增/变更行为，且目标可写测试 | **Feature** |
-| 5 | 前端探索测试（只报告不修复） | **QA-Explorer** |
+| 5 | 前端探索测试（只报告不修复） | **QAExplorer** |
 
 判据重叠时按上表顺序。场景不符即停，不「先做一点看看」。
 
@@ -46,7 +46,7 @@
 | Fix | 场景 1：bug 修复 | Tab |
 | Legacy | 场景 2：无测试代码改动 | Tab |
 | Refactor | 场景 3：行为保持型重构 | Tab |
-| QA-Explorer | 前端探索测试 | Tab |
+| QAExplorer | 前端探索测试 | Tab |
 | story-writer | 决策确认后产出 Epic + 故事清单 | `Task("story-writer", ...)` |
 | story-executor | 有测试路径的逐故事 TDD | `Task("story-executor", ...)` |
 | legacy-analyst | L0 侦察 + L1 改法建议（只读） | `Task("legacy-analyst", ...)` |

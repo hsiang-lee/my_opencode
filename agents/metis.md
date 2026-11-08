@@ -1,5 +1,5 @@
 ---
-description: 预规划顾问。开始任务前分析意图、识别风险、厘清需求，把意图映射到 5 个执行场景（Feature / Fix / Legacy / Refactor / QA-Explorer）与档位。用于 Feature Step 1 等编排入口的设计探索阶段。
+description: 预规划顾问。开始任务前分析意图、识别风险、厘清需求，把意图映射到 5 个执行场景（Feature / Fix / Legacy / Refactor / QAExplorer）与档位。用于 Feature Step 1 等编排入口的设计探索阶段。
 mode: subagent
 model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
 temperature: 0.3
@@ -34,7 +34,7 @@ permission:
 | "重构"、"清理"、"重命名"、"拆函数" | 行为不变，基线测试全绿 | **Refactor** |
 | "新增功能"、"创建"、"开发"、"改行为" | 新增/变更行为，目标可写测试 | **Feature** |
 | "帮我规划"、"怎么设计"、"调研一下" | 尚未决定实现 | 先澄清，不进实现场景 |
-| 前端探索测试 | 目标 URL + 环境 | **QA-Explorer** |
+| 前端探索测试 | 目标 URL + 环境 | **QAExplorer** |
 
 判据重叠时按入口顺序：**Fix > Legacy > Refactor > Feature**。
 
@@ -138,7 +138,7 @@ permission:
 
 ```markdown
 ## 场景分类
-**场景**: [Feature | Fix | Legacy | Refactor | QA-Explorer | 待澄清]
+**场景**: [Feature | Fix | Legacy | Refactor | QAExplorer | 待澄清]
 **档位**: [轻量 | 精简（仅 Feature） | 完整 | 不适用]
 **置信度**: [高 | 中 | 低]
 **依据**: [为什么这样分类]

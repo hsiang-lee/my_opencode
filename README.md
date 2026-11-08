@@ -1,4 +1,4 @@
-# Feature / Fix / Legacy / Refactor / QA-Explorer — OpenCode 代码工作流系统
+# Feature / Fix / Legacy / Refactor / QAExplorer — OpenCode 代码工作流系统
 
 > 为 OpenCode 设计的五场景工作流 Agent 系统：先判场景，再判档位，纪律不随规模下降。
 
@@ -10,7 +10,7 @@
 - **Fix** — bug：复现 → 根因 → 覆盖分叉 → 修复 → 审查 → 收尾（5 步，不设档位）
 - **Legacy** — 无测试代码：L0 侦察 → L1 改法拍板 → L2 安全网 → L3 主循环 → L4 出清 → 审查 → 收尾
 - **Refactor** — 行为保持型重构：基线 → 计划 → 评审 → 分批执行 → 审查 → 收尾（轻量档跳过计划）
-- **QA-Explorer** — 前端探索测试：生成/执行用例，产出证据化 finding 报告（只报告，不修复）
+- **QAExplorer** — 前端探索测试：生成/执行用例，产出证据化 finding 报告（只报告，不修复）
 
 **核心设计：Agent 不做意图猜测，用户选场景；档位由机械阈值判定，不凭感觉。**
 
@@ -22,7 +22,7 @@
 | 2 | 要改的代码无测试 / 难有可靠测试 | Legacy |
 | 3 | 行为不变，只改结构或模式，基线全绿 | Refactor |
 | 4 | 新增/变更行为，且目标可写测试 | Feature |
-| 5 | 前端探索测试 | QA-Explorer |
+| 5 | 前端探索测试 | QAExplorer |
 
 ### 档位（Feature / Refactor 入口）
 
@@ -46,7 +46,7 @@
 ```
 Tab 切换:
 
-  Fix (bug)     Legacy (无测试)     Refactor (结构)     Feature (行为)      QA-Explorer
+  Fix (bug)     Legacy (无测试)     Refactor (结构)     Feature (行为)      QAExplorer
   5 步          L0-L4 + 审查收尾    5 步 / 轻量3步      6 步 / 精简5步 / 轻量3步  探索测试
      │               │                   │                  │                  │
      └───────────────┴───────── shared subagents ──────────┴──────────────────┘
@@ -132,7 +132,7 @@ Tab 切到 Fix，给出复现步骤。根因调查后判定覆盖：有测试 �
 
 Tab 切到 Feature，描述功能。入口先定档位：轻量档跳过设计/故事/评审，精简档跳过 momus，完整档走满 6 步。
 
-### QA-Explorer (前端探索测试)
+### QAExplorer (前端探索测试)
 
 提供目标 URL 与环境名称（必须非生产）。产出写入 `docs/qa/`。
 
@@ -145,7 +145,7 @@ Tab 切到 Feature，描述功能。入口先定档位：轻量档跳过设计/�
 │   ├── Fix.md            # Primary: bug 修复
 │   ├── Legacy.md         # Primary: 无测试代码
 │   ├── Refactor.md       # Primary: 行为保持型重构
-│   ├── QA-Explorer.md    # Primary: 前端探索测试
+│   ├── QAExplorer.md    # Primary: 前端探索测试
 │   ├── story-writer.md
 │   ├── story-executor.md
 │   ├── legacy-analyst.md
@@ -177,5 +177,5 @@ Tab 切到 Feature，描述功能。入口先定档位：轻量档跳过设计/�
 |------|--------|------|
 | `docs/stories/YYYY-MM-DD-<epic>.md` | story-writer | Epic 契约表 + `[story]` / `[enabler]` 故事清单 + 批次标注 |
 | `docs/plans/*.md` | refactor-planner | 坏味道清单 + 分步重构计划 + 批次 |
-| `docs/qa/`、`docs/qa-findings/` | QA-Explorer | 用例表与探索结果 |
+| `docs/qa/`、`docs/qa-findings/` | QAExplorer | 用例表与探索结果 |
 | `docs/debt-ledger.md` | story-executor / legacy-executor / refactor-executor | 技术债登记，按文件集重叠并入批次 |
