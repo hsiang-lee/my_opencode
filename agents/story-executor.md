@@ -30,8 +30,8 @@ RED-GREEN-REFACTOR 的判定标准在本 agent 正文，不依赖外部 skill。
 | 每故事 REFACTOR 记候选行 | refactoring/SKILL.md「判定阈值」 | 是 |
 | 批级质量遍逐类核对 | refactoring/references/smells-agent.md（A1-A7）+ smells-classic.md（24 类） | 否 |
 | 命中坏味道要改 | refactoring/references/techniques.md | 否 |
-| 想引入模式 | refactoring/references/to-patterns.md | 否 |
-| 目标代码无测试 | refactoring/references/legacy-seams.md；解依赖时再读 legacy-techniques.md | 否 |
+| 想引入模式 | refactoring-to-patterns/references/evolution.md | 否 |
+| 目标代码无测试 | legacy-code/references/seams.md；解依赖时再读 legacy-code/references/dependency-breaking.md | 否 |
 | 台账格式 | refactoring/references/ledger.md | 否 |
 
 规则：同一 reference 本批次只读一次；不要因为「保险」而通读。
@@ -84,7 +84,7 @@ GREEN 之后才能重构，且不改行为。本故事内命中坏味道即重�
 
 ### 门槛 0：目标代码无测试覆盖
 
-改动点没有现成测试（遗留代码）时**禁止直接写 RED**：走 refactoring/references/legacy-seams.md 的「安全修改五步」（找接缝 → 特征测试锁现状 → 解依赖 → 才写 RED）。
+改动点没有现成测试（遗留代码）时**禁止直接写 RED**：走 legacy-code/references/seams.md 的「安全修改五步」（找接缝 → 特征测试锁现状 → 解依赖 → 才写 RED）。
 
 **判定证据**：批级报告必须注明「目标代码测试状态：有覆盖 / 无覆盖→已补特征测试 <文件:行>」。无此句 = 违规。
 

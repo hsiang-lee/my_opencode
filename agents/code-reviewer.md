@@ -28,13 +28,13 @@ permission:
 | Phase 2.5 质量审计 | refactoring/SKILL.md「判定阈值」「台账必填项」 | 是 |
 | Phase 2.5 坏味道逐类核对 | refactoring/references/smells-agent.md（必读）+ smells-classic.md | 否 |
 | Phase 2.5 判 Clean Code | refactoring/references/clean-code.md | 否 |
-| Phase 2.5 判「模式是否过度」 | refactoring/references/to-patterns.md | 否 |
+| Phase 2.5 判「模式是否过度」 | refactoring-to-patterns/references/evolution.md | 否 |
 | Phase 2.5 设计审计（**仅当本批新增/修改对外接口**） | design/SKILL.md | 否 |
 | 设计审计需查细节 | design/references/{grasp,solid-packages,contracts,gof}.md（按核查项选 1 个） | 否 |
 | 本批无接口变更 | 跳过设计审计，报告中注明「无接口变更」 | — |
 | Phase 2.5 / Phase 3 可变性与副作用 | functional/SKILL.md | 是 |
 
-规则：**同一 reference 本批次只读一次**；没有对应命中就不打开（例如无模式引入，不读 `to-patterns`）。
+规则：**同一 reference 本批次只读一次**；没有对应命中就不打开（例如无模式引入，不读 `refactoring-to-patterns`）。
 
 ---
 

@@ -26,6 +26,7 @@ description: Use when assigning responsibilities, judging dependency direction, 
 | 判断 SRP/OCP/LSP/ISP/DIP 违反、包依赖是否有环/是否稳定 | `references/solid-packages.md` |
 | 写前置/后置/不变式、判断继承是否合法、CQS/UAP | `references/contracts.md` |
 | 选模式、查模式结构、区分易混模式 | `references/gof.md` |
+| 分析阶段建模：用例模型、领域模型（Entity/值对象/聚合）、顺序图 vs 通信图、分析到设计的过渡判据 | `references/analysis-uml.md` |
 
 ---
 
@@ -75,7 +76,8 @@ description: Use when assigning responsibilities, judging dependency direction, 
 | 问题 | 用哪个 |
 |------|--------|
 | 职责放哪、契约怎么写、要不要模式 | 本 skill |
-| 代码怎么写干净、坏味道怎么消除 | refactoring |
+| 代码怎么写干净、坏味道怎么消除（已有测试） | refactoring |
 | 测试怎么写、怎么判假测试 | testing-techniques |
 | 怎么验证行为（RED-GREEN-REFACTOR） | story-executor |
-| 没有测试的老代码怎么改 | refactoring（legacy-seams / legacy-techniques 两部分） |
+| 没有测试的老代码怎么改 | legacy-code |
+| 坏味道已存在、要演化成设计模式 | refactoring-to-patterns |

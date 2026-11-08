@@ -112,7 +112,7 @@ digraph trace_flow {
       2. 写特征测试锁定现状（含看起来错误的行为）
       3. 用解依赖技术拆开障碍（一次一个）
       4. 再写红色测试表达期望行为（此时 RED 才是修复的起点）
-      以上 4 步由 story-executor 按 refactoring 的 references/legacy-seams.md 执行，dispatch 时在契约里点名「无覆盖，先特征测试」
+      以上 4 步由 story-executor 按 legacy-code/references/seams.md 执行，dispatch 时在契约里点名「无覆盖，先特征测试」
 
   HARD GATE:
     - 无测试且未写特征测试 → 禁止进入 Step 4

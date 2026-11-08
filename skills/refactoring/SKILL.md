@@ -1,18 +1,13 @@
 ---
 name: refactoring
-description: Use during the REFACTOR phase after tests are green, when detecting and eliminating code smells, when refactoring toward a design pattern, when modifying code that has no tests, or when reviewing code for smell and Clean Code violations. SKILL.md holds the judging thresholds, the ledger's required items and the hard constraints; smell catalogs, techniques, pattern-directed refactoring, legacy seams and dependency-breaking, workflow and Clean Code rules are in references/ and read on demand.
+description: Use during the REFACTOR phase after tests are green, when detecting and eliminating code smells on code that already has tests, or when reviewing code for smell and Clean Code violations. SKILL.md holds the judging thresholds, the ledger's required items and the hard constraints; smell catalogs, refactoring techniques, workflow and Clean Code rules are in references/ and read on demand. Legacy code without a safety net belongs to the legacy-code skill; evolving smells into a pattern belongs to refactoring-to-patterns.
 ---
 
 # Refactoring — 代码重构
 
 **核心原则：测试失败时禁止重构。重构只改变结构，不改变行为。**
 
-| 谁用 | 用来做什么 |
-|------|------------|
-| story-executor | REFACTOR 阶段检测 → 重构 → 记台账 |
-| code-reviewer | Phase 2.5 质量审计（坏味道 + Clean Code 判级） |
-
-**本文件常驻 = 判定层**（阈值、台账必填项、红线）。下面索引里的文件只在需要时读，不要一次全读。
+**使用者**：story-executor（检测 → 重构 → 记台账）、code-reviewer（Phase 2.5 质量审计）。**本文件常驻 = 判定层**（阈值、台账必填项、红线），索引里的文件只在需要时读。
 
 ---
 
@@ -26,17 +21,25 @@ description: Use during the REFACTOR phase after tests are green, when detecting
 | 走完整执行流程（两顶帽子 / 步骤 / 失败处理） | `references/workflow.md` |
 | 写台账（完整格式与示例） | `references/ledger.md` |
 | Clean Code 10 条（评审用判据） | `references/clean-code.md` |
-| 坏味道指向某个设计模式：TO / TOWARDS / AWAY 三种方向、演化链、评审表 | `references/to-patterns.md` |
-| 目标代码**没有测试**：接缝三类型、特征测试、安全修改五步 | `references/legacy-seams.md` |
-| 解依赖：24 种技术、场景→技术对照、私有方法判定 | `references/legacy-techniques.md` |
 
 规则：**只读当前任务需要的那一个**。核对台账 ≠ 通读全部；先按下面阈值定位嫌疑项，再按嫌疑项查对应文件。
 
 ---
 
+## 与其他 skill 的边界
+
+| 问题 | 用哪个 |
+|------|--------|
+| 已有测试的代码怎么小步改结构 | 本 skill |
+| 目标代码**没有测试**（遗留代码） | legacy-code skill |
+| 坏味道已存在、要演化成设计模式 | refactoring-to-patterns skill |
+| 测试怎么写、怎么判假测试 | testing-techniques skill |
+
+---
+
 ## 判定阈值（常驻，唯一来源）
 
-所有阈值以本表为准；references 与 agent 正文出现不同数值一律以本表覆盖。
+所有阈值以本表为准；references 与 agent 正文出现不同数值一律以本表覆盖。检测优先级：A1/A2 → A3 → A4 → 经典结构类；纯人工逐类核对，不使用静态分析工具。
 
 | 项 | 触发阈值 |
 |----|----------|
@@ -58,8 +61,6 @@ description: Use during the REFACTOR phase after tests are green, when detecting
 | 依恋情结 | > 50% 的访问指向另一个对象 |
 | 重复的 switch | 同一类型分支出现在 ≥ 2 处 |
 | 霰弹式修改 | 一个变更要改 ≥ 2 个类的多处 |
-
-检测优先级：A1/A2 → A3 → A4 → 经典结构类。纯人工逐类核对，不使用静态分析工具。
 
 ---
 
@@ -92,4 +93,3 @@ A1 A2 A3 A4 A5 A6 A7 / 过长函数(>40行) / 深嵌套(≥3层) /
 - 重构不改变行为
 - 重构步骤导致测试失败 → 立即回滚该步
 - 实现任何 helper/常量前先 grep 已有同类：找到就复用，找不到才创建（详见 `references/smells-agent.md` 复用优先规则）
-- 引入模式前必须有坏味道；抽象的真实使用者 ≤1 且无排期中的第二个 → inline 掉（AWAY，见 `references/to-patterns.md`）

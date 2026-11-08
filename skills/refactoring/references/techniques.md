@@ -76,7 +76,7 @@
 ```
 Rename → Extract Method → Replace Temp with Query → Move Method
 → Introduce Parameter Object → 多态化（Replace Conditional with Polymorphism）
-→ 上模式（to-patterns.md）
+→ 上模式（`refactoring-to-patterns/references/evolution.md`）
 ```
 
 每一步都必须「测试绿 → 改 → 测试绿」，失败回滚该步（见 `workflow.md`）。
