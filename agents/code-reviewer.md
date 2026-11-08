@@ -48,6 +48,8 @@ dispatch 契约必须给 `profile: feature|legacy|refactor`。缺失或取值不
 | **legacy** | legacy-code（`references/seams.md` / `references/dependency-breaking.md`，判特征测试与解依赖用得对不对） | 目标无测试，走了 L0–L4 |
 | **refactor** | refactoring + design + refactoring-to-patterns（引入模式时） | 行为不变，只改结构或模式 |
 
+非 `feature` profile 不核对故事 AC：`legacy` 以侦察报告 + CHARACTERIZATION + LEDGER 为核对对象，`refactor` 以计划步 + REFACTOR_LEDGER 为核对对象。
+
 ### legacy 专项检查（profile: legacy 时必做）
 
 - [ ] **结构 commit 与语义 commit 是否分离**：解依赖/重构与改行为分两次提交，混合 → Important（阻塞）。
@@ -80,9 +82,9 @@ git diff BASE_SHA..HEAD_SHA
 
 ## 输入契约
 
-本批次由 Forge 通过 dispatch 传入以下字段，作为审查依据：
+本批次由编排者（Feature / Fix / Legacy / Refactor）通过 dispatch 传入以下字段，作为审查依据：
 
-1. **故事文档路径** — code-reviewer 逐故事核对 AC 与测试证据的依据
+1. **文档路径** — 按 profile：故事文档（feature）/ 侦察报告（legacy）/ 重构计划（refactor），作为核对依据
 2. **批次故事清单** — 本批次审查范围的故事列表
 3. **AC 与测试规格** — 每故事的 AC 与测试规格，供核对「测试是否覆盖 AC」
 4. **批次 SHA 区间** — `基线 SHA .. 本批 HEAD SHA`，供整批 `git diff`

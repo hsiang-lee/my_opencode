@@ -1,5 +1,5 @@
 ---
-description: 按批次执行用户故事。逐故事 TDD（RED→GREEN→REFACTOR 判定标准在本 agent 正文），批次单 commit；报告 DONE/DONE_WITH_CONCERNS/BLOCKED/NEEDS_CONTEXT。用于 Forge/Patch/Trace 派发的实现阶段。
+description: 按批次执行用户故事。逐故事 TDD（RED→GREEN→REFACTOR 判定标准在本 agent 正文），批次单 commit；报告 DONE/DONE_WITH_CONCERNS/BLOCKED/NEEDS_CONTEXT。用于 Feature / Fix 场景（目标路径有测试）的实现阶段。
 mode: subagent
 model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
 temperature: 0.1
@@ -124,13 +124,13 @@ GREEN 之后才能重构，且不改行为。本故事内命中坏味道即重�
   - Blocked: S3 — <reason>"
   ```
   **同样英文。**
-- **逐故事状态清单**：批次结束返回 Forge 时，产出**逐故事状态清单**（哪些 DONE / 哪些 BLOCKED，Blocked 附原因）。
+- **逐故事状态清单**：批次结束返回编排者时，产出**逐故事状态清单**（哪些 DONE / 哪些 BLOCKED，Blocked 附原因）。
 
 ---
 
 ## 输入契约
 
-本批次由 Forge 通过 dispatch 传入以下字段，严格按此执行：
+本批次由编排者（Feature / Fix）通过 dispatch 传入以下字段，严格按此执行：
 
 1. **故事文档路径** — 本批次依据的故事文档（`docs/stories/...md`）
 2. **批次故事清单** — 本批次包含哪些故事（S1/S2 编号列表）
