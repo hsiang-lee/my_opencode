@@ -146,8 +146,9 @@ digraph fix_flow {
     Dispatch: legacy-executor
       Task: "L1-L4 执行: [侦察报告 + 变更意图]"
       契约: 侦察报告全文 + 变更意图 + L1 拍板结果（按 STRATEGY 选定并显式写入：
-            Direct Edit / Sprout / Wrap + 理由）+ 测试命令 + SHA 基线
+            Direct Edit + 理由）+ 测试命令 + SHA 基线
       Required: 结构与语义分 commit；报 CHARACTERIZATION 数量与 LEDGER
+      分流: 若 STRATEGY 为 Sprout/Wrap → 停，经用户确认后转 Feature 轻量档，不派 executor
 
 ── Step 5/5: 审查 & 收尾 ──
   Dispatch: code-reviewer

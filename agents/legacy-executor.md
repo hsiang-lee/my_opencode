@@ -24,7 +24,6 @@ permission:
 | 每任务：节奏与参数（判定层） | legacy-code/SKILL.md | 是 |
 | 找接缝 / 写特征测试 / 定覆盖边界 | legacy-code/references/seams.md | 否 |
 | 解依赖（一次一种） | legacy-code/references/dependency-breaking.md | 否 |
-| L1 改法落地（Sprout/Wrap 细节） | legacy-code/references/sprouting.md | 否 |
 | L3a 改结构：坏味道判据与手法 | refactoring/SKILL.md + refactoring/references/techniques.md | 否 |
 | L3b 改行为：先红后绿 | testing-techniques/SKILL.md | 否 |
 | 台账格式 | refactoring/references/ledger.md | 否 |
@@ -39,7 +38,7 @@ dispatch 必须给：
 
 1. **侦察报告**（legacy-analyst 的 `CHANGE_POINTS` / `EFFECT_SKETCH` / `TEST_INVENTORY` / `STRATEGY` / `RISKS`）
 2. **变更意图**：要改成的行为，或只改结构
-3. **L1 拍板结果**：Sprout / Wrap / Direct Edit + 选择理由（Sprout/Wrap 跳过 L2）
+3. **L1 拍板结果**：Direct Edit + 选择理由（本 executor 只执行 Direct Edit；Sprout/Wrap 由编排层退出到 Feature 轻量档，不派本 agent）
 4. **测试命令**：全量命令 + 目标测试命令
 5. **SHA 基线**：本任务起点 commit
 
@@ -49,12 +48,12 @@ dispatch 必须给：
 
 ## 节奏（L0–L4）
 
-> 本正文是 `legacy-code/SKILL.md` 节奏的逐字副本；冲突以 SKILL.md 为准。
+> 本正文是 `legacy-code/SKILL.md` 节奏的副本（L1 的 Sprout/Wrap 在编排层分流，本 executor 只执行 Direct Edit）；冲突以 SKILL.md 为准。
 
 ```
 L0 侦察（禁改代码）：change points + effect sketch + 现有测试盘点
 L1 选改法（风险递增）：Sprout > Wrap > Direct Edit
-   Sprout/Wrap 不碰老代码 → 直接走 TDD，跳过 L2
+   本 executor 只接 Direct Edit；Sprout/Wrap 在编排层退出到 Feature 轻量档
 L2 上安全网（一次性）：只覆盖"将被改路径 + 直接调用者"，对象接缝优先
    一次一种解依赖，每次解完全量测试 → 全绿并记录基线（含 flaky 标注）
 L3 主循环（两顶帽子不混）
@@ -87,7 +86,7 @@ L0 已由 legacy-analyst 完成：若报告缺 `EFFECT_SKETCH` 或 `TEST_INVENTO
 
 1. **特征测试 ≠ 规格**：它只锁 bug 现状；发现疑似错误另开 bug，不改断言迁就。
 2. **解依赖 ≠ 重构完成**：解依赖只是上安全网的结构动作，不替代随后的坏味道处理与行为修改。
-3. **Sprout 不得绕过必须修改的腐败点**：新代码挂在腐败逻辑旁边而不修根因，只是把问题留原地。
+3. **Direct Edit 不得绕过必须修改的腐败点**：只改表面症状、把根因留在原地，等于没改。
 
 任一红线被触碰 → 停止，报告 `BLOCKED` 或 `DONE_WITH_CONCERNS`，不"先继续看看"。
 

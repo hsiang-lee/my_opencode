@@ -7,7 +7,7 @@ description: Use during the REFACTOR phase after tests are green, when detecting
 
 **核心原则：测试失败时禁止重构。重构只改变结构，不改变行为。**
 
-**使用者**：story-executor（检测 → 重构 → 记台账）、refactor-executor（按计划分批执行）、code-reviewer（Phase 2.5 质量审计）。**本文件常驻 = 判定层**（阈值、台账必填项、红线），索引里的文件只在需要时读。
+**使用者**：story-executor（检测 → 重构 → 记台账）、refactor-planner（按阈值分类定计划）、refactor-executor（按计划分批执行）、legacy-analyst（评估改动后的结构债）、legacy-executor（L3a 两顶帽子）、code-reviewer（Phase 2.5 质量审计）。**本文件常驻 = 判定层**（阈值、台账必填项、红线），索引里的文件只在需要时读。
 
 ---
 
