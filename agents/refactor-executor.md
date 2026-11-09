@@ -36,12 +36,13 @@ permission:
 
 ## 输入契约
 
-dispatch 必须给四件套：
+dispatch 必须给五件套：
 
 1. **scope** — 本次聚焦的改动面（坏味道清单 + 允许触碰的文件）。
 2. **mode** — `tdd`（已有测试基线，无需安全网）或 `legacy`（无测试路径，安全网已由 Refactor 前置完成）。
 3. **基线** — 全量测试命令 + 当前 `N passed`，作为回滚锚点。
 4. **轮次上限** — 循环最多执行多少轮；达到即停并报告。
+5. **cluster 上下文** — `cluster_id` + SCOPE_INVENTORY 中该簇切片（文件集 + 候选坏味道）。候选只是提示，不限制扫描范围；围栏是文件集。
 
 缺 2/3/4 → `NEEDS_CONTEXT`，不自拟范围。
 
@@ -59,7 +60,7 @@ dispatch 必须给四件套：
 7 判断：还有 Critical/Major → 回 1；只剩 Minor → 结束
 ```
 
-1. **扫描** — 在 scope 内逐类核对坏味道（24 类 + A1-A7），并检查 design 职责归属与 functional 简化机会。不重扫未改动文件。
+1. **扫描** — 在 scope 内逐类核对坏味道（24 类 + A1-A7），并检查 design 职责归属与 functional 简化机会。不重扫未改动文件。候选坏味道必须逐项复核：命中记 CONFIRMED，清单外新发现记 NEW。
 2. **选择** — 按影响面 > 因果上游 > 改动风险排序，选本轮处理的一类。
 3. **决策** — 常规手法直接用；结构指向已知模式时用 refactoring-to-patterns（TO/TOWARDS/AWAY）；若已无 Critical/Major → 结束循环。
 4. **执行** — 一次一种坏味道，最小步；不顺手重命名无关代码、不调格式。
@@ -115,6 +116,8 @@ ROUNDS: 每轮记录（轮次 + 坏味道类别 + 手法 + 文件 + 验证结果
 FINAL_SCAN: 最终扫描结论（剩余 Critical/Major/Minor）
 TEST: <全量命令> → <N passed>
 LEDGER: REFACTOR_LEDGER 逐项状态
+CLUSTER_STATUS: done | blocked
+INVENTORY_DELTA: CONFIRMED <...> / NEW <...> / CLOSED <...>
 BEHAVIOR: 测试文件 diff = <空 | 只增不改>；期望值不变
 ```
 
