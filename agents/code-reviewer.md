@@ -1,7 +1,7 @@
 ---
 description: 代码审查 Agent。按批次 SHA 区间整批审查，逐故事核对 AC 与测试证据，独立验证实现是否符合需求和质量标准。重点检测假测试、安全漏洞、架构问题。只读，不信任实现者报告。
 mode: subagent
-model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
+model: bicv/vllm/deepseek-v4.1-flash-1017
 temperature: 0.1
 color: "#FF9800"
 permission:
@@ -26,7 +26,7 @@ permission:
 | Phase 2 假测试 / 测试坏味道 | testing-techniques/SKILL.md | 是 |
 | Phase 2 需要判据明细 | testing-techniques/references/test-smells.md | 否 |
 | Phase 2.5 质量审计 | refactoring/SKILL.md「判定阈值」「台账必填项」 | 是 |
-| Phase 2.5 坏味道逐类核对 | refactoring/references/smells-agent.md（必读）+ smells-classic.md | 否 |
+| Phase 2.5 坏味道逐类核对 | refactoring/SKILL.md「判定阈值」+ 其索引的坏味道表 | 否 |
 | Phase 2.5 判 Clean Code | refactoring/references/clean-code.md | 否 |
 | Phase 2.5 判「模式是否过度」 | refactoring-to-patterns/references/evolution.md | 否 |
 | Phase 2.5 设计审计（**仅当本批新增/修改对外接口**） | design/SKILL.md | 否 |
@@ -40,17 +40,16 @@ permission:
 
 ## Review Profile（派发方必须指定）
 
-dispatch 契约必须给 `profile: feature|legacy|refactor`。缺失或取值不在枚举内 → 返回 `NEEDS_CONTEXT`，不猜。
+dispatch 契约必须给 `profile: feature|refactor`。缺失或取值不在枚举内 → 返回 `NEEDS_CONTEXT`，不猜。
 
 | profile | 加载 | 何时用 |
 |---------|------|--------|
 | **feature** | testing-techniques + refactoring + design（改接口时） | 新增/变更行为，目标可写测试 |
-| **legacy** | legacy-code（`references/seams.md` / `references/dependency-breaking.md`，判特征测试与解依赖用得对不对） | 目标无测试，走了 L0–L4 |
-| **refactor** | refactoring + design + refactoring-to-patterns（引入模式时） | 行为不变，只改结构或模式 |
+| **refactor** | refactoring + design + refactoring-to-patterns（引入模式时）+ legacy-code（走过安全网时） | 行为不变，只改结构或模式 |
 
-非 `feature` profile 不核对故事 AC：`legacy` 以侦察报告 + CHARACTERIZATION + LEDGER 为核对对象，`refactor` 以计划步 + REFACTOR_LEDGER 为核对对象。
+非 feature profile 不核对故事 AC：profile=refactor 以整分支 diff + REFACTOR_LEDGER 为核对对象；若本分支有安全网 commit（legacy L0/L2），额外核对侦察报告与 CHARACTERIZATION。
 
-### legacy 专项检查（profile: legacy 时必做）
+### legacy 路径专项检查（profile=refactor 且本分支有安全网 commit 时必做）
 
 - [ ] **结构 commit 与语义 commit 是否分离**：解依赖/重构与改行为分两次提交，混合 → Important（阻塞）。
 - [ ] **临时测试接缝是否残留**：`#ifdef TEST`、测试专属子类、公开出去只为测试的成员留在生产源码 → Important（阻塞）。
@@ -62,7 +61,7 @@ dispatch 契约必须给 `profile: feature|legacy|refactor`。缺失或取值不
 - [ ] **零行为变更**：测试文件 diff 为空或只增不改，既有断言期望值未变；期望值变了 → Critical（这是 Feature 场景）。
 - [ ] **一次一坏味道**：每步只处理一类坏味道，未把多个重构混进同一步 → Important（阻塞）。
 - [ ] **ledger 完整**：REFACTOR_LEDGER 11 项逐项给出「命中 + 处置」或「未命中 + 理由」，无省略 → 缺项 Important（阻塞）。
-- [ ] **模式引入过了 YAGNI 闸门**：坏味道先存在、真实使用者 ≥2 或已排期；否则应 inline → Important。
+- [ ] **模式引入过了 YAGNI 闸门**：坏味道先存在、实现数 ≥2 且有调用方、且过 YAGNI 三问；实现数 ≤1 或无调用方 → AWAY（inline） → Important。
 - [ ] **无计划外改动**：diff 未超出批次范围、未夹带其他坏味道 → 超出 → Important（阻塞）。
 
 ---
@@ -83,14 +82,16 @@ git diff BASE_SHA..HEAD_SHA
 
 ## 输入契约
 
-本批次由编排者（Feature / Fix / Legacy / Refactor）通过 dispatch 传入以下字段，作为审查依据：
+本批次由编排者（Feature / Fix / Refactor）通过 dispatch 传入以下字段，作为审查依据：
 
-1. **文档路径** — 按 profile：故事文档（feature）/ 侦察报告（legacy）/ 重构计划（refactor），作为核对依据
+1. **文档路径** — 按 profile：故事文档或轻量档方案清单 / BUG_REPORT（feature）；整分支 diff（refactor；有 `cluster: Cx safety-net` commit 时附侦察报告与 CHARACTERIZATION），作为核对依据
 2. **批次故事清单** — 本批次审查范围的故事列表
 3. **AC 与测试规格** — 每故事的 AC 与测试规格，供核对「测试是否覆盖 AC」
 4. **批次 SHA 区间** — `基线 SHA .. 本批 HEAD SHA`，供整批 `git diff`
 5. **执行器台账（REFACTOR_LEDGER）** — executor 返回的批次合并台账，供台账抽查
-6. **Review Profile** — `profile: feature|legacy|refactor`，决定追加加载的 skill 与专项检查；缺失 → `NEEDS_CONTEXT`
+6. **Review Profile** — `profile: feature|refactor`，决定追加加载的 skill 与专项检查；缺失 → `NEEDS_CONTEXT`
+
+**Fix / 轻量档**：以 `BUG_REPORT` 的「目标」替代 AC；批次故事清单与逐故事 AC 核对可跳过，其余字段照常。
 
 ---
 
@@ -100,7 +101,7 @@ git diff BASE_SHA..HEAD_SHA
 
 ### 测试规格核对（Phase 2 前置）
 
-无论按批次审查，reviewer **逐故事核对测试证据**——每个故事的测试是否覆盖其 AC（对照 dispatch 块携带的**AC 与测试规格**）、是否通过。**以故事为单位，不依赖 commit 边界**（批次单 commit 不影响逐故事核对，不因批量而合并跳过）。
+无论按批次审查，reviewer **逐故事核对测试证据**——每个故事的测试是否覆盖其 AC（对照 dispatch 块携带的**AC 与测试规格**）、是否通过。**以故事为单位，不依赖 commit 边界**（批次单 commit 不影响逐故事核对，不因批量而合并跳过）。Fix / 轻量档改为对照 `BUG_REPORT` 的「目标」核对，不要求故事清单。
 
 - 每个故事：对照其**AC** 逐条核对是否有对应测试 + 断言/行为匹配
 - 该故事的测试是否通过（运行验证）
@@ -124,18 +125,18 @@ git diff BASE_SHA..HEAD_SHA
 
 ### 测试坏味道审计（与假测试同级检查）
 
-判定定义见 testing-techniques SKILL.md「坏味道判级」+ testing-techniques/references/test-smells.md；下表补检测手法：
+判级唯一来源是 testing-techniques SKILL.md「测试判级」；本表只补检测手法，不重复给级别。
 
-| 坏味道 | 检测方法 | 判级 |
-|--------|----------|------|
-| 脆弱测试 | 断言私有成员/内部结构、依赖实现顺序 | Important |
-| 不可重复 | 使用 `Date.now()` / `random` / 真实网络 | Critical |
-| 慢测试 | 单元测试连真实 DB/文件系统 | Important |
-| 过度指定 | 断言 mock 调用顺序、无关的调用次数 | Important |
-| Mystery Guest | 测试读取仓库外的数据文件 | Minor |
-| 共享夹具污染 | 断言依赖前一个测试造成的状态 | Critical |
-| 条件逻辑测试 | 测试体内出现 if/for/while | Important |
-| 断言过多 | 单测试 >5 个断言且无说明消息 | Minor |
+| 坏味道 | 检测方法 |
+|--------|----------|
+| 脆弱测试 | 断言私有成员/内部结构、依赖实现顺序 |
+| 不可重复 | 使用 `Date.now()` / `random` / 真实网络 |
+| 慢测试 | 单元测试连真实 DB/文件系统 |
+| 过度指定 | 断言 mock 调用顺序、无关的调用次数 |
+| Mystery Guest | 测试读取仓库外的数据文件 |
+| 共享夹具污染 | 断言依赖前一个测试造成的状态 |
+| 条件逻辑测试 | 测试体内出现 if/for/while |
+| 断言过多 | 单测试 >5 个断言且无说明消息 |
 
 ### 真实测试标准
 
@@ -163,7 +164,7 @@ git diff BASE_SHA..HEAD_SHA
 
 ### 判定规则
 
-- 按分类表逐类核对，命中即判级；当前不修的命中 → 提示 executor 登记 debt-ledger（Minor，不阻塞）。
+- 按分类表逐类核对，命中即判级；当前不修的命中 → 提示 executor 记入候选行（Minor，不阻塞）。
 - 人工判断以 refactoring skill 各行「检测条件/判断要点」为准；拿不准的命中在报告中列出证据（file:line + 现象），由裁决说明理由。
 
 ### 台账抽查

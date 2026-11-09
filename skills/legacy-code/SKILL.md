@@ -10,8 +10,8 @@ description: Use when the code to change has no reliable tests, when adding a sa
 
 | 谁用 | 用来做什么 |
 |------|------------|
-| legacy-analyst | L0 侦察 + L1 改法建议（只读） |
-| legacy-executor | L1–L4 执行（上安全网 → 主循环 → 出清） |
+| legacy-analyst | 只做 L0 侦察（effect sketch + 增量测试缺口，只读） |
+| legacy-executor | 只执行 L2（安全网）；Refactor 的 safety-net-only 专用 |
 | code-reviewer | 审查安全网是否成立、特征测试是否被当成规格 |
 
 **本文件常驻 = 节奏层。** 下面索引的文件只在对应阶段读，不要一次全读。
@@ -22,14 +22,14 @@ description: Use when the code to change has no reliable tests, when adding a sa
 
 ```
 L0 侦察（禁改代码）：change points + effect sketch + 现有测试盘点
-L1 选改法（风险递增）：Sprout > Wrap > Direct Edit
-   Sprout/Wrap 不碰老代码 → 直接走 TDD，跳过 L2
+L1 选改法（执行者就地判定；Refactor 安全网路径固定 Direct Edit）
+   Sprout/Wrap 不改老逻辑主体，只在调用点插入/委托 → 直接走 TDD，跳过 L2
 L2 上安全网（一次性）：只覆盖"将被改路径 + 直接调用者"，对象接缝优先
    一次一种解依赖，每次解完全量测试 → 全绿并记录基线（含 flaky 标注）
 L3 主循环（两顶帽子不混）
    3a 只改结构 → 一次一坏味道，绿→改→绿，红即回滚
    3b 改行为   → 先红后绿，特征测试保留到新测试覆盖
-L4 出清：删临时测试接缝、更新 debt ledger、结构与语义分 commit
+L4 出清：删临时测试接缝、结构与语义分 commit
 ```
 
 ---
@@ -43,7 +43,7 @@ L4 出清：删临时测试接缝、更新 debt ledger、结构与语义分 comm
 | 3 | 一次一种坏味道 | 3a 阶段逐类处理，不合并动手 |
 | 4 | 结构与语义分离 | 结构 commit 与语义 commit 必须分开提交 |
 | 5 | 一步一见绿 | 每个「编辑-编译-测试」周期必须见绿，红即回滚该步 |
-| 6 | 覆盖门槛 | 只覆盖改动函数 + 直接调用者；其余记 debt ledger |
+| 6 | 覆盖门槛 | 只覆盖改动函数 + 直接调用者；其余分支暂不覆盖 |
 | 7 | 退出条件 | 行为已改 + 该路径有测试 + 无临时接缝 + ledger 已更新 |
 
 **特征测试需新测试覆盖后才可删**（见参数 7 与红线 1）。
@@ -53,10 +53,40 @@ L4 出清：删临时测试接缝、更新 debt ledger、结构与语义分 comm
 ## 三条红线
 
 1. **特征测试 ≠ 规格**：它只锁 bug 现状；发现疑似错误另开 bug，不改断言迁就。
-2. **解依赖 ≠ 重构完成**：解依赖只是上安全网的结构动作，不替代随后的坏味道处理与行为修改。
+2. **解依赖是结构重构的一种，但不等于重构完成**：解依赖只是上安全网的结构动作，不替代随后的坏味道处理与行为修改。
 3. **Sprout 不得绕过必须修改的腐败点**：新代码挂在腐败逻辑旁边而不修根因，只是把问题留原地。
 
 ---
+
+## 四大策略入口
+
+| 策略 | 何时选 | 起点 |
+|------|--------|------|
+| **Sprout** | 新逻辑可独立挂在老代码旁、老代码不必改 | 直接 TDD，跳过 L2 |
+| **Wrap** | 要改老代码，但可从外部包一层适配或拦截 | 直接 TDD，跳过 L2 |
+| **Direct Edit** | 必须原地修改腐败逻辑 | 找接缝 → 解依赖 → 写特征测试 → 小步改 |
+| **解依赖** | 上述路径被硬编码 / 全局状态挡住时 | 本 skill 的 L2 与 `dependency-breaking.md` |
+
+**选择顺序（判据）**：先问能否 Sprout → 能否 Wrap → 否则 Direct Edit；三种都被依赖挡住时才先解依赖。策略入口只决定起点，不替代 L0–L4 内部步骤。
+
+## 安全网三分类（唯一事实源）
+
+| 分类 | 判据 | 处理 |
+|------|------|------|
+| 1 能直接写测试 | 能构造被测对象、能观察结果、依赖可注入 | 直接补测试，继续 TDD |
+| 2 难测 | 无法构造对象 / 依赖硬编码 / 全局或静态状态 / 无法观察结果 / 非确定性 / 深继承 | 找接缝 → 解依赖 → 写特征测试（锁现状）；全绿后继续 |
+| 3 新增代码（白纸） | 无既有行为要锁 | 直接 TDD，不加载本 skill |
+
+执行场景（Feature / Fix / story-executor）按本表自行补安全网；Refactor 的 legacy 路径使用分类 2 建 L2 网。
+
+## 加载时机
+
+| 时机 | 说明 |
+|------|------|
+| 何时读 | 改动点既有代码缺测试且难测、需要找接缝 / 特征测试 / 解依赖时读 |
+| 何时不读 | 新增代码（直接 TDD）、既有代码能直接补测试、或已有测试的普通重构（回 refactoring）时不读 |
+
+> 可测性坏味道（隐藏依赖 / 全局状态 / 不可观测输出等）的名称与识别见 refactoring skill 的 `smells-catalog.md`。
 
 ## 索引 — 要做什么 → 读哪个文件
 
@@ -66,7 +96,7 @@ L4 出清：删临时测试接缝、更新 debt ledger、结构与语义分 comm
 | 解依赖：24 种技术、场景→技术对照、私有方法判定 | `references/dependency-breaking.md` |
 | Sprout / Wrap / Direct Edit 的判定与实现细节 | `references/sprouting.md` |
 
-规则：**只读当前阶段需要的那一个**。L0/L1 查 `seams.md` 与 `sprouting.md`，L2 查 `dependency-breaking.md`。
+规则：**只读当前阶段需要的那一个**。L0 查 `seams.md`，L1 查 `sprouting.md`，L2 查 `dependency-breaking.md`。
 
 ---
 
@@ -77,4 +107,4 @@ L4 出清：删临时测试接缝、更新 debt ledger、结构与语义分 comm
 | 目标代码没有测试、要先上安全网 | 本 skill |
 | 已有测试的代码怎么小步改结构 | refactoring skill |
 | 坏味道已存在、要演化成设计模式 | refactoring-to-patterns skill |
-| 怎么验证行为（RED-GREEN-REFACTOR） | story-executor / legacy-executor 正文 |
+| 怎么验证行为（RED-GREEN-REFACTOR） | story-executor 正文 |

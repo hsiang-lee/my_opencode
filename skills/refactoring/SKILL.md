@@ -7,7 +7,9 @@ description: Use during the REFACTOR phase after tests are green, when detecting
 
 **核心原则：测试失败时禁止重构。重构只改变结构，不改变行为。**
 
-**使用者**：story-executor（检测 → 重构 → 记台账）、refactor-planner（按阈值分类定计划）、refactor-executor（按计划分批执行）、legacy-analyst（评估改动后的结构债）、legacy-executor（L3a 两顶帽子）、code-reviewer（Phase 2.5 质量审计）。**本文件常驻 = 判定层**（阈值、台账必填项、红线），索引里的文件只在需要时读。
+**目录**：定位与使用者 · 索引 · 边界 · 设计工具与童子军 · 加载时机 · 阈值 · 台账 · 流程 · 红线。
+
+**使用者**：story-executor（RED 后 REFACTOR 阶段 dispatch 循环）、refactor-executor（自控循环执行）、legacy-analyst（L0 侦察）、legacy-executor（L2 安全网）、code-reviewer（Phase 2.5 质量审计）。**本文件常驻 = 判定层**（阈值、台账必填项、红线），索引里的文件只在需要时读。
 
 ---
 
@@ -15,8 +17,8 @@ description: Use during the REFACTOR phase after tests are green, when detecting
 
 | 要做的事 | 文件 |
 |----------|------|
-| 判断某种经典坏味道存不存在（24 类检测条件） | `references/smells-classic.md` |
-| 判断 A1-A7（AI 生成代码特有病灶）+ 代码放置第一问 + 检测优先级 + 复用优先 | `references/smells-agent.md` |
+| 判断某种坏味道存不存在（经典 24 类 + A1–A7，唯一事实源） | `references/smells-catalog.md` |
+| 查检测优先级、复用优先规则 | `references/smells-catalog.md` |
 | 查某种坏味道该用哪个重构手法、手法怎么做 | `references/techniques.md` |
 | 走完整执行流程（两顶帽子 / 步骤 / 失败处理） | `references/workflow.md` |
 | 写台账（完整格式与示例） | `references/ledger.md` |
@@ -36,6 +38,17 @@ description: Use during the REFACTOR phase after tests are green, when detecting
 | 测试怎么写、怎么判假测试 | testing-techniques skill |
 
 ---
+
+## 重构是设计工具
+
+重构不是清理阶段，而是设计的一部分：先写稳定中间形式，坏味道出现后用它把结构长出来。**童子军规则四限**：顺手重构必须同时满足 **同一函数**、**有测试**、独立 commit、改动 ≤10 行（童子军边界，非判定阈值）；任一不满足即记台账交 Refactor，不得夹带扩大改动面。
+
+## 加载时机
+
+| 时机 | 说明 |
+|------|------|
+| 何时读 | GREEN 后需要判定坏味道、查手法、或写 REFACTOR_LEDGER 时读本 SKILL 与对应 reference |
+| 何时不读 | 测试未绿、目标代码缺安全网（能直接补测试就先补，难测才 legacy-code）、或只是新增代码且无结构改动（只需扫候选行，不读 references）时不读 |
 
 ## 判定阈值（常驻，唯一来源）
 
@@ -81,7 +94,7 @@ A1 A2 A3 A4 A5 A6 A7 / 过长函数(>40行) / 深嵌套(≥3层) /
 
 1. **测试必须全绿**才能开始；红着不进入重构。
 2. **一次一种坏味道**：逐类核对 → 命中即用一种手法重构 → 跑测试 → 绿了再下一项。
-3. **不改行为**：不加功能、不改公共 API、不新增公开接口。期望值变了 = 在加功能，停下先写测试。
+3. **不改行为**：不加功能、不改变既有公开契约；若必须新增接缝/接口，单列一步并说明。期望值变了 = 在加功能，停下先写测试。
 4. **回滚红色**：某步重构导致测试失败 → 回滚该步 → 台账标注「已回滚」→ 停止继续重构。
 
 ---
@@ -92,4 +105,6 @@ A1 A2 A3 A4 A5 A6 A7 / 过长函数(>40行) / 深嵌套(≥3层) /
 - 一次只处理一种坏味道
 - 重构不改变行为
 - 重构步骤导致测试失败 → 立即回滚该步
-- 实现任何 helper/常量前先 grep 已有同类：找到就复用，找不到才创建（详见 `references/smells-agent.md` 复用优先规则）
+- 重构必须从 smells-catalog.md 命中的坏味道出发，按对应「首选手法」或 techniques.md 的标准步骤执行；禁止凭直觉自创改法。
+- 无对应标准手法，或手法不适用 → 记台账并停止该项，不得即兴发挥。
+- 实现任何 helper/常量前先 grep 已有同类：找到就复用，找不到才创建（详见 `references/smells-catalog.md` 复用优先规则）

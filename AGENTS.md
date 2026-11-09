@@ -12,14 +12,43 @@
 | 顺序 | 判据 | 场景 |
 |------|------|------|
 | 1 | 行为与预期不符（bug），有或可构造复现路径 | **Fix** |
-| 2 | 要改的代码无测试 / 难有可靠测试 | **Legacy** |
-| 3 | 行为不变，只改结构或模式，基线全绿 | **Refactor** |
-| 4 | 新增/变更行为，且目标可写测试 | **Feature** |
-| 5 | 前端探索测试（只报告不修复） | **QAExplorer** |
+| 2 | 行为不变，只改结构或模式，基线全绿 | **Refactor** |
+| 3 | 新增/变更行为 | **Feature** |
+| 4 | 前端探索测试（只报告不修复） | **QAExplorer** |
 
 判据重叠时按上表顺序。场景不符即停，不「先做一点看看」。
 
-## 档位判定（Feature / Refactor 入口）
+**无测试不构成独立场景**：改动点既有遗留代码且缺覆盖时，由所在场景（Fix / Feature / story-executor）自己补安全网后继续，不转交、不停下。
+
+## 两种设计边界
+
+**Feature / Fix（边写边设计）vs Refactor（存量腐坏）**
+
+| | Feature / Fix | Refactor |
+|---|---|---|
+| 设计方式 | TDD 边写边设计：测试定接口，重构定结构 | 安全网就位后，同样走「扫描 → 决策 → 执行」循环 |
+| 重构时机 | 每故事 GREEN 后立刻 dispatch 循环子 agent | 独立场景，范围收敛后调用同一个循环子 agent |
+| 触发 | 本次改动引入或触碰到的坏味道 | 存量腐坏：跨模块、多坏味道、设计已变形 |
+| 交付 | 行为变更 + 本故事代码无坏味道 | **零行为变更** + 各簇无 Critical/Important |
+
+重构循环只有一个实现（`agents/refactor-executor.md`）：两个入口只差安全网时机（Feature/Fix 自己补、Refactor 先评估覆盖）与 scope。
+
+## 时机表（何时读哪个 skill）
+
+| 时机 | 读什么 |
+|------|--------|
+| 需求澄清 | brainstorm |
+| 需求→接口 | design |
+| 建模 | design |
+| 写测试 | testing-techniques |
+| 实现 | functional |
+| 改动点既有遗留代码且缺覆盖、难写测试 | legacy-code（条件加载：仅此情形读；新增代码直接 TDD，不读） |
+| 第一次出现重复 | refactoring（记候选行） |
+| 同一概念第三次重复 | design（抽象闸门） |
+| 模式演化（第三次重复且需上模式） | refactoring-to-patterns |
+| 审查 | code-reviewer 的 profile 集合 |
+
+## 档位判定（Feature 入口）
 
 **Feature**（行为变更）
 
@@ -29,37 +58,50 @@
 | 精简档 | 文件 3-8 且无新增模块 / 公共接口 / 数据模型 | 跳过 momus，其余照走 |
 | 完整档 | 文件 >8，或新增模块 / 公共接口 / 数据结构 / 并发 / 权限 / 迁移 | 走满全流程 |
 
-**Refactor**（行为保持）
+**Refactor 不设规模档位**：范围收敛产出簇清单，规模只影响拆几个簇，不改变流程。
 
-| 档位 | 判据 | 效果 |
-|------|------|------|
-| 轻量档 | 单一坏味道且文件 ≤2 | 跳过 refactor-planner 与 momus，直接执行、审查、收尾 |
-| 完整档 | 多处坏味道 / 跨模块 / 涉及模式引入 | planner → momus → 分批执行 → 审查 → 收尾 |
-
-档位一旦确定不得中途升降；Fix / Legacy 不设档位（已是短流程）。
+档位一旦确定不得中途升降；Fix 不设档位（已是短流程）。
 
 ## Agent
 
 | Agent | 用途 | 调用 |
 |-------|------|------|
-| Feature | 场景 4：行为变更 + 可写测试 | Tab |
+| Feature | 场景 3：行为变更 | Tab |
 | Fix | 场景 1：bug 修复 | Tab |
-| Legacy | 场景 2：无测试代码改动 | Tab |
-| Refactor | 场景 3：行为保持型重构 | Tab |
+| Refactor | 场景 2：行为保持型重构（入口先评估覆盖） | Tab |
 | QAExplorer | 前端探索测试 | Tab |
 | story-writer | 决策确认后产出 Epic + 故事清单 | `Task("story-writer", ...)` |
-| story-executor | 有测试路径的逐故事 TDD | `Task("story-executor", ...)` |
-| legacy-analyst | L0 侦察 + L1 改法建议（只读） | `Task("legacy-analyst", ...)` |
-| legacy-executor | L1–L4 安全网与主循环 | `Task("legacy-executor", ...)` |
-| refactor-planner | 坏味道诊断 + 分步重构计划 | `Task("refactor-planner", ...)` |
-| refactor-executor | 行为保持型分批执行 + 台账 | `Task("refactor-executor", ...)` |
+| story-executor | 逐故事 TDD（无覆盖时自己补安全网） | `Task("story-executor", ...)` |
+| legacy-analyst | 由 Refactor 在未覆盖且难测时调度：只做 L0 侦察（effect sketch + 增量测试缺口，只读） | `Task("legacy-analyst", ...)` |
+| legacy-executor | 由 Refactor 在未覆盖时调度：只做 L2 安全网（`safety-net-only`），不改结构/行为 | `Task("legacy-executor", ...)` |
+| refactor-executor | 自控七步重构循环 + 台账；清单只报告 delta（`cluster` / `scan-only`） | `Task("refactor-executor", ...)` |
+| general（内置） | 由 Refactor 委派：只写 `docs/refactor/*.md` 清单并提交 | `Task("general", ...)` |
 | code-reviewer | 实现完成后独立审查（按 profile） | `Task("code-reviewer", ...)` |
 | branch-finisher | 分支收尾 | `Task("branch-finisher", ...)` |
 | metis | 任务前厘清意图与风险 | `@metis` |
-| momus | 计划/故事评审（故事、侦察报告、重构计划） | `@momus` |
+| momus | 故事评审 | `@momus` |
 | explore | 代码库搜索 | `@explore` |
 | librarian | 外部库与文档 | `@librarian` |
 | oracle | 复杂调试 / 高难度架构 | `@oracle` |
+
+## Subagent 状态处理与 dispatch 模板
+
+```
+Task(agent, "描述",
+  "## Task: [做什么]
+   ## Context: [精选背景: 项目概述1句 + 相关模式 + 依赖 + 文件路径]
+   ## Skill: 由 subagent 自身声明，不在此指定
+   ## Output: [格式]")
+```
+
+反模式：❌ 让 subagent 自己探索已知的 ❌ 倾倒全部上下文 ❌ 不提供任何上下文。
+
+| 状态 | 行动 |
+|------|------|
+| **DONE** | 继续下一步 |
+| **DONE_WITH_CONCERNS** | 读疑虑：正确性/范围先解决；观察性记录后继续 |
+| **NEEDS_CONTEXT** | 提供缺失上下文，重新 dispatch |
+| **BLOCKED** | 按各 primary 正文处理；同一 subagent 连续 3 次 BLOCKED → 停止，升级用户 |
 
 ## Skill 加载
 
@@ -69,9 +111,10 @@
 
 ## TDD
 
-- 执行侧分三类：`story-executor`（有测试路径的 RED-GREEN-REFACTOR）、`legacy-executor`（L2 安全网 + L3 两顶帽子）、`refactor-executor`（行为保持型小步重构）；判定标准在各 agent 正文。
-- 编排侧不写代码、不改测试。Feature 不跑测试；Fix / Legacy / Refactor 只允许跑只读验证命令（复现、基线、现有测试），不得修改测试或源码。dispatch 要求先给失败测试或安全网证据，核对 RED 证据，无证据不验收。
-- 目标路径无测试时，`story-executor` 必须返回 `BLOCKED(需 legacy-executor)`，禁止自写特征测试。
+- 执行侧分三类：`story-executor`（RED-GREEN-REFACTOR，REFACTOR 阶段 dispatch `refactor-executor`）、`legacy-executor`（只做 L2 安全网）、`refactor-executor`（自控七步循环）；判定标准在各 agent 正文。
+- 编排侧不写代码、不改测试；Refactor 的清单文档委派 `general` 抄写，Refactor 只核对落盘结果。Feature 不跑测试；Fix / Refactor 只允许跑只读验证命令（复现、基线、现有测试），不得修改测试或源码。dispatch 要求先给失败测试或安全网证据，核对 RED 证据，无证据不验收。
+- 目标路径无测试不转交、不 BLOCKED：由执行场景按 `skills/legacy-code/SKILL.md`「安全网三分类」自补，补完继续 TDD。
+- **重构必须按 `skills/refactoring/references/smells-catalog.md` 的坏味道与 `techniques.md` 的对应手法执行；无对应手法或手法不适用时停止并说明，禁止即兴发挥。**
 
 ## 红线
 

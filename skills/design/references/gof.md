@@ -2,6 +2,8 @@
 
 回到索引: [../SKILL.md](../SKILL.md)
 
+**目录**：1 创建型 · 2 结构型 · 3 行为型 · 4 易混淆对比 · 5 入口→模式 · 6 组合使用 · 7 使用前提 · 8 易漏原则
+
 > 模式是原则的具体落地，不是目的。先闻坏味道、先过 YAGNI 闸门，再看本表。
 
 ## 一、创建型（5）— 把「怎么创建」和「怎么使用」解耦
@@ -55,15 +57,29 @@
 | Command vs Strategy | 封装「动作 + 上下文 + 时机」 vs 封装「算法」 |
 | Template Method vs Strategy | 继承固定流程 vs 组合注入行为 |
 
-## 五、原则 → 模式映射（先问违反哪条原则，再看模式）
+## 五、入口 → 模式（反查）
 
-| 违反 | 候选模式 |
+按原则违反或症状定位候选，再回到上面分类表核对结构与代价；**候选不是结论**，仍需过 YAGNI 三问。每个模式只列一次。
+
+| 入口 | 候选模式 |
 |------|----------|
-| OCP + LSP（类型分支扩散） | Strategy、State、Factory Method、Template Method |
-| DIP（高层依赖具体） | Observer、Bridge、Proxy、Abstract Factory |
-| ISP（大接口） | Adapter、Facade、Interface Segregation |
-| SRP（职责混杂） | Command、Chain of Responsibility、Facade |
-| 创建逻辑散落 | Creation Methods、Factory、Builder |
+| 同一概念的类型分支散落 ≥3 处（OCP / LSP） | Strategy |
+| 行为随对象状态整体切换（OCP / LSP） | State |
+| 父类定骨架、子类只填步骤 | Template Method |
+| 创建时才决定用哪个实现 / 创建逻辑散落 | Factory Method |
+| 一次要创建一族相关对象 | Abstract Factory |
+| 构造参数过多、可选组合多 | Builder |
+| 两个维度各自独立变化（DIP） | Bridge |
+| 高层要控制对具体对象的访问：远程 / 懒加载 / 权限（DIP） | Proxy |
+| 一对多状态变更要通知所有关心者（DIP） | Observer |
+| 老接口与新客户期望不兼容 | Adapter |
+| 子系统需统一高层入口 / 大接口收敛（ISP） | Facade |
+| 大接口需按客户端拆小（ISP） | 接口拆分（见 `solid-packages.md`） |
+| 请求沿多级处理直到被处理（SRP） | Chain of Responsibility |
+| 请求需封装成对象以便撤销 / 排队 / 宏（SRP） | Command |
+| 需动态叠加职责又不能改原类 | Decorator |
+| 状态需快照与恢复 | Memento |
+| 需统一遍历又不暴露内部结构 | Iterator |
 
 ## 六、组合使用（常见搭配）
 
@@ -75,7 +91,9 @@
 
 ## 七、使用前提
 
-1. 有**已经发生**的变化点（≥2 个真实实现或已排期需求）
-2. 不用模式时分支/重复会失控（同一概念散落 ≥3 处）
-3. 加这层抽象后代码**更短或更清晰**；否则退回直白写法
-4. 小范围试点 + 测试验证行为不变
+先过 [design 的模式闸门](../SKILL.md)（YAGNI 三问，唯一判据）；通过后小范围试点，用测试验证行为不变。
+
+## 八、两条易漏原则
+
+- **LoD（迪米特法则 / 最少知识原则）**：只与直接朋友通信。`a.b().c()` 连续两跳是症状 → 用 Facade 收敛，或把行为移到数据持有者（Information Expert）。
+- **CRP（共同重用原则 Common Reuse Principle）**：定义与和 CCP 的张力见 `solid-packages.md`。
