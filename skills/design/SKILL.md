@@ -68,7 +68,7 @@ description: Use when assigning responsibilities, judging dependency direction, 
 
 平凡改动、实现数 ≤1、契约能直接写出 → 归入「最小设计」档直接 TDD，不另写文档。留白清单只记录「本可以引入抽象」的位置，不预选模式。
 
-**何时读**：分析建模（跨模块/新领域）→ `references/analysis-uml.md`；判断本次做多少设计 / 是否留白 → `references/refactoring-as-design.md`；职责放哪、契约怎么写、要不要模式 → 本 skill。
+**何时读**：分析建模（跨模块/新领域）→ `references/analysis-uml.md`；判断本次做多少设计 / 是否需要留白 →「设计三档 / 留白」；职责放哪、契约怎么写、要不要模式 → 本 skill。
 **何时不读**：纯机械改动与契约已明确的 bug 修复不读，直接进 TDD。
 
 ---
