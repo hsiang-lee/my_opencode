@@ -3,7 +3,7 @@
 回到索引: [../SKILL.md](../SKILL.md)
 
 > 本文件是坏味道**名称 / 识别特征 / 来源 / 首选手法**的唯一事实源。
-> 阈值一律以 SKILL.md「判定阈值」表为准；本文件只定义「怎么认」，不重复数值。
+> 决策阈值一律以 SKILL.md 判定阈值表为准；「怎么认」中的计数仅作识别提示，不构成第二阈值源。
 > 手法步骤 → `techniques.md`；解依赖技术 → `../legacy-code/references/dependency-breaking.md`；模式结构 → `../design/references/gof.md`。
 
 ## 目录
@@ -28,8 +28,8 @@
 ## 1. 命名与重复
 
 | 1 | 神秘命名 Mysterious Name | 名称需注释才能说明用途；同一概念在 ≥2 处使用不同词 | Fowler | Rename Method / Rename Variable / Rename Class | 名称是框架或序列化协议规定的对外标识时，先做兼容层再改 |
-| 2 | 重复代码 Duplicated Code | 同一结构出现在 ≥2 处方法 / 类 / 文件 | Fowler | Extract Method / Pull Up Method / Form Template Method | 两段只是文本相似但变化方向不同，强合并会制造发散式变化 |
-| 3 | 数据泥团 Data Clumps | ≥3 个字段 / 参数总是同时出现 | Fowler | Extract Class / Introduce Parameter Object | 这组值已由既有领域对象承载时，不再造平行类型 |
+| 2 | 重复代码 Duplicated Code | 同一结构出现在多处方法 / 类 / 文件（阈值见 SKILL 表） | Fowler | Extract Method / Pull Up Method / Form Template Method | 两段只是文本相似但变化方向不同，强合并会制造发散式变化 |
+| 3 | 数据泥团 Data Clumps | 多个字段 / 参数总是同时出现（阈值见 SKILL 表） | Fowler | Extract Class / Introduce Parameter Object | 这组值已由既有领域对象承载时，不再造平行类型 |
 | 25 | 注释 Comments | 注释解释「做了什么」而非「为什么」；或注释与代码不一致 | Fowler | Extract Method / Rename / Introduce Assertion | 注释记录的是约束、边界与历史原因时必须保留 |
 
 判据：改名与去重风险最低，先做；注释类先判断它是否在补偿命名或结构缺陷。
@@ -47,10 +47,10 @@
 ## 3. 变化与职责
 
 | 9 | 发散式变化 Divergent Change | 同一个类因 ≥2 类不同原因被修改 | Fowler | Extract Class / Move Function | 修改原因尚未真实发生、只是设想的扩展点，先不拆 |
-| 10 | 霰弹式修改 Shotgun Surgery | 一个变化要改 ≥2 个类的多处 | Fowler | Move Function / Inline Class | 分散点是稳定协议或插件注册表时，集中反而增加耦合 |
+| 10 | 霰弹式修改 Shotgun Surgery | 一个变化要改多个类的多处（阈值见 SKILL 表） | Fowler | Move Function / Inline Class | 分散点是稳定协议或插件注册表时，集中反而增加耦合 |
 | 11 | 依恋情结 Feature Envy | 方法对另一对象的访问占比超过 SKILL 阈值表 | Fowler | Move Function | 目标是策略对象或 visitor，跨对象访问是设计意图时保留 |
 | 12 | 基本类型偏执 Primitive Obsession | 用基本类型表达领域概念，校验散落在 ≥2 处 | Fowler | Replace Primitive with Object / Replace Type Code with Subclasses | 值没有行为且只在本函数内使用时，不造值对象 |
-| 13 | 重复的 switch Repeated Switches | 同一类型分支出现在 ≥2 处 | Fowler | Replace Conditional with Polymorphism | 分支只有 2 个且不会再扩时，简单多态即可，不建完整模式 |
+| 13 | 重复的 switch Repeated Switches | 同一类型分支出现在多处（阈值见 SKILL 表） | Fowler | Replace Conditional with Polymorphism | 分支只有 2 个且不会再扩时，简单多态即可，不建完整模式 |
 | 14 | 过大类 Large Class | 方法数超过 SKILL 阈值表，或含 ≥2 个不相关功能组 | Fowler | Extract Class / Extract Subclass | 类是由框架基类规定的集中入口时，只拆可独立的部分 |
 | 15 | 纯数据类 Data Class | 只有字段与 getter / setter，行为全在类外（A5 的形态之一） | Fowler | Move Function / Encapsulate Record | 它是 DTO 或序列化契约时，保持数据形状，不塞业务行为 |
 | 16 | 拒绝遗赠 Refused Bequest | 子类不用父类大半成员，或覆写为空实现 | Fowler | Push Down Method / Field / Replace Inheritance with Delegation | 父类是稳定框架契约且子类只需少数钩子时保留继承 |
@@ -72,13 +72,13 @@
 
 ## 5. AI 生成代码 A1–A7
 
-| A1 | 共享常量重复定义 | 同一常量 / 字面量在 ≥2 个文件重复定义 | A1 | 提取共享模块，引用单一事实源 | 常量只属于单个模块且不会跨文件复用时，就地定义即可 |
-| A2 | 绕过现有封装 | 已有封装（apiClient / push_task_to_redis 等）外出现等价裸调用 | A2 | 复用封装；封装不足则扩展封装 | 封装本身已废弃或有明确缺陷时，先修封装再用 |
-| A3 | 测试 setup 复制 | 相同 mock 工厂 / seed / 样板在 ≥2 个测试文件逐字重复 | A3 | 提取共享 testHelper | 两个测试的 setup 只是字面相似但语义不同时，不合并 |
-| A4 | 命名漂移 | 同一概念在代码中使用 ≥2 种命名 | A4 | 统一命名并引用同一来源 | 对外兼容的旧名需要保留时，加别名并标注迁移方向 |
-| A5 | 贫血模型 / 职责错位 | 操作所需数据在类 X，操作却落在类外自由函数或别的类；判据是数据与操作的关系，不是有无成员方法 | A5 | Move Function 收编（操作归数据专家） | 操作是跨对象的编排逻辑时，留在编排者而非数据类 |
-| A6 | 伪多态 | 分派同一概念行为的 cast / instanceof / match / 类型 switch 散落多处（新增子类要改 N 处） | A6 | Replace Conditional with Polymorphism | 不同概念的独立 cast、跨函数配对不算，不强行多态化 |
-| A7 | out-param 束 | 签名含 ≥2 个非 const 引用 out-param（刻意 in-out 钳制不算） | A7 | Introduce Parameter Object / 收编为成员 | 构造 / 解析类多返回值是接口语义时，保留签名 |
+| A1 | 共享常量重复定义 | 同一常量 / 字面量在多个文件重复定义（阈值见 SKILL 表） | AI 生成实证 | 提取共享模块，引用单一事实源 | 常量只属于单个模块且不会跨文件复用时，就地定义即可 |
+| A2 | 绕过现有封装 | 已有封装（apiClient / push_task_to_redis 等）外出现等价裸调用 | AI 生成实证 | 复用封装；封装不足则扩展封装 | 封装本身已废弃或有明确缺陷时，先修封装再用 |
+| A3 | 测试 setup 复制 | 相同 mock 工厂 / seed / 样板在多个测试文件逐字重复（阈值见 SKILL 表） | AI 生成实证 | 提取共享 testHelper | 两个测试的 setup 只是字面相似但语义不同时，不合并 |
+| A4 | 命名漂移 | 同一概念在代码中使用多种命名（阈值见 SKILL 表） | AI 生成实证 | 统一命名并引用同一来源 | 对外兼容的旧名需要保留时，加别名并标注迁移方向 |
+| A5 | 贫血模型 / 职责错位 | 操作所需数据在类 X，操作却落在类外自由函数或别的类；判据是数据与操作的关系，不是有无成员方法 | AI 生成实证 | Move Function 收编（操作归数据专家） | 操作是跨对象的编排逻辑时，留在编排者而非数据类 |
+| A6 | 伪多态 | 分派同一概念行为的 cast / instanceof / match / 类型 switch 散落多处（新增子类要改 N 处） | AI 生成实证 | Replace Conditional with Polymorphism | 不同概念的独立 cast、跨函数配对不算，不强行多态化 |
+| A7 | out-param 束 | 签名含多个非 const 引用 out-param（阈值见 SKILL 表；刻意 in-out 钳制不算） | AI 生成实证 | Introduce Parameter Object / 收编为成员 | 构造 / 解析类多返回值是接口语义时，保留签名 |
 
 判据：A1 / A2 优先于全部经典类；实现任何 helper 或常量前先按「复用优先」grep 已有同类。
 
@@ -87,7 +87,7 @@
 | T1 | 隐藏依赖 Hidden Dependency | 构造或方法内部直接 new、静态调用外部资源，测试无法注入 | Feathers《修改代码的艺术》 | Parameterize Constructor / Extract and Override Factory Method | 依赖是纯值对象或无副作用工具时，注入只增加噪声 |
 | T2 | 全局状态 Global State | 单例 / 全局变量参与被测路径，测试顺序影响结果 | Feathers | Encapsulate Global References / Replace Global Reference with Getter | 进程级只读常量不构成状态污染，不处理 |
 | T3 | 不可观测输出 Untestable Side Effect | 行为只写文件 / 网络 / 日志，无返回值或可查状态 | Feathers | Extract Interface / Wrap Method / 暴露查询点 | 副作用本身就是被测契约时，用替身观察而非改结构 |
-| T4 | 巨型构造 Monster Constructor | 构造函数参数 > 4 或构造过程中执行 IO | Feathers | Parameterize Constructor / Break Out Method Object | 参数是框架强制注入时，只拆构造内的 IO |
+| T4 | 巨型构造 Monster Constructor | 构造函数参数超过 SKILL 阈值表或构造过程中执行 IO | Feathers | Parameterize Constructor / Break Out Method Object | 参数是框架强制注入时，只拆构造内的 IO |
 | T5 | 私有逻辑不可达 Private Logic | 关键分支只在 private 方法内，公共入口无法触发 | Feathers | Expose Static Method / Subclass to Test；先判是否属于公共契约 | 逻辑本就不该是公共契约时，测调用它的公共方法 |
 | T6 | 时间 / 随机耦合 Nondeterminism | 直接读系统时钟 / 随机数 / 环境变量 | Feathers | Adapt Parameter / Parameterize Method | 时间只是日志时间戳且不参与断言时，不注入 |
 
