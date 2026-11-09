@@ -79,7 +79,7 @@ AAA 结构、命名、该测什么见 testing-techniques。
 
 GREEN 之后才能重构，且不改行为。本故事内命中坏味道 → dispatch `refactor-executor`（mode=tdd）做循环内及时设计：传 scope（本故事改动面）/ 基线（测试命令 + N passed）/ 循环上限；一次一种坏味道，不跨故事积累，测试保持绿。
 
-`refactor-executor` 的循环细节在它自己正文，这里只写 dispatch 契约。台账登记见下节。
+`refactor-executor` 的循环细节在它自己正文，这里只写 dispatch 契约：**要求它从 `refactoring/references/smells-catalog.md` 命中项与 `techniques.md` 标准步骤出发；不得自创改法。** 台账登记见下节。
 
 ### 测试代码本身也是代码（四属性）
 

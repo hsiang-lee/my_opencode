@@ -17,7 +17,8 @@ description: Use when clarifying requirements, exploring design approaches, or p
 | 约束 | 时间、技术栈、兼容性要求？ |
 | 成功标准 | 怎么知道做对了？ |
 | 范围 | 什么明确不做？ |
-| 结构归属 | 这些数据类拥有自己的操作吗？新操作的归属按"谁拥有它需要的数据"回答了吗？ |
+
+职责归属、依赖方向与契约写法不在本轮：见 `design/SKILL.md`。
 
 **方式：** 优先选择题，也欢迎开放式回答。
 
@@ -29,13 +30,13 @@ description: Use when clarifying requirements, exploring design approaches, or p
 
 提出 **2-3 个方案**，每个含：描述 / 优势 / 劣势，并按 开发时间 · 复杂度 · 维护成本 · 风险 四维对比。
 
-**YAGNI：** 删除不必要功能，MVP 优先。模式同理：不为"以后可能要"引入抽象。
+**YAGNI：** 删除不必要功能，MVP 优先。抽象时机 = 同一坏味道第三次重复（Rule of Three）；模式引入的 YAGNI 三问唯一来源见 `design/SKILL.md`，本文件不复制。
 
 ---
 
 ## 输出：决策清单
 
-产出**决策清单**，与 Feature Step 1 的格式一致（对话中给出，不单独写文档）：
+产出**决策清单**。**brainstorm 是决策清单格式的唯一定义源**；`agents/Feature.md` Step 1 引用本格式，不另行定义（对话中给出，不单独写文档）：
 
 ```markdown
 ## 决策清单
@@ -61,12 +62,12 @@ description: Use when clarifying requirements, exploring design approaches, or p
 |------|----------------|
 | 目标 / 非目标 | ✅ 必需 |
 | 对外接口 + 前置/后置/不变式 | ✅ 必需（唯一的前置设计） |
-| 关键选择 + 理由 | ✅ 必需（含范式判定：状态型 OO / 数据变换 FP） |
+| 关键选择 + 理由 | ✅ 必需（含范式结论「已定 / 未定」；判定细则见 functional skill） |
 | 错误语义 / 边界 | ✅ 必需 |
 | **类怎么拆、组件划分、模式选型** | ❌ 不进——留 REFACTOR 由测试压力逼出 |
 | 数据流细节 | ⚠️ 仅在影响契约时写一句 |
 
-**红线**：契约写不出 = 接口没想清楚；把类结构写进决策清单 = 预设设计，删除。
+**红线**：把类结构写进决策清单 = 预设设计，删除。
 
 ### 契约怎么写（DbC 口径）
 
@@ -77,9 +78,7 @@ description: Use when clarifying requirements, exploring design approaches, or p
 | 不变式 | 调用前后都不能破坏什么？ | 留空（有状态时必填） |
 | 错误语义 | 违反前置时抛什么 / 返回什么？ | "处理错误" |
 
-写不出契约 = 接口还没想清楚，回上一步。
-
-**YAGNI 闸门**：任何模式建议先过三问——变化已经发生？不用会失控？删除成本低？任一为否 → 不用模式。默认答案是"先不用"。
+**YAGNI 闸门**：任何模式建议先过 `design/SKILL.md` 的三问，本文件不复制；默认答案是「先不用」。
 
 **用户明确要求选模式时**（如"这里该不该上策略模式"）：加载 design skill 再谈，结论记进「关键选择」，不写进故事。
 

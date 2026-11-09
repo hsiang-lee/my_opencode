@@ -37,13 +37,15 @@
 
 | 时机 | 读什么 |
 |------|--------|
+| 需求澄清 | brainstorm |
 | 需求→接口 | design |
 | 建模 | design |
 | 写测试 | testing-techniques |
 | 实现 | functional |
 | 改动点既有遗留代码且缺覆盖、难写测试 | legacy-code（条件加载：仅此情形读；新增代码直接 TDD，不读） |
 | 第一次出现重复 | refactoring（记候选行） |
-| 同一概念第二次变化 | design（抽象闸门） |
+| 同一概念第三次重复 | design（抽象闸门） |
+| 模式演化（第三次重复且需上模式） | refactoring-to-patterns |
 | 审查 | code-reviewer 的 profile 集合 |
 
 ## 档位判定（Feature 入口）
@@ -92,6 +94,7 @@
 - 执行侧分三类：`story-executor`（RED-GREEN-REFACTOR，REFACTOR 阶段 dispatch `refactor-executor`）、`legacy-executor`（L2 安全网 + L3 两顶帽子）、`refactor-executor`（自控七步循环）；判定标准在各 agent 正文。
 - 编排侧不写代码、不改测试。Feature 不跑测试；Fix / Refactor 只允许跑只读验证命令（复现、基线、现有测试），不得修改测试或源码。dispatch 要求先给失败测试或安全网证据，核对 RED 证据，无证据不验收。
 - 目标路径无测试不转交、不 BLOCKED：由执行场景自己补安全网（三分类：能直接写测试 → 直接补；难测 → legacy-code 接缝→特征测试→解依赖；新增代码（白纸）→ 直接 TDD，不问有无测试），补完继续 TDD。
+- **重构必须按 `skills/refactoring/references/smells-catalog.md` 的坏味道与 `techniques.md` 的对应手法执行；无对应手法或手法不适用时停止并说明，禁止即兴发挥。**
 
 ## 红线
 
