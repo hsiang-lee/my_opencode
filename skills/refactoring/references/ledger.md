@@ -8,10 +8,10 @@
 
 | ID | 簇 / 文件:line | 候选坏味道（入口快扫） | 规模 | 风险 | 安全网 | 状态 | 基线 | Commit |
 |----|----------------|------------------------|------|------|--------|------|------|--------|
-| C1 | `path:40-120` | 过长函数? | 80 行 | 高 | ready | done | `<cmd>` → 42 passed | `abc1234` |
+| C1 | `path:40-120` | 过长函数? | 80 行 | 高 | covered | done | `<cmd>` → 42 passed | `abc1234` |
 
 - **候选坏味道**：带 `?`；信息不足写 `unknown`，不猜；候选不排执行顺序、不限制扫描范围。
-- **安全网**：`unknown` / `safety-net` / `ready` / `blocked`。
+- **安全网**：`unknown` / `covered` / `direct-tests` / `legacy-L2`（记方式；`ready` 只出现在状态列）。
 - **状态**：`pending` / `safety-net` / `ready` / `in-progress` / `done` / `blocked`。
 - **1 簇 = 1 commit**，消息带 `cluster: Cx`；清单与代码同批更新。
 

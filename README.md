@@ -32,7 +32,7 @@
 | 精简档 | 3-8 文件且无新增模块/公共接口/数据模型 | 跳过 momus，其余照走 |
 | 完整档 | >8 文件，或新增模块/公共接口/数据结构/并发/权限/迁移 | 走满全流程 |
 
-Refactor 不按规模分级：范围收敛只看聚焦点，规模只影响拆几个批次，不改变流程。
+Refactor 不按规模分级：范围收敛产出簇清单（SCOPE_INVENTORY），规模只影响拆几个簇，不改变流程。
 
 ## 架构
 
@@ -114,7 +114,7 @@ Tab 切到 Fix，给出复现步骤。根因调查后判定覆盖：有测试 �
 
 ### Refactor (行为保持 / 存量腐坏)
 
-Tab 切到 Refactor。先收敛聚焦点；再评估覆盖：已覆盖直接重构，未覆盖且难测才建安全网。循环只有一个实现：Refactor 把 scope / mode / 基线 / 循环上限交给 refactor-executor 自控七步，完成后按整分支 diff + REFACTOR_LEDGER 审查。
+Tab 切到 Refactor。先收敛范围并产出 SCOPE_INVENTORY；再逐簇评估覆盖：已覆盖直接重构，未覆盖先建安全网（能直接补测就补，难测才走 legacy-code），非 ready 簇不进循环。循环只有一个实现：Refactor 把 cluster_id / scope / mode / 基线 / 循环上限交给 refactor-executor 自控七步，1 簇 1 commit，完成后按整分支 diff + SCOPE_INVENTORY + REFACTOR_LEDGER 审查。
 
 ### Feature (行为变更)
 

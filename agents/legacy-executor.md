@@ -36,9 +36,9 @@ permission:
 
 dispatch 必须给：
 
-1. **侦察报告**（legacy-analyst 的 `CHANGE_POINTS` / `EFFECT_SKETCH` / `TEST_INVENTORY` / `STRATEGY` / `RISKS`）
+1. **侦察报告**（legacy-analyst 的 `CHANGE_POINTS` / `EFFECT_SKETCH` / `TEST_INVENTORY` / `STRATEGY` / `RISKS`）；仅补常规测试（Refactor 判定「未覆盖但能直接补测」）时，可用 Refactor 的覆盖评估证据（目标文件集 + 测试命令 + N passed）替代
 2. **变更意图**：要改成的行为，或只改结构
-3. **L1 拍板结果**：Direct Edit + 选择理由（本 executor 只执行 Direct Edit；Sprout/Wrap 由编排层退出到 Feature 轻量档，不派本 agent）
+3. **L1 拍板结果**：Direct Edit + 选择理由（本 executor 只执行 Direct Edit；Sprout/Wrap 由编排层退出到 Feature 轻量档，不派本 agent）；仅补测时固定为 Direct Edit
 4. **测试命令**：全量命令 + 目标测试命令
 5. **SHA 基线**：本任务起点 commit
 
