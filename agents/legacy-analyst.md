@@ -1,7 +1,7 @@
 ---
 description: 遗留代码侦察 Agent。只做 L0/L1：读代码产出 change points、effect sketch（受影响调用方）、现有测试盘点、改法建议（Sprout/Wrap/Direct Edit）与风险。不改代码、不写测试；由 Refactor 安全网阶段调度。
 mode: subagent
-model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
+model: bicv/vllm/deepseek-v4.1-flash-1017
 temperature: 0.2
 color: "#8D6E63"
 permission:

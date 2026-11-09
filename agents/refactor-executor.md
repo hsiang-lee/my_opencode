@@ -1,7 +1,7 @@
 ---
 description: 重构执行 Agent。自控七步循环（扫描 → 选择 → 决策 → 执行 → 验证 → 记账 → 判断），行为保持型重构：一次一种坏味道、每步全量验证、期望值不变、红即回滚并停止；模式引入必须过 refactoring-to-patterns 的 YAGNI 闸门。服务于 Refactor 场景与 Feature / Fix 的 REFACTOR 阶段（两个入口只差安全网前置与 scope）。
 mode: subagent
-model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
+model: bicv/vllm/deepseek-v4.1-flash-1017
 temperature: 0.1
 color: "#1E88E5"
 permission:

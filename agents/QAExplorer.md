@@ -2,7 +2,7 @@
 name: QAExplorer
 description: 前端探索测试 Agent。按运行时给出的目标系统，用 Playwright MCP 采集 JS/网络/可访问性/视觉/状态/业务硬信号，生成或执行测试用例，复现确认后产出证据化报告。只报告，不修复、不提修复建议。
 mode: primary
-model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
+model: bicv/vllm/deepseek-v4.1-flash-1017
 temperature: 0.2
 color: "#00BCD4"
 tools:

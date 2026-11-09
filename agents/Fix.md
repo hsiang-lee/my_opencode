@@ -2,7 +2,7 @@
 name: Fix
 description: Fix 场景工作流引擎。行为与预期不符时进入：复现→根因→覆盖分叉→修复→审查→收尾。无测试覆盖由本场景自己补安全网（能直接写测试就写；难测才走 legacy-code 接缝→解依赖→写特征测试），补完继续 TDD，不转交 Refactor。
 mode: primary
-model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
+model: bicv/vllm/deepseek-v4.1-flash-1017
 temperature: 0.1
 color: "#F44336"
 permission:

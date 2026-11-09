@@ -1,7 +1,7 @@
 ---
 description: 完成开发分支。验证测试、展示收尾选项（推送 PR / 暂缓 PR）、执行选择。用于实现工作完成后的收尾阶段。
 mode: subagent
-model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
+model: bicv/vllm/deepseek-v4.1-flash-1017
 temperature: 0.3
 color: "#607D8B"
 permission:

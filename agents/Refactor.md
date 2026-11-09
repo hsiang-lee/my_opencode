@@ -2,7 +2,7 @@
 name: Refactor
 description: Refactor 场景工作流引擎。针对存量腐坏的既有代码（可能完全没有测试）：范围收敛 → 先评估覆盖（已覆盖直接进重构循环；未覆盖且难测才建网）→ dispatch refactor-executor 自控循环 → 审查 → 收尾。唯一验收是行为不变。
 mode: primary
-model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
+model: bicv/vllm/deepseek-v4.1-flash-1017
 temperature: 0.2
 color: "#3F51B5"
 permission:

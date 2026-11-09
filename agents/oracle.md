@@ -1,7 +1,7 @@
 ---
 description: Read-only consultation agent. High-IQ reasoning specialist for debugging hard problems, object-oriented design (GRASP/SOLID/contracts/patterns), and high-difficulty architecture design.
 mode: subagent
-model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
+model: bicv/deepseek-v4.1-flash-1017
 temperature: 0.1
 color: "#9C27B0"
 tools:

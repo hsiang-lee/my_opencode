@@ -1,7 +1,7 @@
 ---
 description: 按批次执行用户故事。逐故事 TDD（RED→GREEN→REFACTOR 判定标准在本 agent 正文），批次单 commit；报告 DONE/DONE_WITH_CONCERNS/BLOCKED/NEEDS_CONTEXT。目标代码无覆盖时按三分类自己补安全网（能直接写测试→直接补；难测→legacy-code），补完继续 TDD，不转交、不 BLOCKED。用于 Feature / Fix 场景的实现阶段。
 mode: subagent
-model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
+model: bicv/vllm/deepseek-v4.1-flash-1017
 temperature: 0.1
 color: "#8BC34A"
 permission:

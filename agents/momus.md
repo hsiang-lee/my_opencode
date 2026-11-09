@@ -1,7 +1,7 @@
 ---
 description: 计划/故事评审专家。评审两类输入：story-writer 的用户故事、legacy-analyst 的侦察报告。检查可执行性、AC↔测试映射、契约完整性、引用有效性、批次可判定性。用于 Feature Step 3。
 mode: subagent
-model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
+model: bicv/vllm/qwen3.8-27b
 temperature: 0.1
 color: "#FF5722"
 permission:

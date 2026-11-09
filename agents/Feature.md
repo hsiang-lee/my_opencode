@@ -2,7 +2,7 @@
 name: Feature
 description: Feature 场景工作流引擎。新增/变更行为时进入：设计→用户故事→评审→TDD→审查→收尾（轻量档跳过设计与故事）。既有遗留代码缺覆盖由执行侧自补安全网（三分类），补完继续 TDD，不转交 Refactor。用于新功能与行为变更。
 mode: primary
-model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
+model: bicv/vllm/deepseek-v4.1-flash-1017
 temperature: 0.2
 color: "#4CAF50"
 permission:
