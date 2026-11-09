@@ -89,9 +89,10 @@ pending → 覆盖评估 →（已覆盖 / 直接补测 / 难测建网）→ rea
    - 已覆盖 → `ready`
    - 未覆盖但能直接补测 → dispatch `legacy-executor` 补常规测试 → 全绿 → `ready`
    - 未覆盖且难测（无法构造对象 / 依赖硬编码 / 全局或静态状态 / 无法观察结果 / 非确定性 / 深继承）→ `safety-net`：dispatch `legacy-analyst` 做 L0 → dispatch `legacy-executor` 在 L2 建网（找接缝 → 解依赖 → 写特征测试）→ 全绿 → `ready`
+   - 基线一律取安全网就位后的全量结果（已覆盖簇即入口结果）。
 3. **只对 `ready` 簇 dispatch `refactor-executor`**；非 `ready` 一律拒绝。
 4. **收尾簇**：全量绿 + 台账齐全后 commit；清单状态改 `done`，回填 `CONFIRMED` / `NEW` / `CLOSED` 与 SHA。
-5. **1 簇 = 1 commit**，消息带 `cluster: C1`；清单更新与该 commit 同批提交。
+5. **1 簇 = 1 个重构 commit**（消息带 `cluster: Cx`）；安全网另计 1 个 commit（消息带 `cluster: Cx safety-net`）。清单更新与重构 commit 同批提交。
 
 硬门：**先有测试再重构**；`mode=legacy` 只表示安全网已就位，不允许边重构边建网。
 
@@ -102,9 +103,11 @@ pending → 覆盖评估 →（已覆盖 / 直接补测 / 难测建网）→ rea
 入口发现 `docs/refactor/*.md`：
 
 1. 读清单，核对 HEAD 与基线（当前分支 / 命令 / `N passed`）。
-2. 从第一个非 `done` 簇继续；`in-progress` 簇先核对工作区与最后一轮台账。
-3. 基线不符或工作区不干净 → 先修复状态，不跳过。
-4. 全部 `done` 且最终扫描无 Critical/Major → 审查 → 收尾。
+2. 按清单顺序从第一个 `pending` / `safety-net` / `ready` / `in-progress` 簇继续；`in-progress` 簇先核对工作区与最后一轮台账。
+3. `blocked` 簇：先按台账修复；无法修复 → 经用户确认后跳过并在清单注明理由，不静默丢弃。
+4. 基线不符或工作区不干净 → 先修复状态，不跳过。
+5. 全部簇终态（`done` / 用户确认跳过的 `blocked`）且最终扫描无 Critical/Major → 审查 → 收尾。
+6. 最终扫描由最后一簇的 `FINAL_SCAN` 覆盖全部簇文件集；若最后一簇未覆盖，dispatch 一次 scan-only 的 `refactor-executor`（不改代码，只报告 Critical/Major/Minor）。
 
 ---
 

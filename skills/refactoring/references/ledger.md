@@ -12,8 +12,9 @@
 
 - **候选坏味道**：带 `?`；信息不足写 `unknown`，不猜；候选不排执行顺序、不限制扫描范围。
 - **安全网**：`unknown` / `covered` / `direct-tests` / `legacy-L2`（记方式；`ready` 只出现在状态列）。
+- **基线**：安全网就位后的全量命令与 `N passed`（已覆盖簇即入口结果），作为重构回滚锚点。
 - **状态**：`pending` / `safety-net` / `ready` / `in-progress` / `done` / `blocked`。
-- **1 簇 = 1 commit**，消息带 `cluster: Cx`；清单与代码同批更新。
+- **1 簇 = 1 个重构 commit**（`cluster: Cx`）；安全网另计 1 个 commit（`cluster: Cx safety-net`）。清单与重构 commit 同批更新。
 
 每簇块：
 
