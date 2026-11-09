@@ -4,6 +4,8 @@
 
 > 面向对象设计首先是「职责分配」，其次才是「结构模式」。九个模式不是设计模板，是九个提问角度。
 
+**目录**：1 Information Expert · 2 Creator · 3 Controller · 4 Low Coupling · 5 High Cohesion · 6 Polymorphism · 7 Pure Fabrication · 8 Indirection · 9 Protected Variations · 常见分配错误 → 修正 · 附：Booch 复杂系统五属性
+
 ## 1. Information Expert（信息专家）
 
 **问题**：这个职责该给谁？
@@ -80,7 +82,9 @@
 | 胖 Controller | 业务规则全在 Controller | 下沉到领域层，Controller 只做转译 |
 | 满屏 `if (type)` | 类型分支散落多处 | Polymorphism + Strategy/State |
 | SDK 散落业务 | 第三方调用遍布业务代码 | Pure Fabrication + Protected Variations（适配层） |
-| 过度抽象 | 一个接口一个实现，永不变 | 过 YAGNI 三问再引入 |
+| 过度抽象 | 一个接口一个实现，永不变 | 过 design 的 YAGNI 三问再引入 |
+
+> A5 贫血模型等坏味道的识别与首选手法见 [`../../refactoring/references/smells-catalog.md`](../../refactoring/references/smells-catalog.md)。
 
 ---
 
@@ -94,6 +98,6 @@
 | 共同模式 | 少数结构反复出现 | 模式是经验复用，不是发明 |
 | 稳定的中间形式 | 演化需要中间稳定层 | 小步重构，不做一步到位的大改 |
 
-对象模型七要素：抽象、封装、模块化、层次结构、类型（前四为传统 OO 核心）+ 并发、持久（工程扩展维度）。评审时可问：这套设计在哪一层抽象上成立？换一层还成立吗？
+对象模型七要素（4 主 3 次）：抽象、封装、模块化、层次结构（4 主，传统 OO 核心）+ 类型 / typing、并发、持久（3 次，工程扩展维度）。评审时可问：这套设计在哪一层抽象上成立？换一层还成立吗？
 
 **链接**：对象语义的精确承诺见 `contracts.md`（对象不变式），职责归属回到 [../SKILL.md](../SKILL.md) 的职责三问。

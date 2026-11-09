@@ -29,15 +29,13 @@ let boxed: Box<dyn Fn(i32) -> i32> = Box::new(|x| x + 1);
 ```
 **陷阱**
 
-> 以下为经验量级（Ford《Functional Thinking》与常见编译器实测），不是保证值；性能决策以本机基准为准。
-
 | 陷阱 | 现象 | 对策 |
 |------|------|------|
 | C++ 按引用捕获局部变量 | 返回后调用 → 悬空 UB | 按值捕获 `[x]` |
-| `std::function` 用于热路径 | 堆分配 + 虚调用，慢 10-30% | 模板参数 / `auto` lambda |
+| `std::function` 用于热路径 | 类型擦除有开销 | 模板参数 / `auto` lambda（成本见 `performance.md`） |
 | Rust 闭包默认不可变捕获 | 想改捕获变量编译失败 | `Cell`/`RefCell`，或 `move` + `mut` |
 
-**建议**：先用内置 `std::ranges` / `Iterator`；策略、回调、比较器用 lambda 替代函数指针或单方法接口类；热路径 C++ 避免 `std::function`，Rust 优先 `impl Fn`。
+**建议**：先用内置 `std::ranges` / `Iterator`；策略、回调、比较器用 lambda 替代函数指针或单方法接口类。性能取舍见 `performance.md`。
 ## 2. 闭包 — 定义：捕获定义处作用域变量的函数值，携带私有状态而不建类
 
 **C++**
@@ -149,7 +147,7 @@ let fibs: Vec<u64> = (Fibonacci { a: 0, b: 1 }).take(10).collect();
 | C++ view 引用临时数据 | view 存活时数据已销毁 → 悬空 | 容器生命周期覆盖 view |
 | Rust 迭代器单次消费 | 消费后无法再用 | 需要多次用就 `collect` |
 
-**建议**：大数据集用惰性链减少中间集合，小数据直接 `collect`；无限序列一律用生成器；release 下 `std::views` 与 Rust 迭代器通常零成本。
+**建议**：大数据集用惰性链减少中间集合，小数据直接 `collect`；无限序列一律用生成器。性能成本见 `performance.md`。
 ## 5. 模式匹配 — 定义：按数据结构的形状分支并解构，编译器检查分支是否穷尽
 
 **Rust**
