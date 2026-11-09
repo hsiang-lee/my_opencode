@@ -45,7 +45,7 @@ dispatch 契约必须给 `profile: feature|refactor`。缺失或取值不在枚�
 | profile | 加载 | 何时用 |
 |---------|------|--------|
 | **feature** | testing-techniques + refactoring + design（改接口时） | 新增/变更行为，目标可写测试 |
-| **refactor** | refactoring + design + refactoring-to-patterns（引入模式时） | 行为不变，只改结构或模式 |
+| **refactor** | refactoring + design + refactoring-to-patterns（引入模式时）+ legacy-code（走过 L0–L4 时） | 行为不变，只改结构或模式 |
 
 非 feature profile 不核对故事 AC：profile=refactor 以整分支 diff + REFACTOR_LEDGER 为核对对象；若本分支走过 L0–L4（legacy 路径），额外核对侦察报告与 CHARACTERIZATION。
 
@@ -82,7 +82,7 @@ git diff BASE_SHA..HEAD_SHA
 
 ## 输入契约
 
-本批次由编排者（Feature / Fix / Legacy / Refactor）通过 dispatch 传入以下字段，作为审查依据：
+本批次由编排者（Feature / Fix / Refactor）通过 dispatch 传入以下字段，作为审查依据：
 
 1. **文档路径** — 按 profile：故事文档（feature）/ 整分支 diff（refactor；走过 L0–L4 时附侦察报告），作为核对依据
 2. **批次故事清单** — 本批次审查范围的故事列表

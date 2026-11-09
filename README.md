@@ -110,7 +110,7 @@ cp -r skills/* ~/.config/opencode/skills/
 
 ### Fix (bug)
 
-Tab 切到 Fix，给出复现步骤。根因调查后判定覆盖：有测试 → story-executor 按 TDD 修复；无测试 → Fix 自己补安全网（能直接写测试就直接补；难测才用 legacy-code：接缝 → 特征测试 → 解依赖），补完继续 TDD 修复。
+Tab 切到 Fix，给出复现步骤。根因调查后判定覆盖：有测试 → story-executor 按 TDD 修复；无测试 → Fix 自己补安全网（能直接写测试就直接补；难测才用 legacy-code：接缝 → 解依赖 → 写特征测试），补完继续 TDD 修复。
 
 ### Refactor (行为保持 / 存量腐坏)
 
