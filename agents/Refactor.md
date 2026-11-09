@@ -104,9 +104,10 @@ pending → 覆盖评估 →（已覆盖 / 直接补测 / 难测建网）→ rea
    - 未覆盖但能直接补测 → dispatch `legacy-executor`（`mode=safety-net-only`，只做 L2）补常规测试 → 全绿 → `ready`
    - 未覆盖且难测（无法构造对象 / 依赖硬编码 / 全局或静态状态 / 无法观察结果 / 非确定性 / 深继承）→ `safety-net`：dispatch `legacy-analyst` 做 L0 → dispatch `legacy-executor`（`mode=safety-net-only`）在 L2 建网（找接缝 → 解依赖 → 写特征测试）→ 全绿 → `ready`
    - 基线一律取安全网就位后的全量结果（已覆盖簇即入口结果）。
+   - 安全网 commit 完成后，委派 `general` 把本簇行改为 `ready` 并记录安全网方式与基线（`docs(refactor): mark Cx ready`）。
 3. **只对 `ready` 簇 dispatch `refactor-executor`（`task=cluster`）**；非 `ready` 一律拒绝。
 4. **收尾簇**：executor 提交代码后，委派 `general` 把本簇行写回清单（状态 `done`、安全网方式、基线、`CONFIRMED` / `NEW` / `CLOSED`、代码 commit SHA），单独提交 `docs(refactor): mark Cx done`。
-5. **1 簇 = 1 个代码 commit**（消息带 `cluster: Cx`）+ 1 个清单 commit（`docs(refactor): mark Cx done`）；安全网另计 1 个代码 commit（消息带 `cluster: Cx safety-net`）。清单 commit 记录代码 SHA，不做 amend。
+5. **1 簇 = 1 个代码 commit**（消息带 `cluster: Cx`）+ 1 个清单 commit（`docs(refactor): mark Cx done`）；安全网另计 1 个代码 commit（`cluster: Cx safety-net`）与 1 个清单 commit（`mark Cx ready`）。清单 commit 记录代码 SHA，不做 amend。
 
 硬门：**先有测试再重构**；`mode=legacy` 只表示安全网已就位，不允许边重构边建网。
 
@@ -119,9 +120,10 @@ pending → 覆盖评估 →（已覆盖 / 直接补测 / 难测建网）→ rea
 1. 读清单，核对 HEAD 与基线（当前分支 / 命令 / `N passed`）。
 2. 按清单顺序从第一个 `pending` / `safety-net` / `ready` 簇继续。
 3. `ready` 簇若工作区有该簇文件的未提交改动 → 视为 in-progress：核对台账最后一轮，全绿则收尾提交，红则回滚。
-4. `blocked` 簇：先按台账修复（修复后回 `pending` / `ready`）；无法修复 → 经用户确认后跳过并在清单注明理由，不静默丢弃。
-5. 基线不符或工作区不干净 → 先修复状态，不跳过。
-6. 全部簇终态（`done` / 用户确认跳过的 `blocked`）→ 进入终扫循环（见下节）。
+4. 清单状态落后于 git 历史（已有 `cluster: Cx` / `cluster: Cx safety-net` commit 但行未更新）→ 以 commit 与台账为准，委派 `general` 回填后再继续。
+5. `blocked` 簇：先按台账修复（修复后回 `pending` / `ready`）；无法修复 → 经用户确认后跳过并在清单注明理由，不静默丢弃。
+6. 基线不符或工作区不干净 → 先修复状态，不跳过。
+7. 全部簇终态（`done` / 用户确认跳过的 `blocked`）→ 进入终扫循环（见下节）。
 
 ---
 

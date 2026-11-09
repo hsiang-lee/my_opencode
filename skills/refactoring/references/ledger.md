@@ -14,7 +14,7 @@
 - **安全网**：`unknown` / `covered` / `direct-tests` / `legacy-L2`（记方式；`ready` 只出现在状态列）。
 - **基线**：安全网就位后的全量命令与 `N passed`（已覆盖簇即入口结果），作为重构回滚锚点。
 - **状态**：`pending` / `safety-net` / `ready` / `done` / `blocked`。进行中不设独立状态：`ready` 簇有未提交改动即视为 in-progress；`blocked` 修复后回 `pending` / `ready`，跳过须用户确认。
-- **1 簇 = 1 个代码 commit**（`cluster: Cx`）+ 1 个清单 commit（`docs(refactor): mark Cx done`）；安全网另计 1 个代码 commit（`cluster: Cx safety-net`）。
+- **1 簇 = 1 个代码 commit**（`cluster: Cx`）+ 1 个清单 commit（`docs(refactor): mark Cx done`）；安全网另计 1 个代码 commit（`cluster: Cx safety-net`）与 1 个清单 commit（`docs(refactor): mark Cx ready`）。
 - **COMMIT**：清单 commit 直接记录对应代码 commit SHA；不做 amend。
 - **落盘责任**：Refactor 决定内容并委派 `general` 写入；refactor-executor / legacy-executor 只报告 delta，不碰清单。
 
