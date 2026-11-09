@@ -117,3 +117,6 @@ OO 与 FP 正交，不互斥：领域模型用 OO，内部计算用纯函数。
 | 怎么写出干净代码 | refactoring（Clean Code 微规则）+ 本 skill |
 | FP 与 OO 如何协作、模式能否用 lambda 简化 | 本 skill → `references/fp-oo.md` |
 | 怎么验证行为 | story-executor 的 RED-GREEN-REFACTOR + testing-techniques |
+
+| 何时读 | 设计数据变换、在 OO 与 FP 间选型、或评审可变共享状态与副作用时读本 skill |
+| 何时不读 | 纯结构重构（行为不变，回 refactoring）、既有代码缺测试（先补安全网）、或语言缺乏 FP 设施时不读 |
