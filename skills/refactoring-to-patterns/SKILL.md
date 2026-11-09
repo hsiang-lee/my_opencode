@@ -21,7 +21,7 @@ description: Use after a code smell already exists and the next structural step 
 3. 下一步结构**指向某个已知模式**（Strategy / State / Observer / Command / Composite / Null Object …）。
 
 只满足「想用模式」而不满足 1 → 停，回 refactoring 或直接写最直白代码。
-目标代码**没有测试** → 停，先走 legacy-code 上安全网。
+目标代码**缺安全网** → 停，能直接补测试就先补，难测才走 legacy-code。
 
 ## YAGNI 闸门
 
@@ -50,7 +50,7 @@ YAGNI 三问以 `design/SKILL.md` 模式闸门为准。任一不过 → 用最�
 | 时机 | 说明 |
 |------|------|
 | 何时读 | 坏味道已存在且下一步结构指向已知模式，或要判断 TO / TOWARDS / AWAY 时读 |
-| 何时不读 | 坏味道尚未出现、只需原子手法（回 refactoring）、或目标代码无测试（先走 legacy-code）时不读 |
+| 何时不读 | 坏味道尚未出现、只需原子手法（回 refactoring）、或目标代码缺安全网（能直接补测试就先补，难测才 legacy-code）时不读 |
 
 ## 禁止事项
 

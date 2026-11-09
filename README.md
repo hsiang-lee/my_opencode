@@ -54,7 +54,7 @@ Tab 切换:
 | legacy-analyst | 由 Refactor 在未覆盖且难测时调度：L0 侦察 change points / effect sketch / 测试盘点 / 改法建议（只读） |
 | legacy-executor | 由 Refactor 在未覆盖且难测时调度：L1-L4 安全网、两顶帽子主循环、出清；结构与语义分 commit |
 | refactor-executor | 自控七步重构循环（扫描→选择→决策→执行→验证→记账→判断）+ REFACTOR_LEDGER |
-| code-reviewer | 按 profile（feature/legacy/refactor）审查：假测试 + 坏味道 + 专项检查 |
+| code-reviewer | 按 profile（feature/refactor）审查：假测试 + 坏味道 + 专项检查 |
 | branch-finisher | 分支收尾 |
 | explore / librarian | 代码库搜索 / 外部研究 |
 | metis / momus | 场景与档位预判 / 故事与侦察报告评审（含 AC 映射与契约完整性） |
@@ -70,9 +70,9 @@ Tab 切换:
 | design | Feature Step 1, code-reviewer, story-executor, refactor-executor | 索引层（决策顺序 / YAGNI 闸门 / 自检）+ references/（GRASP 9、SOLID+包原则、DbC、GoF 23、分析模型 UML）按需读 |
 | testing-techniques | story-executor, code-reviewer, legacy-executor, refactor-executor | 索引层（四属性 / 假测试闸门 / 坏味道判级）+ references/（测试结构、替身、夹具、坏味道全集）按需读 |
 | refactoring | story-executor, code-reviewer, refactor-executor, legacy-analyst, legacy-executor | 小步行为保持：阈值/台账/红线 + references/（坏味道 24 类 + A1-A7、手法、流程、台账、Clean Code） |
-| legacy-code | legacy-analyst, legacy-executor, code-reviewer | 遗留代码 L0-L4 节奏 + 7 参数 + 3 红线 + references/（接缝与特征测试、24 种解依赖、Sprout/Wrap） |
+| legacy-code | legacy-analyst, legacy-executor, code-reviewer, Feature/Fix/story-executor（难测时条件加载） | 遗留代码 L0-L4 节奏 + 7 参数 + 3 红线 + references/（接缝与特征测试、24 种解依赖、Sprout/Wrap） |
 | refactoring-to-patterns | refactor-executor, code-reviewer | 坏味道→模式：YAGNI 三问 + TO/TOWARDS/AWAY + references/（模式导向重构、演化链、评审表） |
-| functional | code-reviewer, story-executor | 索引层（范式选型 / 反 FP 闸门 / 评审 16 项）+ references/（构建块 C++&Rust、FP↔OO、错误处理、性能）按需读 |
+| functional | code-reviewer, story-executor, refactor-executor | 索引层（范式选型 / 反 FP 闸门 / 评审 16 项）+ references/（构建块 C++&Rust、FP↔OO、错误处理、性能）按需读 |
 | gdb | Fix（根因是崩溃 / 内存破坏时） | GDB 调试：崩溃分析、运行时变量、core dump |
 | init-deep / gh-pr / glab / issue-master / writing-skills / qnx / vcpkg / mull | 按需 | 见各自 SKILL.md |
 

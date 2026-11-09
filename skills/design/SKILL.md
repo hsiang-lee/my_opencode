@@ -68,7 +68,7 @@ description: Use when assigning responsibilities, judging dependency direction, 
 
 平凡改动、实现数 ≤1、契约能直接写出 → 归入「最小设计」档直接 TDD，不另写文档。留白清单只记录「本可以引入抽象」的位置，不预选模式。
 
-**何时读**：分析建模（跨模块/新领域）→ `references/analysis-uml.md`；判断本次做多少设计 / 是否需要留白 →「设计三档 / 留白」；职责放哪、契约怎么写、要不要模式 → 本 skill。
+**何时读**：分析建模（跨模块/新领域）→ `references/analysis-uml.md`；判断本次做多少设计 / 是否需要留白 →「设计三档」与索引中的 refactoring-as-design 条目；职责放哪、契约怎么写、要不要模式 → 本 skill。
 **何时不读**：纯机械改动与契约已明确的 bug 修复不读，直接进 TDD。
 
 ---
@@ -97,3 +97,4 @@ description: Use when assigning responsibilities, judging dependency direction, 
 | 怎么验证行为（RED-GREEN-REFACTOR） | story-executor |
 | 没有测试的老代码怎么改 | legacy-code |
 | 坏味道已存在、要演化成设计模式 | refactoring-to-patterns |
+| OO 与 FP 选型、可变性与副作用策略 | functional |

@@ -48,7 +48,7 @@ description: Use during the REFACTOR phase after tests are green, when detecting
 | 时机 | 说明 |
 |------|------|
 | 何时读 | GREEN 后需要判定坏味道、查手法、或写 REFACTOR_LEDGER 时读本 SKILL 与对应 reference |
-| 何时不读 | 测试未绿、目标代码无安全网（先走 legacy-code）、或只是加功能不改结构时不读 |
+| 何时不读 | 测试未绿、目标代码缺安全网（能直接补测试就先补，难测才 legacy-code）、或只是新增代码且无结构改动（只需扫候选行，不读 references）时不读 |
 
 ## 判定阈值（常驻，唯一来源）
 

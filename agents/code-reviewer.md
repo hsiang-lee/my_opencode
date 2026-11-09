@@ -40,17 +40,16 @@ permission:
 
 ## Review Profile（派发方必须指定）
 
-dispatch 契约必须给 `profile: feature|legacy|refactor`。缺失或取值不在枚举内 → 返回 `NEEDS_CONTEXT`，不猜。
+dispatch 契约必须给 `profile: feature|refactor`。缺失或取值不在枚举内 → 返回 `NEEDS_CONTEXT`，不猜。
 
 | profile | 加载 | 何时用 |
 |---------|------|--------|
 | **feature** | testing-techniques + refactoring + design（改接口时） | 新增/变更行为，目标可写测试 |
-| **legacy** | legacy-code（`references/seams.md` / `references/dependency-breaking.md`，判特征测试与解依赖用得对不对） | 目标无测试，走了 L0–L4 |
 | **refactor** | refactoring + design + refactoring-to-patterns（引入模式时） | 行为不变，只改结构或模式 |
 
-非 `feature` profile 不核对故事 AC：`legacy` 以侦察报告 + CHARACTERIZATION + LEDGER 为核对对象，`profile=refactor` 以整分支 diff + REFACTOR_LEDGER 为核对对象。
+非 feature profile 不核对故事 AC：profile=refactor 以整分支 diff + REFACTOR_LEDGER 为核对对象；若本分支走过 L0–L4（legacy 路径），额外核对侦察报告与 CHARACTERIZATION。
 
-### legacy 专项检查（profile: legacy 时必做）
+### legacy 路径专项检查（profile=refactor 且本分支走过 L0–L4 时必做）
 
 - [ ] **结构 commit 与语义 commit 是否分离**：解依赖/重构与改行为分两次提交，混合 → Important（阻塞）。
 - [ ] **临时测试接缝是否残留**：`#ifdef TEST`、测试专属子类、公开出去只为测试的成员留在生产源码 → Important（阻塞）。
@@ -62,7 +61,7 @@ dispatch 契约必须给 `profile: feature|legacy|refactor`。缺失或取值不
 - [ ] **零行为变更**：测试文件 diff 为空或只增不改，既有断言期望值未变；期望值变了 → Critical（这是 Feature 场景）。
 - [ ] **一次一坏味道**：每步只处理一类坏味道，未把多个重构混进同一步 → Important（阻塞）。
 - [ ] **ledger 完整**：REFACTOR_LEDGER 11 项逐项给出「命中 + 处置」或「未命中 + 理由」，无省略 → 缺项 Important（阻塞）。
-- [ ] **模式引入过了 YAGNI 闸门**：坏味道先存在、真实使用者 ≥2 或已排期；否则应 inline → Important。
+- [ ] **模式引入过了 YAGNI 闸门**：坏味道先存在、实现数 ≥2 且有调用方、且过 YAGNI 三问；实现数 ≤1 或无调用方 → AWAY（inline） → Important。
 - [ ] **无计划外改动**：diff 未超出批次范围、未夹带其他坏味道 → 超出 → Important（阻塞）。
 
 ---
@@ -85,12 +84,12 @@ git diff BASE_SHA..HEAD_SHA
 
 本批次由编排者（Feature / Fix / Legacy / Refactor）通过 dispatch 传入以下字段，作为审查依据：
 
-1. **文档路径** — 按 profile：故事文档（feature）/ 侦察报告（legacy）/ 整分支 diff（refactor），作为核对依据
+1. **文档路径** — 按 profile：故事文档（feature）/ 整分支 diff（refactor；走过 L0–L4 时附侦察报告），作为核对依据
 2. **批次故事清单** — 本批次审查范围的故事列表
 3. **AC 与测试规格** — 每故事的 AC 与测试规格，供核对「测试是否覆盖 AC」
 4. **批次 SHA 区间** — `基线 SHA .. 本批 HEAD SHA`，供整批 `git diff`
 5. **执行器台账（REFACTOR_LEDGER）** — executor 返回的批次合并台账，供台账抽查
-6. **Review Profile** — `profile: feature|legacy|refactor`，决定追加加载的 skill 与专项检查；缺失 → `NEEDS_CONTEXT`
+6. **Review Profile** — `profile: feature|refactor`，决定追加加载的 skill 与专项检查；缺失 → `NEEDS_CONTEXT`
 
 ---
 
