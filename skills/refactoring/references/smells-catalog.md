@@ -36,7 +36,7 @@
 
 ## 2. 函数级
 
-| 4 | 过长函数 Long Function | > 40 行，或含 ≥2 个可独立命名的段落 | Fowler | Extract Method / Replace Temp with Query / Decompose Conditional | 平铺直叙的状态机或协议解析拆开后更难读时，不硬拆 |
+| 4 | 过长函数 Long Function | 超过 SKILL 阈值表的长函数线（见 refactoring/SKILL.md），或含 ≥2 个可独立命名的段落 | Fowler | Extract Method / Replace Temp with Query / Decompose Conditional | 平铺直叙的状态机或协议解析拆开后更难读时，不硬拆 |
 | 5 | 过长参数列表 Long Parameter List | 参数个数 > 4 | Fowler | Introduce Parameter Object / Preserve Whole Object / Remove Flag Argument | 参数来自不同生命周期且不构成概念整体时，不强行打包 |
 | 6 | 标志参数 Flag Argument | 布尔参数切换函数内两条不同行为路径 | Fowler | Remove Flag Argument | 布尔值是真正的数据属性而非行为开关时保留 |
 | 7 | 临时字段 Temporary Field | 字段只在部分调用路径有值，其余为 null / 空 | Fowler | Extract Class / Introduce Null Object | 字段确实描述对象的可选状态且所有路径都显式检查时保留 |
