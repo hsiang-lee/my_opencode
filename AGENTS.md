@@ -93,7 +93,7 @@
 
 - 执行侧分三类：`story-executor`（RED-GREEN-REFACTOR，REFACTOR 阶段 dispatch `refactor-executor`）、`legacy-executor`（L2 安全网 + L3 两顶帽子）、`refactor-executor`（自控七步循环）；判定标准在各 agent 正文。
 - 编排侧不写代码、不改测试。Feature 不跑测试；Fix / Refactor 只允许跑只读验证命令（复现、基线、现有测试），不得修改测试或源码。dispatch 要求先给失败测试或安全网证据，核对 RED 证据，无证据不验收。
-- 目标路径无测试不转交、不 BLOCKED：由执行场景自己补安全网（三分类：能直接写测试 → 直接补；难测 → legacy-code 接缝→特征测试→解依赖；新增代码（白纸）→ 直接 TDD，不问有无测试），补完继续 TDD。
+- 目标路径无测试不转交、不 BLOCKED：由执行场景自己补安全网（三分类：能直接写测试 → 直接补；难测 → legacy-code 接缝→解依赖→写特征测试；新增代码（白纸）→ 直接 TDD，不问有无测试），补完继续 TDD。
 - **重构必须按 `skills/refactoring/references/smells-catalog.md` 的坏味道与 `techniques.md` 的对应手法执行；无对应手法或手法不适用时停止并说明，禁止即兴发挥。**
 
 ## 红线

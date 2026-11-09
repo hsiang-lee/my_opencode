@@ -94,9 +94,9 @@
 
 ## 7. 模式误用（Kerievsky）
 
-| P1 | 预置模式 Premature Pattern | 先有模式结构后找坏味道；抽象使用者 ≤1 | Kerievsky《重构与模式》 | AWAY：inline 回最直白写法 | 变体已真实存在且 ≥2 时，不拆模式 |
+| P1 | 预置模式 Premature Pattern | 先有模式结构后找坏味道；实现数 ≤1 或没有任何调用方 | Kerievsky《重构与模式》 | AWAY：inline 回最直白写法 | 变体已真实存在且 ≥2 时，不拆模式 |
 | P2 | 模式掩盖坏味道 Pattern Masking | 分支被搬进模式实现里继续 if / switch | Kerievsky | 继续 Replace Conditional with Polymorphism | 分支确实是模式内的合法配置差异时保留 |
-| P3 | 孤立抽象 Orphan Abstraction | 接口只有 1 个实现且无排期中的第二个 | Kerievsky | AWAY：合并回原方法 | 接口是外部契约或测试接缝时保留 |
+| P3 | 孤立抽象 Orphan Abstraction | 接口只有 1 个实现且没有任何调用方 | Kerievsky | AWAY：合并回原方法 | 接口是外部契约或测试接缝时保留 |
 | P4 | 大爆炸重构 Big-Bang Refactor | 一次提交引入 ≥2 个模式或整套工厂 / 注册表 | Kerievsky | 拆成 TOWARDS 小步，每步测试绿 | 机械改名等单步低风险变更不受此限 |
 | P5 | 模式堆叠 Pattern Stacking | 同一职责叠 ≥2 层模式（Factory + Builder + Singleton） | Kerievsky | 保留最简一层，其余 AWAY | 每层有独立且已发生的职责时，逐层评估后保留 |
 

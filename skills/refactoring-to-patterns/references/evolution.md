@@ -36,7 +36,7 @@
 
 ## 4. 26 个模式导向重构（分类速查）
 
-> 手册列高频条目；完整 26 条以原书目录为准，命名可能与 Fowler 手法重叠。
+> 手册收录高频 26 条；完整目录以原书为准，命名可能与 Fowler 手法重叠。
 
 ### 创建
 
@@ -73,6 +73,7 @@
 - Replace Conditional Dispatcher with Command
 - Adapt Observer / Replace Hard-Coded Notifications with Observer
 - Extract Adapter
+- Unify Interfaces
 - Unify Interfaces with Adapter
 
 ---
@@ -114,7 +115,7 @@
 
 - [ ] 这个模式是长出来的，还是预置的？
 - [ ] 有对应的坏味道吗？（没有就别加模式）
-- [ ] 抽象现在有几个真实使用者？（实现数 ≤1 或没有任何调用方 → 考虑 inline）
+- [ ] 抽象目前有几个实现、几个调用方？（实现数 ≤1 或没有任何调用方 → 考虑 inline）
 - [ ] 每步重构后测试都绿了吗？
 - [ ] 能否先「趋向模式」而不一次到位？
 - [ ] 有反向操作空间吗？（Singleton 能内联？Strategy 能合并？）
