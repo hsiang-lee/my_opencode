@@ -72,7 +72,7 @@
 | QAExplorer | 前端探索测试 | Tab |
 | story-writer | 决策确认后产出 Epic + 故事清单 | `Task("story-writer", ...)` |
 | story-executor | 逐故事 TDD（无覆盖时自己补安全网） | `Task("story-executor", ...)` |
-| legacy-analyst | 由 Refactor 在未覆盖且难测时调度：L0 侦察（effect sketch + 增量测试缺口，只读）；L1 仅按需 | `Task("legacy-analyst", ...)` |
+| legacy-analyst | 由 Refactor 在未覆盖且难测时调度：只做 L0 侦察（effect sketch + 增量测试缺口，只读） | `Task("legacy-analyst", ...)` |
 | legacy-executor | 由 Refactor 在未覆盖时调度：只做 L2 安全网（`safety-net-only`），不改结构/行为 | `Task("legacy-executor", ...)` |
 | refactor-executor | 自控七步重构循环 + 台账；清单只报告 delta（`cluster` / `scan-only`） | `Task("refactor-executor", ...)` |
 | general（内置） | 由 Refactor 委派：只写 `docs/refactor/*.md` 清单并提交 | `Task("general", ...)` |
@@ -84,6 +84,25 @@
 | librarian | 外部库与文档 | `@librarian` |
 | oracle | 复杂调试 / 高难度架构 | `@oracle` |
 
+## Subagent 状态处理与 dispatch 模板
+
+```
+Task(agent, "描述",
+  "## Task: [做什么]
+   ## Context: [精选背景: 项目概述1句 + 相关模式 + 依赖 + 文件路径]
+   ## Skill: 由 subagent 自身声明，不在此指定
+   ## Output: [格式]")
+```
+
+反模式：❌ 让 subagent 自己探索已知的 ❌ 倾倒全部上下文 ❌ 不提供任何上下文。
+
+| 状态 | 行动 |
+|------|------|
+| **DONE** | 继续下一步 |
+| **DONE_WITH_CONCERNS** | 读疑虑：正确性/范围先解决；观察性记录后继续 |
+| **NEEDS_CONTEXT** | 提供缺失上下文，重新 dispatch |
+| **BLOCKED** | 按各 primary 正文处理；同一 subagent 连续 3 次 BLOCKED → 停止，升级用户 |
+
 ## Skill 加载
 
 - `SKILL.md` 是索引 + 判定层：先读它，再按「要做什么 → 读哪个文件」表只打开当前任务需要的 1 个 reference。
@@ -94,7 +113,7 @@
 
 - 执行侧分三类：`story-executor`（RED-GREEN-REFACTOR，REFACTOR 阶段 dispatch `refactor-executor`）、`legacy-executor`（只做 L2 安全网）、`refactor-executor`（自控七步循环）；判定标准在各 agent 正文。
 - 编排侧不写代码、不改测试；Refactor 的清单文档委派 `general` 抄写，Refactor 只核对落盘结果。Feature 不跑测试；Fix / Refactor 只允许跑只读验证命令（复现、基线、现有测试），不得修改测试或源码。dispatch 要求先给失败测试或安全网证据，核对 RED 证据，无证据不验收。
-- 目标路径无测试不转交、不 BLOCKED：由执行场景自己补安全网（三分类：能直接写测试 → 直接补；难测 → legacy-code 接缝→解依赖→写特征测试；新增代码（白纸）→ 直接 TDD，不问有无测试），补完继续 TDD。
+- 目标路径无测试不转交、不 BLOCKED：由执行场景按 `skills/legacy-code/SKILL.md`「安全网三分类」自补，补完继续 TDD。
 - **重构必须按 `skills/refactoring/references/smells-catalog.md` 的坏味道与 `techniques.md` 的对应手法执行；无对应手法或手法不适用时停止并说明，禁止即兴发挥。**
 
 ## 红线

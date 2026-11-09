@@ -102,7 +102,7 @@ pending → 覆盖评估 →（已覆盖 / 直接补测 / 难测建网）→ rea
 2. **覆盖评估**（必须留证据：测试文件 + 覆盖的方法名 + `N passed`；该证据原样传给 legacy-analyst，不重复跑基线）：
    - 已覆盖 → `ready`
    - 未覆盖但能直接补测 → dispatch `legacy-executor`（`mode=safety-net-only`，只做 L2）补常规测试 → 全绿 → `ready`
-   - 未覆盖且难测（无法构造对象 / 依赖硬编码 / 全局或静态状态 / 无法观察结果 / 非确定性 / 深继承）→ `safety-net`：dispatch `legacy-analyst` 只做 L0（不要 `STRATEGY`，带上入口覆盖证据）→ dispatch `legacy-executor`（`mode=safety-net-only`）在 L2 建网（找接缝 → 解依赖 → 写特征测试）→ 全绿 → `ready`
+   - 未覆盖且难测（判据见 legacy-code/SKILL.md「安全网三分类」分类 2）→ `safety-net`：dispatch `legacy-analyst` 只做 L0（带上入口覆盖证据）→ dispatch `legacy-executor`（`mode=safety-net-only`）在 L2 建网（找接缝 → 解依赖 → 写特征测试）→ 全绿 → `ready`
    - 仅当调用方跨模块 / effect sketch 无法从现有调用图直接得出时才 dispatch `legacy-analyst`；单函数局部且调用方清楚 → 跳过 analyst，直接进 safety-net。
    - 基线一律取安全网就位后的全量结果（已覆盖簇即入口结果）。
    - 安全网 commit 完成后，委派 `general` 把本簇行改为 `ready` 并记录安全网方式与基线（`docs(refactor): mark Cx ready`）。
@@ -194,14 +194,13 @@ Critical/Important → 回到循环修复；通过 → 收尾
 
 ## Subagent 状态处理
 
-| 状态 | 行动 |
-|------|------|
-| **DONE** | 核对全量绿 + 台账 → 委派 general 回填清单 → 下一个簇 / 终扫 |
-| **DONE_WITH_CONCERNS** | 读疑虑：范围偏离 / 手法存疑 → 评估是否继续循环 |
-| **NEEDS_CONTEXT** | 提供缺失上下文，重新 dispatch |
-| **BLOCKED** | 回滚范围不清 → 要求明确；基线与代码不符 → 重新收敛；基线已红 → 退回 Fix；委派 general 标 blocked 并记录原因 |
+通用规则见 `AGENTS.md`「Subagent 状态处理与 dispatch 模板」。
 
-**熔断：同一 subagent 连续 3 次 BLOCKED → 停止，升级用户，不再重试。**
+本场景的 DONE：核对全量绿 + 台账 → 委派 `general` 回填清单 → 下一个簇 / 终扫。
+
+本场景的 DONE_WITH_CONCERNS：范围偏离 / 手法存疑 → 评估是否继续循环。
+
+本场景的 BLOCKED：回滚范围不清 → 要求明确；基线与代码不符 → 重新收敛；基线已红 → 退回 Fix；委派 `general` 标 blocked 并记录原因。
 
 ---
 

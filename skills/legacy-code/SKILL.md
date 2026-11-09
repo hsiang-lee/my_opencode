@@ -10,7 +10,7 @@ description: Use when the code to change has no reliable tests, when adding a sa
 
 | 谁用 | 用来做什么 |
 |------|------------|
-| legacy-analyst | L0 侦察（effect sketch + 增量测试缺口）；L1 仅按需（只读） |
+| legacy-analyst | 只做 L0 侦察（effect sketch + 增量测试缺口，只读） |
 | legacy-executor | 只执行 L2（安全网）；Refactor 的 safety-net-only 专用 |
 | code-reviewer | 审查安全网是否成立、特征测试是否被当成规格 |
 
@@ -22,7 +22,7 @@ description: Use when the code to change has no reliable tests, when adding a sa
 
 ```
 L0 侦察（禁改代码）：change points + effect sketch + 现有测试盘点
-L1 选改法（风险递增）：Sprout > Wrap > Direct Edit
+L1 选改法（执行者就地判定；Refactor 安全网路径固定 Direct Edit）
    Sprout/Wrap 不改老逻辑主体，只在调用点插入/委托 → 直接走 TDD，跳过 L2
 L2 上安全网（一次性）：只覆盖"将被改路径 + 直接调用者"，对象接缝优先
    一次一种解依赖，每次解完全量测试 → 全绿并记录基线（含 flaky 标注）
@@ -69,6 +69,16 @@ L4 出清：删临时测试接缝、结构与语义分 commit
 
 **选择顺序（判据）**：先问能否 Sprout → 能否 Wrap → 否则 Direct Edit；三种都被依赖挡住时才先解依赖。策略入口只决定起点，不替代 L0–L4 内部步骤。
 
+## 安全网三分类（唯一事实源）
+
+| 分类 | 判据 | 处理 |
+|------|------|------|
+| 1 能直接写测试 | 能构造被测对象、能观察结果、依赖可注入 | 直接补测试，继续 TDD |
+| 2 难测 | 无法构造对象 / 依赖硬编码 / 全局或静态状态 / 无法观察结果 / 非确定性 / 深继承 | 找接缝 → 解依赖 → 写特征测试（锁现状）；全绿后继续 |
+| 3 新增代码（白纸） | 无既有行为要锁 | 直接 TDD，不加载本 skill |
+
+执行场景（Feature / Fix / story-executor）按本表自行补安全网；Refactor 的 legacy 路径使用分类 2 建 L2 网。
+
 ## 加载时机
 
 | 时机 | 说明 |
@@ -86,7 +96,7 @@ L4 出清：删临时测试接缝、结构与语义分 commit
 | 解依赖：24 种技术、场景→技术对照、私有方法判定 | `references/dependency-breaking.md` |
 | Sprout / Wrap / Direct Edit 的判定与实现细节 | `references/sprouting.md` |
 
-规则：**只读当前阶段需要的那一个**。L0/L1 查 `seams.md` 与 `sprouting.md`，L2 查 `dependency-breaking.md`。
+规则：**只读当前阶段需要的那一个**。L0 查 `seams.md`，L1 查 `sprouting.md`，L2 查 `dependency-breaking.md`。
 
 ---
 
