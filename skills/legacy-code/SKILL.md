@@ -11,7 +11,7 @@ description: Use when the code to change has no reliable tests, when adding a sa
 | 谁用 | 用来做什么 |
 |------|------------|
 | legacy-analyst | L0 侦察（effect sketch + 增量测试缺口）；L1 仅按需（只读） |
-| legacy-executor | L1–L4 执行（上安全网 → 主循环 → 出清） |
+| legacy-executor | 只执行 L2（安全网）；Refactor 的 safety-net-only 专用 |
 | code-reviewer | 审查安全网是否成立、特征测试是否被当成规格 |
 
 **本文件常驻 = 节奏层。** 下面索引的文件只在对应阶段读，不要一次全读。
