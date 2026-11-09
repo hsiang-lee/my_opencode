@@ -62,20 +62,20 @@ dispatch 必须给：
 ```
 1 扫描：坏味道 24 类 + A1-A7 + design 职责 + functional 简化
 2 选择：影响面 > 因果上游 > 改动风险
-3 决策：常规手法 / 重构到模式 / 已无 Critical/Major → 结束
+3 决策：常规手法 / 重构到模式 / 已无 Critical/Important → 结束
 4 执行：一次一种，最小步，不改行为
 5 验证：全量绿 + 期望值不变；红 → 回滚并停止
 6 记账：台账追加本轮
-7 判断：还有 Critical/Major → 回 1；只剩 Minor → 结束
+7 判断：还有 Critical/Important → 回 1；只剩 Minor → 结束
 ```
 
 1. **扫描** — 在 scope 内逐类核对坏味道（24 类 + A1-A7），并检查 design 职责归属与 functional 简化机会。不重扫未改动文件。候选坏味道必须逐项复核：命中记 CONFIRMED，清单外新发现记 NEW。
 2. **选择** — 按影响面 > 因果上游 > 改动风险排序，选本轮处理的一类。
-3. **决策** — 常规手法直接用；结构指向已知模式时用 refactoring-to-patterns（TO/TOWARDS/AWAY）；若已无 Critical/Major → 结束循环。
+3. **决策** — 常规手法直接用；结构指向已知模式时用 refactoring-to-patterns（TO/TOWARDS/AWAY）；若已无 Critical/Important → 结束循环。
 4. **执行** — 一次一种坏味道，最小步；不顺手重命名无关代码、不调格式。
 5. **验证** — 跑全量测试；必须全绿且期望值不变。红 → 回滚本轮全部改动并停止。
 6. **记账** — 台账追加本轮（命中类别 + 处置 + 证据 file:line）。
-7. **判断** — 还有 Critical/Major → 回第 1 步；只剩 Minor → 结束并出最终扫描结论。
+7. **判断** — 还有 Critical/Important → 回第 1 步；只剩 Minor → 结束并出最终扫描结论。
 
 打到轮次上限 → 停止并报告（不自行延轮）。
 
@@ -123,7 +123,7 @@ SCOPE: <cluster_id> + 簇文件集
 MODE: tdd | legacy
 BASELINE: <全量命令> → <N passed>
 ROUNDS: 每轮记录（轮次 + 坏味道类别 + 手法 + 文件 + 验证结果）
-FINAL_SCAN: 最终扫描结论（剩余 Critical/Major/Minor）
+FINAL_SCAN: 最终扫描结论（剩余 Critical/Important/Minor）
 TEST: <全量命令> → <N passed>
 LEDGER: REFACTOR_LEDGER 逐项状态
 CLUSTER_STATUS: done | blocked
@@ -140,7 +140,7 @@ BEHAVIOR: 测试文件 diff = <空 | 只增不改>；期望值不变
 
 | 状态 | 条件 | 返回内容 |
 |------|------|----------|
-| **DONE** | 循环结束（无 Critical/Major 或达轮次上限且已收敛），全绿，台账齐全 | 上述报告 |
+| **DONE** | 循环结束（无 Critical/Important 或达轮次上限且已收敛），全绿，台账齐全 | 上述报告 |
 | **DONE_WITH_CONCERNS** | 完成但达轮次上限仍有 Minor / 有 flaky 测试 / 手法偏离说明 | 报告 + 疑虑 |
 | **NEEDS_CONTEXT** | scope 不清、基线命令缺失、mode 未指定 | 缺什么 + 需要什么 |
 | **BLOCKED** | 某轮回滚后仍无法推进 / 基线已红 / 需要行为变更 / scope 与代码实际不符 | 阻塞原因 + 回滚范围 + 尝试了什么 + 需要什么 + 已绿的轮次 commit 已保留 |

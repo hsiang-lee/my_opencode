@@ -123,18 +123,18 @@ git diff BASE_SHA..HEAD_SHA
 
 ### 测试坏味道审计（与假测试同级检查）
 
-判定定义见 testing-techniques SKILL.md「坏味道判级」+ testing-techniques/references/test-smells.md；下表补检测手法：
+判级唯一来源是 testing-techniques SKILL.md「测试判级」；本表只补检测手法，不重复给级别。
 
-| 坏味道 | 检测方法 | 判级 |
-|--------|----------|------|
-| 脆弱测试 | 断言私有成员/内部结构、依赖实现顺序 | Important |
-| 不可重复 | 使用 `Date.now()` / `random` / 真实网络 | Critical |
-| 慢测试 | 单元测试连真实 DB/文件系统 | Important |
-| 过度指定 | 断言 mock 调用顺序、无关的调用次数 | Important |
-| Mystery Guest | 测试读取仓库外的数据文件 | Minor |
-| 共享夹具污染 | 断言依赖前一个测试造成的状态 | Critical |
-| 条件逻辑测试 | 测试体内出现 if/for/while | Important |
-| 断言过多 | 单测试 >5 个断言且无说明消息 | Minor |
+| 坏味道 | 检测方法 |
+|--------|----------|
+| 脆弱测试 | 断言私有成员/内部结构、依赖实现顺序 |
+| 不可重复 | 使用 `Date.now()` / `random` / 真实网络 |
+| 慢测试 | 单元测试连真实 DB/文件系统 |
+| 过度指定 | 断言 mock 调用顺序、无关的调用次数 |
+| Mystery Guest | 测试读取仓库外的数据文件 |
+| 共享夹具污染 | 断言依赖前一个测试造成的状态 |
+| 条件逻辑测试 | 测试体内出现 if/for/while |
+| 断言过多 | 单测试 >5 个断言且无说明消息 |
 
 ### 真实测试标准
 

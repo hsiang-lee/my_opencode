@@ -132,11 +132,11 @@ pending → 覆盖评估 →（已覆盖 / 直接补测 / 难测建网）→ rea
 
 ```text
 全部簇终态 → scan-only（scope = 清单内全部簇文件集）
-  ├ 0 Critical/Major → code-reviewer → 收尾
-  └ 有 Critical/Major 或 NEW → 委派 general 追加新簇（pending）→ 回逐簇执行 → 再终扫
+  ├ 0 Critical/Important → code-reviewer → 收尾
+  └ 有 Critical/Important 或 NEW → 委派 general 追加新簇（pending）→ 回逐簇执行 → 再终扫
 ```
 
-- 终止条件：某次终扫 0 Critical/Major；Minor 只记账，不阻断收尾。
+- 终止条件：某次终扫 0 Critical/Important；Minor 只记账，不阻断收尾。
 - 熔断：新增簇数 > 初始簇数，或同一位置连续两轮报 NEW → 停止并升级用户。
 - scope：终扫只覆盖本次任务声明的簇文件集，不扩到全仓；要全仓另开 Refactor 任务。
 - dispatch `scan-only` 必须带 scope + 基线（命令 + `N passed`）。

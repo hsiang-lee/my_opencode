@@ -115,7 +115,7 @@ Tab 切到 Fix，给出复现步骤。根因调查后判定覆盖：有测试 �
 
 ### Refactor (行为保持 / 存量腐坏)
 
-Tab 切到 Refactor。先收敛范围并算出 SCOPE_INVENTORY（委派 `general` 落盘）；再逐簇评估覆盖：已覆盖直接重构，未覆盖先建安全网（能直接补测就 `safety-net-only`，难测才走 legacy-code），非 ready 簇不进循环。循环只有一个实现：Refactor 把 task / cluster_id / scope / mode / 基线 / 循环上限交给 refactor-executor 自控七步；1 簇 = 1 个代码 commit + 1 个清单 commit（`mark Cx done`）；安全网另计 1 个代码 commit + 1 个清单 commit（`mark Cx ready`）。全部簇完成后进入终扫循环门：scan-only 干净才审查收尾，有 Critical/Major 或 NEW → 追加新簇继续。
+Tab 切到 Refactor。先收敛范围并算出 SCOPE_INVENTORY（委派 `general` 落盘）；再逐簇评估覆盖：已覆盖直接重构，未覆盖先建安全网（能直接补测就 `safety-net-only`，难测才走 legacy-code），非 ready 簇不进循环。循环只有一个实现：Refactor 把 task / cluster_id / scope / mode / 基线 / 循环上限交给 refactor-executor 自控七步；1 簇 = 1 个代码 commit + 1 个清单 commit（`mark Cx done`）；安全网另计 1 个代码 commit + 1 个清单 commit（`mark Cx ready`）。全部簇完成后进入终扫循环门：scan-only 干净才审查收尾，有 Critical/Important 或 NEW → 追加新簇继续。
 
 ### Feature (行为变更)
 

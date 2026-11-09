@@ -60,7 +60,7 @@ description: Use when writing unit tests, choosing test doubles or fixtures, or 
 
 ## 测试判级（本 skill 唯一判级表）
 
-判级口径：**可能产生假绿（缺陷存在但测试仍绿）** = Critical；**只增加维护成本或只造成假红** = Major/Minor。`references/test-smells.md` 只列症状与识别方法，不判级。
+判级口径：**可能产生假绿（缺陷存在但测试仍绿）** = Critical；**只增加维护成本或只造成假红** = Important/Minor。`references/test-smells.md` 只列症状与识别方法，不判级。
 
 | 模式 | 示例 / 症状 | 判级 |
 |------|-------------|------|
@@ -69,11 +69,11 @@ description: Use when writing unit tests, choosing test doubles or fixtures, or 
 | 空测试 / Mock 调用断言 | `TEST(X, works) {}`；`verify(mock).called()` 无其它断言 | Critical |
 | 断言缺失 / 断言过弱 | 跑完不断言，或只断言非空 / 非零 | Critical |
 | 仅快乐路径 | 无任何边界 / 错误输入 | Critical |
-| 不可重复 | 同代码多次跑结果不同 | Major |
-| 脆弱 | 产品代码小改 → 大量测试红 | Major |
-| 断言内部状态 / 实现细节 | 断言私有字段、调用顺序 | Major |
-| Mock 过度 | 一个测试 Mock 超过 2 个 | Major |
-| 共享夹具污染 / 测试依赖链 / 条件测试逻辑 | 测试间互相影响，或必须按顺序执行 | Major |
+| 不可重复 | 同代码多次跑结果不同 | Important |
+| 脆弱 | 产品代码小改 → 大量测试红 | Important |
+| 断言内部状态 / 实现细节 | 断言私有字段、调用顺序 | Important |
+| Mock 过度 | 一个测试 Mock 超过 2 个 | Important |
+| 共享夹具污染 / 测试依赖链 / 条件测试逻辑 | 测试间互相影响，或必须按顺序执行 | Important |
 | 命名不表意 / 测试代码重复 / 测试类过大 / 慢测试 | — | Minor |
 
 **每个测试必须含**：一个具体行为 + 有意义的断言（具体值）+ 真实输入 + 公共接口。
