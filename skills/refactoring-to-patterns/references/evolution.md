@@ -143,10 +143,10 @@
 
 | 阶段 | 依据 |
 |------|------|
-| 原子手法（Extract / Move / Rename） | Fowler《重构》→ `smells-classic.md` / `techniques.md` |
-| 目标形态（Strategy / State / …） | GoF → design 的 `references/gof.md` |
+| 原子手法（Extract / Move / Rename） | Fowler《重构》→ `refactoring/references/smells-classic.md` / `refactoring/references/techniques.md` |
+| 目标形态（Strategy / State / …） | GoF → `design/references/gof.md` |
 | 从坏味道到模式的路径 | 本文件 |
-| 老代码没有测试 | `legacy-seams.md` / `legacy-techniques.md` |
-| 「该不该继续抽象」的校验尺 | SOLID → design 的 `references/solid-packages.md` |
+| 老代码没有测试 | `legacy-code/references/seams.md` / `legacy-code/references/dependency-breaking.md` |
+| 「该不该继续抽象」的校验尺 | SOLID → `design/references/solid-packages.md` |
 
 一句话：**Fowler 教怎么挪代码，GoF 教好代码长什么样，Kerievsky 教怎么从前者走到后者。**

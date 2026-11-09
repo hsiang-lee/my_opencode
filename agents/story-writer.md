@@ -1,7 +1,7 @@
 ---
-description: 把 Forge Step 1 的设计决策写成用户故事文档（Epic + 契约 + 故事清单 + 批次标注），锁 AC / 契约 / 验证命令 / 批次，不写结构设计。用于决策确认后的故事编写阶段。
+description: 把 Feature Step 1 的设计决策写成用户故事文档（Epic + 契约 + 故事清单 + 批次标注），锁 AC / 契约 / 验证命令 / 批次，不写结构设计。用于决策确认后的故事编写阶段。
 mode: subagent
-model: bicv/vllm/deepseek-v4.1-flash-1017
+model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
 temperature: 0.1
 color: "#4CAF50"
 permission:
@@ -26,7 +26,7 @@ permission:
 ## Skill 加载
 
 ```
-无。契约表口径 = Forge Step 1 决策清单（前置/后置/不变式/错误语义 各一句）。
+无。契约表口径 = Feature Step 1 决策清单（前置/后置/不变式/错误语义 各一句）。
 AC → 测试规格的写法在下方故事模板里；TDD 循环由 story-executor 负责，故事不写。
 ```
 
@@ -61,7 +61,7 @@ AC → 测试规格的写法在下方故事模板里；TDD 循环由 story-execu
 不变式: [状态类约束，无则填 —]
 ```
 
-契约来自 Forge Step 1 的决策，**不新造**。决策没给全 → 报告 NEEDS_CONTEXT，不猜。
+契约来自 Feature Step 1 的决策，**不新造**。决策没给全 → 报告 NEEDS_CONTEXT，不猜。
 
 ---
 

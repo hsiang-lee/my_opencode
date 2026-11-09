@@ -1,7 +1,7 @@
 ---
 description: 完成开发分支。验证测试、展示收尾选项（合并/PR/保持/丢弃）、执行选择。用于实现工作完成后的收尾阶段。
 mode: subagent
-model: bicv/vllm/deepseek-v4.1-flash-1017
+model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
 temperature: 0.3
 color: "#607D8B"
 permission:
@@ -84,7 +84,7 @@ git branch -d <feature-branch>
 
 **审查认定规则（不重复审查）：**
 
-- 本次变更来自 Forge / Patch / Trace → 审查已在其流程内完成，**直接建 PR**，不重新 dispatch code-reviewer
+- 本次变更来自 Feature / Fix / Legacy / Refactor → 审查已在其流程内完成，**直接建 PR**，不重新 dispatch code-reviewer
 - 从任意流程直接进入本 agent、且无审查记录 → 先 dispatch code-reviewer
 
 **HARD GATE: 无审查记录且未 dispatch → 禁止创建 PR。**

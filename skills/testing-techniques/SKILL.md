@@ -23,7 +23,7 @@ description: Use when writing unit tests, choosing test doubles or fixtures, or 
 | 选夹具策略（Fresh/Shared/Lazy/Suite）、消除状态污染 | `references/fixtures.md` |
 | 判测试坏味道、重构测试代码、假测试的完整模式 | `references/test-smells.md` |
 
-**不在本文件**：RED-GREEN-REFACTOR 循环（story-executor 正文）、接缝与解依赖（refactoring 的 legacy-seams / legacy-techniques 两部分）。
+**不在本文件**：RED-GREEN-REFACTOR 循环（story-executor 正文）、接缝与解依赖（legacy-code skill）。
 
 ---
 

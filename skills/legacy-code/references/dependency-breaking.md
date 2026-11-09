@@ -70,7 +70,7 @@
 | 阶段 | 用什么 | 产出 |
 |------|--------|------|
 | 第一步：安全网 | 本文件 | 特征测试 + 解依赖 |
-| 第二步：小步重构 | `workflow.md` + `techniques.md` | 消除坏味道 |
+| 第二步：小步重构 | `refactoring/references/workflow.md` + `refactoring/references/techniques.md` | 消除坏味道 |
 | 第三步：结构改善 | design skill | 引入必要抽象（过 YAGNI 闸门） |
 
 **解依赖本身也是重构**：行为不变，只改结构。所以它受同一套红线约束（一次一种、测试保持绿、失败回滚）。

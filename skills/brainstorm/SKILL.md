@@ -36,7 +36,7 @@ description: Use when clarifying requirements, exploring design approaches, or p
 
 ## 输出：决策清单
 
-产出**决策清单**，与 Forge Step 1 的格式一致（对话中给出，不单独写文档）：
+产出**决策清单**，与 Feature Step 1 的格式一致（对话中给出，不单独写文档）：
 
 ```markdown
 ## 决策清单
