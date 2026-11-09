@@ -2,6 +2,8 @@
 
 回到索引: [../SKILL.md](../SKILL.md)
 
+> 坏味道的名称、识别特征与首选手法统一见 `smells-catalog.md`；本文件只给手法与步骤。
+
 ## 坏味道 → 重构技术对照表 (Smell-to-Technique Cheat Sheet)
 
 | 坏味道 | 推荐重构技术 |
@@ -14,7 +16,6 @@
 | 基本类型偏执 | Replace Primitive with Object / Replace Type Code with Subclasses |
 | switch 语句 | Replace Type Code with Strategy/State / Replace Conditional with Polymorphism |
 | 冗赘类 | Inline Class / Collapse Hierarchy |
-| 过度泛化 | Collapse Hierarchy / Inline Class / Remove Parameter |
 | 消息链 | Hide Delegate / Extract Method |
 | 中间人 | Remove Middle Man / Inline Method |
 | 过度亲密 | Move Method / Change Bidirectional Association to Unidirectional |
@@ -70,6 +71,13 @@
 | **Split Phase** | 拆成两个阶段（如解析 / 计算） | 定义中间数据结构 → 阶段一产出 → 阶段二消费 |
 | **Remove Dead Code** | 删除死代码 | 确认无引用 → 删除 → 测试保持绿 |
 | **Rename Variable / Field** | 变量/字段改名表达意图 | 机械重命名 → 跑测试 |
+
+| **Extract Interface** | 从类提取接口，客户端依赖抽象 | 锁定客户端所需的方法（≥2 个）→ 新建接口声明这些方法 → 原类实现接口 → 客户端类型改为接口 |
+| **Extract Superclass** | 将 ≥2 个子类的共同成员上提 | 确认共同成员在 ≥2 处重复 → 新建父类 → 上移字段与方法 → 子类继承父类 |
+| **Replace Type Code with State** | 类型码驱动状态切换时改为状态对象 | 确认类型码在 ≥2 处影响行为 → 建状态接口 → 每个状态一个实现 → 上下文委托给当前状态 |
+| **Use Optional** | 用 Optional 表达可能缺失的返回值 | 确认返回 null 表示「无值」而非错误 → 返回 Optional → 调用方显式处理空值 |
+
+**Optional / Assertion 边界**：Optional 只用于「返回值可能缺失」；用 Optional 替代错误分支或控制流属误用。Introduce Assertion 只用于锁定不可恢复的内部不变量；用户输入校验与可恢复错误用正式错误处理。两者都不是坏味道的独立手法，只在消坏味道后顺手补齐。
 
 ### 选择顺序（低风险优先）
 

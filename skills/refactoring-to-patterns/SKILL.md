@@ -1,6 +1,6 @@
 ---
 name: refactoring-to-patterns
-description: Use after a code smell already exists and the next structural step is a known design pattern, or when deciding whether to complete a pattern, stop at part of it, or inline it away. SKILL.md holds the trigger, the YAGNI gate and the three directions; the smell-to-pattern catalog, evolution chains and the review table are in references/evolution.md and read on demand.
+description: Use after a code smell already exists and the next structural step is a known design pattern, or when deciding whether to complete a pattern, stop at part of it, or inline it away. SKILL.md holds the trigger, the YAGNI gate and the three directions; the evolution chains and the review table are in references and read on demand.
 ---
 
 # Refactoring to Patterns — 从坏味道到模式
@@ -9,7 +9,6 @@ description: Use after a code smell already exists and the next structural step 
 
 | 谁用 | 用来做什么 |
 |------|------------|
-| refactor-planner | 判断本次是否涉及模式引入，给出目标形态与方向 |
 | refactor-executor | 按 TO/TOWARDS/AWAY 方向逐步演化，每步保持测试绿 |
 | code-reviewer | 审查模式是长出来的还是预置的，是否该 inline |
 
@@ -44,6 +43,21 @@ description: Use after a code smell already exists and the next structural step 
 
 判据：**抽象的真实使用者 ≤1 且无排期中的第二个 → 反向重构（AWAY）。**
 
+## 停止判据（TOWARDS 的三条停止线）
+
+1. **变体不再增加**：现有实现数 = 已知排期中的变体数，再多的接口只是预支复杂度。
+2. **结构已够用**：调用方不再需要知道内部实现差异，剩余差异只是数据而非行为。
+3. **继续走收益为负**：再加一层（工厂 / 注册表 / 抽象类）使读代码需要多跳 ≥2 处且无测试收益。
+
+**接口数红线**：接口数 > 真实变体数 → 立即 AWAY。红线的判据是使用者数量，不是模式名气；坏味道名称与识别见 refactoring skill 的 `smells-catalog.md`。
+
+## 加载时机
+
+| 时机 | 说明 |
+|------|------|
+| 何时读 | 坏味道已存在且下一步结构指向已知模式，或要判断 TO / TOWARDS / AWAY 时读 |
+| 何时不读 | 坏味道尚未出现、只需原子手法（回 refactoring）、或目标代码无测试（先走 legacy-code）时不读 |
+
 ## 禁止事项
 
 - **禁止为模式找问题**：先有坏味道再谈模式；先画类图再找证据 = 过度设计。
@@ -56,7 +70,7 @@ description: Use after a code smell already exists and the next structural step 
 
 | 要做的事 | 文件 |
 |----------|------|
-| 坏味道→目标模式对照、27 个模式导向重构、演化链示例、误区与评审表 | `references/evolution.md` |
+| 模式导向重构目录、演化链示例、误区与评审表 | `references/evolution.md` |
 
 规则：**只读当前任务需要的那一节**。只判方向查「三种方向」，只查目标形态查「坏味道 → 目标模式」。
 
@@ -64,7 +78,7 @@ description: Use after a code smell already exists and the next structural step 
 
 | 问题 | 用哪个 |
 |------|--------|
-| 坏味道怎么识别、原子手法怎么用 | refactoring skill |
+| 识别坏味道、使用原子手法 | refactoring skill |
 | 模式结构长什么样、易混模式怎么区分 | design skill（GoF 索引） |
 | 从坏味道走到模式的路径与评审 | 本 skill |
 | 目标代码没有测试 | legacy-code skill |

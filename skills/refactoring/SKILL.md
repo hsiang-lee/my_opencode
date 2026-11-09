@@ -7,7 +7,9 @@ description: Use during the REFACTOR phase after tests are green, when detecting
 
 **核心原则：测试失败时禁止重构。重构只改变结构，不改变行为。**
 
-**使用者**：story-executor（检测 → 重构 → 记台账）、refactor-planner（按阈值分类定计划）、refactor-executor（按计划分批执行）、legacy-analyst（评估改动后的结构债）、legacy-executor（L3a 两顶帽子）、code-reviewer（Phase 2.5 质量审计）。**本文件常驻 = 判定层**（阈值、台账必填项、红线），索引里的文件只在需要时读。
+**目录**：定位与使用者 · 索引 · 边界 · 设计工具与童子军 · 加载时机 · 阈值 · 台账 · 流程 · 红线。
+
+**使用者**：story-executor（RED 后 REFACTOR 阶段 dispatch 循环）、refactor-executor（自控循环执行）、legacy-analyst（评估改动后的结构债）、legacy-executor（L3a 两顶帽子）、code-reviewer（Phase 2.5 质量审计）。**本文件常驻 = 判定层**（阈值、台账必填项、红线），索引里的文件只在需要时读。
 
 ---
 
@@ -15,8 +17,8 @@ description: Use during the REFACTOR phase after tests are green, when detecting
 
 | 要做的事 | 文件 |
 |----------|------|
-| 判断某种经典坏味道存不存在（24 类检测条件） | `references/smells-classic.md` |
-| 判断 A1-A7（AI 生成代码特有病灶）+ 代码放置第一问 + 检测优先级 + 复用优先 | `references/smells-agent.md` |
+| 判断某种坏味道存不存在（经典 25 类 + A1–A7，唯一事实源） | `references/smells-catalog.md` |
+| 查检测优先级、代码放置第一问、复用优先规则 | `references/smells-catalog.md` |
 | 查某种坏味道该用哪个重构手法、手法怎么做 | `references/techniques.md` |
 | 走完整执行流程（两顶帽子 / 步骤 / 失败处理） | `references/workflow.md` |
 | 写台账（完整格式与示例） | `references/ledger.md` |
@@ -36,6 +38,17 @@ description: Use during the REFACTOR phase after tests are green, when detecting
 | 测试怎么写、怎么判假测试 | testing-techniques skill |
 
 ---
+
+## 重构是设计工具
+
+重构不是清理阶段，而是设计的一部分：先写稳定中间形式，坏味道出现后用它把结构长出来。**童子军规则四限**：顺手重构必须同时满足 **同一函数**、**有测试**、独立 commit、改动 ≤10 行；任一不满足即记台账交 Refactor，不得夹带扩大改动面。
+
+## 加载时机
+
+| 时机 | 说明 |
+|------|------|
+| 何时读 | GREEN 后需要判定坏味道、查手法、或写 REFACTOR_LEDGER 时读本 SKILL 与对应 reference |
+| 何时不读 | 测试未绿、目标代码无安全网（先走 legacy-code）、或只是加功能不改结构时不读 |
 
 ## 判定阈值（常驻，唯一来源）
 
@@ -92,4 +105,4 @@ A1 A2 A3 A4 A5 A6 A7 / 过长函数(>40行) / 深嵌套(≥3层) /
 - 一次只处理一种坏味道
 - 重构不改变行为
 - 重构步骤导致测试失败 → 立即回滚该步
-- 实现任何 helper/常量前先 grep 已有同类：找到就复用，找不到才创建（详见 `references/smells-agent.md` 复用优先规则）
+- 实现任何 helper/常量前先 grep 已有同类：找到就复用，找不到才创建（详见 `references/smells-catalog.md` 复用优先规则）

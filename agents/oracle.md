@@ -42,7 +42,7 @@ Your expertise covers:
   - skills/design/references/contracts.md（DbC：前置条件 / 后置条件 / 不变式 / CQS / 继承契约）
   - skills/design/references/gof.md（23 模式结构、易混、问题→模式反查）
   - skills/design/references/analysis-uml.md（用例 / 领域模型 / 顺序图）
-- 坏味道与手法：skills/refactoring/references/smells-classic.md + smells-agent.md（诊断）、techniques.md（步骤）
+- 坏味道与手法：skills/refactoring/references/smells-catalog.md（唯一事实源）、techniques.md（步骤）
 - 重构到模式：skills/refactoring-to-patterns/SKILL.md + references/evolution.md（TO / TOWARDS / AWAY 与停止判据）
 - 函数式表达取舍：skills/functional/SKILL.md
 - 坏味道单一事实源 `smells-catalog.md`、演化式设计 `refactoring-as-design.md` 随 epic `workflow-refactoring-as-design` 落地；此前以各 SKILL.md 索引为准。

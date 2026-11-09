@@ -31,21 +31,10 @@
 
 ---
 
-## 3. 坏味道 → 目标模式
+## 3. 坏味道 → 目标模式（指针）
 
-| 坏味道 | 目标 |
-|--------|------|
-| 重复的 switch / if-else 类型分支 | Strategy / State / 多态 |
-| 条件逻辑控制状态切换 | State |
-| 方法太长、步骤杂乱 | Compose Method / Template Method |
-| 可选装饰功能混在核心逻辑里 | Decorator |
-| 硬编码通知（改一处要改多处调用） | Observer |
-| 条件分发命令（`if action == "x"`） | Command |
-| null 判断散布各处 | Null Object |
-| 构造函数太多、语义不清 | Creation Method / Factory Method |
-| 复合结构（树、层级）难构建 | Composite / Builder |
-| 基本类型偏执（Money 用 float、ID 用 string） | Value Object / Replace Type Code with Class |
-| 一个类因多种原因频繁改动 | Extract Class（按变化轴拆） |
+坏味道的名称、识别特征与首选手法统一见 `refactoring/references/smells-catalog.md`；模式结构见 `design/references/gof.md`。本文件不再维护「坏味道→模式」映射表，避免与唯一事实源重复。
+
 
 ---
 
@@ -143,7 +132,7 @@
 
 | 阶段 | 依据 |
 |------|------|
-| 原子手法（Extract / Move / Rename） | Fowler《重构》→ `refactoring/references/smells-classic.md` / `refactoring/references/techniques.md` |
+| 原子手法（Extract / Move / Rename） | Fowler《重构》→ `refactoring/references/smells-catalog.md` / `refactoring/references/techniques.md` |
 | 目标形态（Strategy / State / …） | GoF → `design/references/gof.md` |
 | 从坏味道到模式的路径 | 本文件 |
 | 老代码没有测试 | `legacy-code/references/seams.md` / `legacy-code/references/dependency-breaking.md` |

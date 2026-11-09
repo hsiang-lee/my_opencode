@@ -6,14 +6,14 @@
 
 | # | 技术 | 用途 |
 |---|------|------|
-| 1 | Adapt Parameter | 参数改为更通用的抽象类型，便于传替身 |
-| 2 | Break Out Method Object | 长方法提取成类，局部变量转字段，可单测 |
-| 3 | Define Method | 测试子类新增方法覆盖基类私有调用 |
-| 4 | Encapsulate Global References | 全局访问封装成方法，测试覆写 |
-| 5 | Expose Static Method | 实例逻辑提为静态方法独立测试 |
-| 6 | Extract and Override Call | 依赖调用提取为虚方法，子类覆写 |
-| 7 | Extract and Override Factory Method | new 处提取为工厂方法，子类返回替身 |
-| 8 | Extract Interface | 从类提取接口，客户端依赖接口 |
+| 1 | Adapt Parameter | 定位依赖的具体类型 → 抽出客户端使用的接口 → 参数类型改为接口 → 传入替身 |
+| 2 | Break Out Method Object | 识别长方法与局部变量 → 新建类并以字段承接 → 方法移入新类 → 原位置改为调用新类 |
+| 3 | Define Method | 确认私有调用点 → 测试子类声明同名方法 → 在测试中覆写该行为 → 断言调用结果 |
+| 4 | Encapsulate Global References | 列出全局访问点 → 封装为实例方法 → 测试子类覆写 → 替换直接访问 |
+| 5 | Expose Static Method | 识别不依赖实例状态的逻辑 → 提取为静态方法 → 实例方法保留委托 → 直接测静态方法 |
+| 6 | Extract and Override Call | 定位依赖调用 → 提取为虚方法 → 测试子类覆写 → 隔离真实依赖 |
+| 7 | Extract and Override Factory Method | 定位 new 表达式 → 提取为工厂方法 → 测试子类覆写返回替身 → 原逻辑不变 |
+| 8 | Extract Interface | 锁定客户端使用的方法 → 新建接口 → 原类实现接口 → 客户端改为接口类型 |
 
 ## 2. 类 / 模块级（8）
 
