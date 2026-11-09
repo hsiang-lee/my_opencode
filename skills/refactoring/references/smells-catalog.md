@@ -63,7 +63,7 @@
 | 19 | 过度亲密 Insider Trading | 两个类互相访问对方内部 / 私有数据 ≥2 处 | Fowler | Move Function / Extract Class / 改单向关联 | 两者是同一模块内的值对象与容器时，访问是合理内聚 |
 | 20 | 异曲同工的类 Alternative Classes with Different Interfaces | ≥2 个类做同一件事但方法名 / 签名不一致 | Fowler | Rename Method / Move Function / Extract Interface | 两者语义只是表面相似、变化原因不同时，不强行统一 |
 | 21 | 惰性元素 Lazy Element | 类 / 函数只做一件事且唯一调用者只有 1 处 | Fowler | Inline Class / Inline Function / Collapse Hierarchy | 元素是测试接缝或框架要求的扩展点时保留 |
-| 22 | 过度泛化 Speculative Generality | 抽象只有 1 个实现，或存在从不使用的参数 / 钩子 | Fowler | Collapse Hierarchy / Inline Class / Remove Parameter | 已有排期中的第二个变体时，可先保留并记录依据 |
+| 22 | 过度泛化 Speculative Generality | 抽象只有 1 个实现，或存在从不使用的参数 / 钩子 | Fowler | Collapse Hierarchy / Inline Class / Remove Parameter | 已有真实存在的第二个变体时，可先保留并记录依据 |
 | 23 | 全局数据 Global Data | 可变全局 / 单例被 ≥2 个模块读写 | Fowler | Encapsulate Variable / 依赖注入 | 进程级不可变配置或日志句柄，封装后可直接使用 |
 | 24 | 可变数据 Mutable Data | 同一数据被 ≥2 处修改，改一处无法判断影响范围 | Fowler | Encapsulate Variable / 拆分读写 / 不可变化 | 性能热点上的就地更新且有清晰边界时，记录理由后保留 |
 
