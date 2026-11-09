@@ -72,14 +72,14 @@
 | QAExplorer | 前端探索测试 | Tab |
 | story-writer | 决策确认后产出 Epic + 故事清单 | `Task("story-writer", ...)` |
 | story-executor | 逐故事 TDD（无覆盖时自己补安全网） | `Task("story-executor", ...)` |
-| legacy-analyst | 由 Refactor 在未覆盖且难测时调度：L0 侦察 + L1 改法建议（只读） | `Task("legacy-analyst", ...)` |
+| legacy-analyst | 由 Refactor 在未覆盖且难测时调度：L0 侦察（effect sketch + 增量测试缺口，只读）；L1 仅按需 | `Task("legacy-analyst", ...)` |
 | legacy-executor | 由 Refactor 在未覆盖时调度：可直接补测走 `safety-net-only`（只做 L2），难测走 L1–L4 | `Task("legacy-executor", ...)` |
 | refactor-executor | 自控七步重构循环 + 台账；清单只报告 delta（`cluster` / `scan-only`） | `Task("refactor-executor", ...)` |
 | general（内置） | 由 Refactor 委派：只写 `docs/refactor/*.md` 清单并提交 | `Task("general", ...)` |
 | code-reviewer | 实现完成后独立审查（按 profile） | `Task("code-reviewer", ...)` |
 | branch-finisher | 分支收尾 | `Task("branch-finisher", ...)` |
 | metis | 任务前厘清意图与风险 | `@metis` |
-| momus | 故事 / 侦察报告评审 | `@momus` |
+| momus | 故事评审 | `@momus` |
 | explore | 代码库搜索 | `@explore` |
 | librarian | 外部库与文档 | `@librarian` |
 | oracle | 复杂调试 / 高难度架构 | `@oracle` |

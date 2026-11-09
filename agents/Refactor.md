@@ -99,10 +99,11 @@ pending → 覆盖评估 →（已覆盖 / 直接补测 / 难测建网）→ rea
 进行中不设独立状态：`ready` 簇若有未提交改动，即视为 in-progress，按「中断恢复」处理。
 
 1. **选簇**：按风险 / 影响面选下一个 `pending`；不预排坏味道顺序。
-2. **覆盖评估**（必须留证据：测试文件 + 覆盖的方法名 + `N passed`）：
+2. **覆盖评估**（必须留证据：测试文件 + 覆盖的方法名 + `N passed`；该证据原样传给 legacy-analyst，不重复跑基线）：
    - 已覆盖 → `ready`
    - 未覆盖但能直接补测 → dispatch `legacy-executor`（`mode=safety-net-only`，只做 L2）补常规测试 → 全绿 → `ready`
-   - 未覆盖且难测（无法构造对象 / 依赖硬编码 / 全局或静态状态 / 无法观察结果 / 非确定性 / 深继承）→ `safety-net`：dispatch `legacy-analyst` 做 L0 → dispatch `legacy-executor`（`mode=safety-net-only`）在 L2 建网（找接缝 → 解依赖 → 写特征测试）→ 全绿 → `ready`
+   - 未覆盖且难测（无法构造对象 / 依赖硬编码 / 全局或静态状态 / 无法观察结果 / 非确定性 / 深继承）→ `safety-net`：dispatch `legacy-analyst` 只做 L0（不要 `STRATEGY`，带上入口覆盖证据）→ dispatch `legacy-executor`（`mode=safety-net-only`）在 L2 建网（找接缝 → 解依赖 → 写特征测试）→ 全绿 → `ready`
+   - 仅当调用方跨模块 / effect sketch 无法从现有调用图直接得出时才 dispatch `legacy-analyst`；单函数局部且调用方清楚 → 跳过 analyst，直接进 safety-net。
    - 基线一律取安全网就位后的全量结果（已覆盖簇即入口结果）。
    - 安全网 commit 完成后，委派 `general` 把本簇行改为 `ready` 并记录安全网方式与基线（`docs(refactor): mark Cx ready`）。
 3. **只对 `ready` 簇 dispatch `refactor-executor`（`task=cluster`）**；非 `ready` 一律拒绝。
@@ -185,6 +186,7 @@ Critical/Important → 回到循环修复；通过 → 收尾
 | 5 | **模式引入过 YAGNI 闸门** | 未过 → 用最直白写法或 inline |
 | 6 | **每簇代码 commit 后必须有清单 commit** | 漏更 → 恢复时会重做或漏做 |
 | 7 | **清单只能由 general 落盘** | 核对 `git show --stat`；出现其它文件 → 退回重写 |
+| 8 | **analyst 报告缺段不得进安全网** | 缺 `CHANGE_POINTS` / `EFFECT_SKETCH` / `TEST_INVENTORY` / `RISKS` → 退回 `NEEDS_CONTEXT` |
 
 **铁律违规时：** 拒绝 dispatch / 拒绝验收，告知缺失什么前置条件。
 
