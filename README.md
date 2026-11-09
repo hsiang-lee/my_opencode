@@ -54,7 +54,7 @@ Tab 切换:
 | legacy-analyst | 由 Refactor 在未覆盖且难测时调度：L0 侦察 change points / effect sketch / 测试盘点 / 改法建议（只读） |
 | legacy-executor | 由 Refactor 在未覆盖时调度：可直接补测走 `safety-net-only`（只做 L2），难测走 L1-L4（安全网、两顶帽子主循环、出清）；结构与语义分 commit |
 | refactor-executor | 自控七步重构循环（扫描→选择→决策→执行→验证→记账→判断）+ REFACTOR_LEDGER；清单只报告 delta（`cluster` / `scan-only`） |
-| general（内置） | 由 Refactor 委派：只写 `docs/refactor/*.md` 清单并提交 | `Task("general", ...)` |
+| general（内置） | 由 Refactor 委派：只写 `docs/refactor/*.md` 清单并提交 |
 | code-reviewer | 按 profile（feature/refactor）审查：假测试 + 坏味道 + 专项检查 |
 | branch-finisher | 分支收尾 |
 | explore / librarian | 代码库搜索 / 外部研究 |
@@ -115,7 +115,7 @@ Tab 切到 Fix，给出复现步骤。根因调查后判定覆盖：有测试 �
 
 ### Refactor (行为保持 / 存量腐坏)
 
-Tab 切到 Refactor。先收敛范围并算出 SCOPE_INVENTORY（委派 `general` 落盘）；再逐簇评估覆盖：已覆盖直接重构，未覆盖先建安全网（能直接补测就 `safety-net-only`，难测才走 legacy-code），非 ready 簇不进循环。循环只有一个实现：Refactor 把 task / cluster_id / scope / mode / 基线 / 循环上限交给 refactor-executor 自控七步；1 簇 = 1 个代码 commit + 1 个安全网 commit（如需）+ 1 个清单 commit。全部簇完成后进入终扫循环门：scan-only 干净才审查收尾，有 Critical/Major 或 NEW → 追加新簇继续。
+Tab 切到 Refactor。先收敛范围并算出 SCOPE_INVENTORY（委派 `general` 落盘）；再逐簇评估覆盖：已覆盖直接重构，未覆盖先建安全网（能直接补测就 `safety-net-only`，难测才走 legacy-code），非 ready 簇不进循环。循环只有一个实现：Refactor 把 task / cluster_id / scope / mode / 基线 / 循环上限交给 refactor-executor 自控七步；1 簇 = 1 个代码 commit + 1 个清单 commit（`mark Cx done`）；安全网另计 1 个代码 commit + 1 个清单 commit（`mark Cx ready`）。全部簇完成后进入终扫循环门：scan-only 干净才审查收尾，有 Critical/Major 或 NEW → 追加新簇继续。
 
 ### Feature (行为变更)
 

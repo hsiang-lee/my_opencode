@@ -132,6 +132,8 @@ COMMIT: <本簇 commit sha | —>
 BEHAVIOR: 测试文件 diff = <空 | 只增不改>；期望值不变
 ```
 
+`scan-only`：`MODE` / `CLUSTER_STATUS` / `BEHAVIOR` 填 `—`；必须给 `FINAL_SCAN` + `INVENTORY_DELTA`；`BASELINE` 由 dispatch 传入。
+
 ---
 
 ## 升级路径

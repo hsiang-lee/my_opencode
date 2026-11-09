@@ -84,7 +84,7 @@ Refactor 不按规模分级。入口先算出清单内容（下表），再委�
 Dispatch: general
 契约: 目标文件路径 + 本次要写入的完整 Markdown（逐字） + commit message
 要求: 只写该文件；不改代码、不跑测试、不碰其它文件；git add <file> && git commit -m "..."
-验收: git show --stat --oneline HEAD 只含该清单文件，否则退回重写
+验收: git show --stat --oneline HEAD 只含该清单文件，且 message 为 `docs(refactor): ...`，否则退回重写
 ```
 
 ---
@@ -138,6 +138,7 @@ pending → 覆盖评估 →（已覆盖 / 直接补测 / 难测建网）→ rea
 - 终止条件：某次终扫 0 Critical/Major；Minor 只记账，不阻断收尾。
 - 熔断：新增簇数 > 初始簇数，或同一位置连续两轮报 NEW → 停止并升级用户。
 - scope：终扫只覆盖本次任务声明的簇文件集，不扩到全仓；要全仓另开 Refactor 任务。
+- dispatch `scan-only` 必须带 scope + 基线（命令 + `N passed`）。
 
 ---
 

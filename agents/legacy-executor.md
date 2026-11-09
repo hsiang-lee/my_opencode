@@ -116,7 +116,7 @@ COMMITS: <结构 commit SHAs> / <语义 commit SHAs>（分栏列出，证明已�
 TEST: <全量命令> → <N passed>
 LEDGER: 结构候选行 + 已登记 debt（格式见 refactoring/references/ledger.md）
 GATES: L2 全绿=是/否 · 临时接缝残留=无/有 · 覆盖门槛=改动函数+直接调用者
-SAFETY_NET: covered | direct-tests | legacy-L2（方式 + 基线 N passed + 证据 file:line）
+SAFETY_NET: direct-tests | legacy-L2（方式 + 基线 N passed + 证据 file:line）
 ```
 
 ---
