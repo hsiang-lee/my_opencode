@@ -116,6 +116,15 @@ Task(agent, "描述",
 - 目标路径无测试不转交、不 BLOCKED：由执行场景按 `skills/legacy-code/SKILL.md`「安全网三分类」自补，补完继续 TDD。
 - **重构必须按 `skills/refactoring/references/smells-catalog.md` 的坏味道与 `techniques.md` 的对应手法执行；无对应手法或手法不适用时停止并说明，禁止即兴发挥。**
 
+## 测试与编译经济性（所有 agent）
+
+- **针对性优先**：能只跑目标测试就不跑全量。
+- **全量时机**：批次 / 簇收尾、公共接口或跨模块改动、测试或构建配置改动、准备 PR。
+- **结果复用**：同一 SHA + 工作区干净 + 已有成功结果（命令 + `N passed`）→ 直接引用（标 `reused`），不重跑；任何代码改动使旧结果失效。
+- **编译同理**：增量优先；未改源码 / 构建配置时复用上次成功构建。
+- **报告格式**：`TEST: <命令> → N passed @ <sha>`；复用时注明 `reused`。
+- **审查例外**：code-reviewer 在 SHA 一致且证据完整时可复用 executor 结果；否则只抽跑目标测试。
+
 ## 红线
 
 - 禁止直推 main / master，一律 PR/MR。

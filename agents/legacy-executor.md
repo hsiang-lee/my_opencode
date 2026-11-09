@@ -51,7 +51,7 @@ dispatch 必须给：
 ```
 L0 侦察（已完成）：change points + effect sketch + 现有测试盘点
 L2 上安全网（本 agent 唯一阶段）：只覆盖「将被改路径 + 直接调用者」，对象接缝优先
-   一次一种解依赖，每次解完全量测试 → 全绿并记录基线（含 flaky 标注）
+   一次一种解依赖，每次解完跑目标测试；L2 收尾与 commit 前全量 → 全绿并记录基线（含 flaky 标注）
 结束：全绿 + CHARACTERIZATION 报告；不改结构、不改行为
 ```
 
@@ -66,7 +66,7 @@ commit 消息带 `cluster: Cx safety-net`，并向 Refactor 报告安全网方�
 | # | 参数 | 约束 |
 |---|------|------|
 | 1 | 一次一 change point | 不并行认领两个修改点 |
-| 2 | 一次一种解依赖 | 解完跑全量测试再解下一个 |
+| 2 | 一次一种解依赖 | 解完跑目标测试；L2 收尾全量 |
 | 3 | 一步一见绿 | 每个「编辑-编译-测试」周期必须见绿，红即回滚该步 |
 | 4 | 覆盖门槛 | 只覆盖改动函数 + 直接调用者；路径外坏味道只记 ledger |
 
@@ -97,7 +97,7 @@ commit 消息带 `cluster: Cx safety-net`，并向 Refactor 报告安全网方�
 CHARACTERIZATION: N 个（<file:line> 列出；0 个需说明为何不需要）
 DEPENDENCIES_BROKEN: N 种（技术名 + 目标依赖）
 COMMITS: <安全网 commit SHAs>
-TEST: <全量命令> → <N passed>
+TEST: <命令> → <N passed> @ <sha>（复用标 `reused`）
 LEDGER: 结构候选行 + 已登记 debt（格式见 refactoring/references/ledger.md）
 GATES: L2 全绿=是/否 · 临时接缝残留=无/有 · 覆盖门槛=改动函数+直接调用者
 SAFETY_NET: direct-tests | legacy-L2（方式 + 基线 N passed + 证据 file:line）
@@ -122,7 +122,9 @@ SAFETY_NET: direct-tests | legacy-L2（方式 + 基线 N passed + 证据 file:li
 
 | 时机 | 跑什么 |
 |------|--------|
-| L2 每次解依赖后 | **全量**（安全网必须覆盖整体回归） |
+| L2 每次解依赖后 | 目标测试（改动路径 + 直接调用者）；L2 收尾与 commit 前全量 |
+
+复用：同一 SHA 已有成功结果且代码未变 → 直接引用（标 `reused`），不重跑。
 
 ---
 
