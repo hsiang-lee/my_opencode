@@ -46,7 +46,7 @@
 | general（内置） | 由 Refactor 委派：只写 `docs/refactor/*.md` 清单并提交 | `Task("general", ...)` |
 | code-reviewer | 实现完成后独立审查（按 profile） | `Task("code-reviewer", ...)` |
 | branch-finisher | 分支收尾 | `Task("branch-finisher", ...)` |
-| metis / momus / explore / librarian / oracle | 预判 / 评审 / 搜索 / 文档 / 架构咨询 | `@对应 ID` |
+| metis / momus / explore / librarian / oracle | 预判 / 评审 / 搜索 / 文档 / 复杂调试与架构咨询 | `@metis / @momus / @explore / @librarian / @oracle` |
 
 ## Subagent 状态处理与 dispatch 模板
 
