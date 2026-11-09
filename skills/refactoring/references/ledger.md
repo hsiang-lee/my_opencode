@@ -4,7 +4,7 @@
 
 ## SCOPE_INVENTORY（Refactor 任务级清单）
 
-存放：`docs/refactor/YYYY-MM-DD-<scope>.md`。清单是快照，不是执行计划；Refactor 每轮回来更新 SCOPE_INVENTORY（关闭 / 新增 / 拆分）。
+存放：`docs/refactor/YYYY-MM-DD-<scope>.md`。清单是快照，不是执行计划；Refactor 决定内容，委派 `general` 落盘（关闭 / 新增 / 拆分）。
 
 | ID | 簇 / 文件:line | 候选坏味道（入口快扫） | 规模 | 风险 | 安全网 | 状态 | 基线 | Commit |
 |----|----------------|------------------------|------|------|--------|------|------|--------|
@@ -14,9 +14,9 @@
 - **安全网**：`unknown` / `covered` / `direct-tests` / `legacy-L2`（记方式；`ready` 只出现在状态列）。
 - **基线**：安全网就位后的全量命令与 `N passed`（已覆盖簇即入口结果），作为重构回滚锚点。
 - **状态**：`pending` / `safety-net` / `ready` / `done` / `blocked`。进行中不设独立状态：`ready` 簇有未提交改动即视为 in-progress；`blocked` 修复后回 `pending` / `ready`，跳过须用户确认。
-- **1 簇 = 1 个重构 commit**（`cluster: Cx`）；安全网另计 1 个 commit（`cluster: Cx safety-net`）。清单与重构 commit 同批更新。
-- **COMMIT**：在下一个清单变更 commit 回填（自引用 SHA 不可写）；最后一簇由收尾 commit 回填。
-- **落盘责任**：清单由 refactor-executor（`inventory-init` / `cluster`）与 legacy-executor（安全网行）写入；Refactor 只读。
+- **1 簇 = 1 个代码 commit**（`cluster: Cx`）+ 1 个清单 commit（`docs(refactor): mark Cx done`）；安全网另计 1 个代码 commit（`cluster: Cx safety-net`）。
+- **COMMIT**：清单 commit 直接记录对应代码 commit SHA；不做 amend。
+- **落盘责任**：Refactor 决定内容并委派 `general` 写入；refactor-executor / legacy-executor 只报告 delta，不碰清单。
 
 每簇块：
 
