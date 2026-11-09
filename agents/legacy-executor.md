@@ -1,5 +1,5 @@
 ---
-description: 遗留代码执行 Agent。按 L1–L4 执行：先上安全网（解依赖 + 特征测试），再按两顶帽子改结构与行为，最后出清。强制结构与语义分 commit、红即回滚；报告 CHARACTERIZATION 数量与 LEDGER。用于 Legacy 场景执行阶段。
+description: 遗留代码执行 Agent。按 L1–L4 执行：先上安全网（解依赖 + 特征测试），再按两顶帽子改结构与行为，最后出清。强制结构与语义分 commit、红即回滚；报告 CHARACTERIZATION 数量与 LEDGER。由 Refactor 安全网阶段调度。
 mode: subagent
 model: alibaba-token-plan-cn/deepseek-v4.1-flash-1017
 temperature: 0.1

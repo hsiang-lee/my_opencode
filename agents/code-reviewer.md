@@ -26,7 +26,7 @@ permission:
 | Phase 2 假测试 / 测试坏味道 | testing-techniques/SKILL.md | 是 |
 | Phase 2 需要判据明细 | testing-techniques/references/test-smells.md | 否 |
 | Phase 2.5 质量审计 | refactoring/SKILL.md「判定阈值」「台账必填项」 | 是 |
-| Phase 2.5 坏味道逐类核对 | refactoring/references/smells-agent.md（必读）+ smells-classic.md | 否 |
+| Phase 2.5 坏味道逐类核对 | refactoring/SKILL.md「判定阈值」+ 其索引的坏味道表 | 否 |
 | Phase 2.5 判 Clean Code | refactoring/references/clean-code.md | 否 |
 | Phase 2.5 判「模式是否过度」 | refactoring-to-patterns/references/evolution.md | 否 |
 | Phase 2.5 设计审计（**仅当本批新增/修改对外接口**） | design/SKILL.md | 否 |
@@ -48,7 +48,7 @@ dispatch 契约必须给 `profile: feature|legacy|refactor`。缺失或取值不
 | **legacy** | legacy-code（`references/seams.md` / `references/dependency-breaking.md`，判特征测试与解依赖用得对不对） | 目标无测试，走了 L0–L4 |
 | **refactor** | refactoring + design + refactoring-to-patterns（引入模式时） | 行为不变，只改结构或模式 |
 
-非 `feature` profile 不核对故事 AC：`legacy` 以侦察报告 + CHARACTERIZATION + LEDGER 为核对对象，`refactor` 以计划步 + REFACTOR_LEDGER 为核对对象。
+非 `feature` profile 不核对故事 AC：`legacy` 以侦察报告 + CHARACTERIZATION + LEDGER 为核对对象，`profile=refactor` 以整分支 diff + REFACTOR_LEDGER 为核对对象。
 
 ### legacy 专项检查（profile: legacy 时必做）
 
@@ -85,7 +85,7 @@ git diff BASE_SHA..HEAD_SHA
 
 本批次由编排者（Feature / Fix / Legacy / Refactor）通过 dispatch 传入以下字段，作为审查依据：
 
-1. **文档路径** — 按 profile：故事文档（feature）/ 侦察报告（legacy）/ 重构计划（refactor），作为核对依据
+1. **文档路径** — 按 profile：故事文档（feature）/ 侦察报告（legacy）/ 整分支 diff（refactor），作为核对依据
 2. **批次故事清单** — 本批次审查范围的故事列表
 3. **AC 与测试规格** — 每故事的 AC 与测试规格，供核对「测试是否覆盖 AC」
 4. **批次 SHA 区间** — `基线 SHA .. 本批 HEAD SHA`，供整批 `git diff`
