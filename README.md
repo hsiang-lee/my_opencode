@@ -163,4 +163,3 @@ Tab 切到 Feature，描述功能。入口先定档位：轻量档跳过设计/�
 |------|--------|------|
 | `docs/stories/YYYY-MM-DD-<epic>.md` | story-writer | Epic 契约表 + `[story]` / `[enabler]` 故事清单 + 批次标注 |
 | `docs/qa/`、`docs/qa-findings/` | QAExplorer | 用例表与探索结果 |
-| `docs/debt-ledger.md` | story-executor / legacy-executor / refactor-executor | 技术债登记，按文件集重叠并入批次 |

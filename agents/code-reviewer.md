@@ -163,7 +163,7 @@ git diff BASE_SHA..HEAD_SHA
 
 ### 判定规则
 
-- 按分类表逐类核对，命中即判级；当前不修的命中 → 提示 executor 登记 debt-ledger（Minor，不阻塞）。
+- 按分类表逐类核对，命中即判级；当前不修的命中 → 提示 executor 记入候选行（Minor，不阻塞）。
 - 人工判断以 refactoring skill 各行「检测条件/判断要点」为准；拿不准的命中在报告中列出证据（file:line + 现象），由裁决说明理由。
 
 ### 台账抽查

@@ -59,7 +59,7 @@ L2 上安全网（一次性）：只覆盖"将被改路径 + 直接调用者"，
 L3 主循环（两顶帽子不混）
    3a 只改结构 → 一次一坏味道，绿→改→绿，红即回滚
    3b 改行为   → 先红后绿，特征测试保留到新测试覆盖
-L4 出清：删临时测试接缝、更新 debt ledger、结构与语义分 commit
+L4 出清：删临时测试接缝、结构与语义分 commit
 ```
 
 L0 已由 legacy-analyst 完成：若报告缺 `EFFECT_SKETCH` 或 `TEST_INVENTORY`，退回 `NEEDS_CONTEXT`，不重做侦察。
