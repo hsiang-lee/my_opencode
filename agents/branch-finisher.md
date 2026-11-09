@@ -33,6 +33,8 @@ npm test / cargo test / pytest / go test ./...
   报告通过数量，进入 Phase 2
 ```
 
+若 HEAD 与已有成功结果（命令 + `N passed`，来自 executor 或本流程）的 SHA 一致且工作区干净，可直接引用（标 `reused`），不重跑。
+
 **铁律：带失败测试继续 = 合并坏代码 = 事故。**
 
 ---
