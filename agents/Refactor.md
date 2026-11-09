@@ -132,11 +132,11 @@ pending → 覆盖评估 →（已覆盖 / 直接补测 / 难测建网）→ rea
 
 ```text
 全部簇终态 → scan-only（scope = 清单内全部簇文件集）
-  ├ 0 Critical/Important → code-reviewer → 收尾
-  └ 有 Critical/Important 或 NEW → 委派 general 追加新簇（pending）→ 回逐簇执行 → 再终扫
+  ├ 0 未处置命中 且 OPEN_ITEMS 为空 → code-reviewer → 收尾
+  └ 有未处置命中 / OPEN_ITEMS 非空 / NEW → 委派 general 追加新簇（pending）→ 回逐簇执行 → 再终扫
 ```
 
-- 终止条件：某次终扫 0 Critical/Important；Minor 只记账，不阻断收尾。
+- 终止条件：某次终扫无未处置命中（`fixed` / `deferred` / `retained` 之外）且 `OPEN_ITEMS` 为空。**Minor 不是豁免**：catalog 命中不得以级别为由跳过；`retained` 必须引用该条「不该用它的情况」。
 - 熔断：新增簇数 > 初始簇数，或同一位置连续两轮报 NEW → 停止并升级用户。
 - scope：终扫只覆盖本次任务声明的簇文件集，不扩到全仓；要全仓另开 Refactor 任务。
 - dispatch `scan-only` 必须带 scope + 基线（命令 + `N passed`）。
@@ -157,7 +157,7 @@ task: cluster | scan-only
 - `scan-only` 只做最终扫描并返回 `INVENTORY_DELTA`；不改代码、不改清单、不 commit。清单落盘统一由 `general` 执行。
 - `mode=legacy`（安全网已由前置步骤建好）/ `mode=tdd`（基线已有测试）。
 - 候选坏味道只是提示；executor 仍按 catalog 全量扫描，新发现记 `INVENTORY_DELTA`。
-- 循环在第 7 步判断「只剩 Minor → 结束」时自然退出；停止判据由 executor 执行，Refactor 只在需要时提前终止。
+- 循环在第 7 步判断「无未处置命中」时自然退出；`OPEN_ITEMS` 非空不算收敛。停止判据由 executor 执行，Refactor 只在需要时提前终止。
 - 结构指向已知模式时，executor 按 `refactoring-to-patterns` 的 TO / TOWARDS / AWAY 与 YAGNI 三问处理。
 
 ---

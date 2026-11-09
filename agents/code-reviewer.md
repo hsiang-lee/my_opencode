@@ -160,14 +160,18 @@ git diff BASE_SHA..HEAD_SHA
 
 | 命中类别 | 严重级别 |
 |----------|----------|
-| A1 共享常量重复 / A2 绕过现有封装 / A3 测试 setup 复制 | **Important（阻塞，返回修复）** |
-| A5 贫血模型/职责错位 / A6 伪多态 | **Important（阻塞，返回修复）** |
-| A4 命名漂移 / A7 out-param 束 / 经典结构类（过长函数、深嵌套等） | Minor |
+| smells-catalog 任一条目（经典 24 类 / A1–A7 / T1–T6 / P1–P5 / D1–D5） | **Important（阻塞，返回修复）** |
+| clean-code 类（注释、格式、命名细节等非 catalog 条目） | Minor（不阻塞） |
 
 ### 判定规则
 
-- 按分类表逐类核对，命中即判级；当前不修的命中 → 提示 executor 记入候选行（Minor，不阻塞）。
-- 人工判断以 refactoring skill 各行「检测条件/判断要点」为准；拿不准的命中在报告中列出证据（file:line + 现象），由裁决说明理由。
+- 命中是二值判定：按 refactoring SKILL「命中判定与处置」+ 各条「怎么认」核对，成立即命中并给 `file:line` + 计数/断言证据。**`Minor` 不得用于 catalog 命中**。
+- 命中处置只能是 `fixed` / `deferred` / `retained`（定义见 refactoring SKILL）：
+  - `fixed` → 需 `file:line` + 手法 + 验证证据；
+  - `deferred` → 必须出现在台账 `OPEN_ITEMS` 且目标明确（簇 / 下一批 / 另开 Refactor），否则 Important；
+  - `retained` → 必须逐字引用该条「不该用它的情况」，否则 Important。
+- 拿不准的命中在报告中列出证据（file:line + 现象），由裁决说明理由；**不得默认 Minor 放行**。
+- `OPEN_ITEMS` 非空但 executor 报 DONE（未交用户裁决）→ Important（必须返回 `DONE_WITH_CONCERNS` 并原样列出）。
 
 ### 台账抽查
 
@@ -187,7 +191,7 @@ git diff BASE_SHA..HEAD_SHA
 | 命令与查询分离（CQS） | 命中 → Minor |
 | 引入的模式通过 YAGNI 三问 | 未过 → Important（过度设计） |
 | 共享可变状态是否必要（functional） | 非必要 → Important |
-| 管道/嵌套是否超过闸门（6 段 / 2 层） | 超限 → Minor |
+| 管道/嵌套是否超过闸门（6 段 / 2 层） | 超限 → Minor；若同时命中 smells-catalog「深嵌套 ≥3 层」→ Important |
 
 **红线**：契约缺失不得标 Minor——下游会按错误契约实现。
 

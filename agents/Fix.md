@@ -164,6 +164,7 @@ digraph fix_flow {
   Task: "Review bug fix (profile=feature)"
   契约: profile=feature；输入清单（轻量档）= BUG_REPORT（目标 / 复现 / 根因 / 范围 / 测试证据）；批次 SHA 区间 = BASE_SHA..HEAD_SHA；REFACTOR_LEDGER（有则附）
   Critical/Important → 返回对应修复路径
+  台账 OPEN_ITEMS 非空 → 原样逐条列出交用户裁决，不得直接收尾
 
   Dispatch: branch-finisher
   Task: "Finish branch"
@@ -190,7 +191,7 @@ digraph fix_flow {
 3. **独立 commit**：童子军改动与缺陷修复分开提交。
 4. **≤10 行**：净改动不超过 10 行。
 
-超出任一条 → 记入台账，转 Refactor 处理，不在 Fix 里扩面。
+超出任一条 → `deferred`：记入台账 `OPEN_ITEMS`（file:line + 目标：本批后续 / 另开 Refactor），不扩大本次改动面，也不得静默丢弃。
 
 ### 用户交互暂停规则
 

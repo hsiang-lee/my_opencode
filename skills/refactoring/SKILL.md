@@ -77,9 +77,27 @@ description: Use during the REFACTOR phase after tests are green, when detecting
 
 ---
 
+## 命中判定与处置（唯一标准）
+
+**命中是二值判定**：按本表阈值 + `smells-catalog.md` 该条「怎么认」核对，成立即命中，必须给出 `file:line` + 计数或断言证据；不成立则写「未命中 + 哪条判据不成立」，不接受「看着不严重」「影响不大」「大概没事」。
+
+**命中必须处置，只有三种合法处置**：
+
+| 处置 | 条件 | 台账要求 |
+|------|------|----------|
+| `fixed` | 在本次 scope（簇文件集 / 批次 diff 及其触碰模块）内 | 手法 + `file:line` + 验证结果 / commit |
+| `deferred` | 确属 scope 外 | 写入 `OPEN_ITEMS`：`file:line` + 目标（哪个簇 / 下一批 / 另开 Refactor）+ 为何超出 scope |
+| `retained` | 命中该条「不该用它的情况」中的**具体一条** | 逐字引用该条例外 + `file:line` 证据 |
+
+**禁止**：以 Minor / 小问题 / 以后再说 / 不在本次范围 为由关闭命中而不登记。严重级别只决定修复顺序，**不决定是否修复**；`retained` 是唯一允许「命中但不改」的路径。
+
+**门槛**：Refactor 收尾要求 `OPEN_ITEMS` 为空；Feature / Fix 批末 `OPEN_ITEMS` 非空时必须原样交用户裁决，不得自称通过。
+
+---
+
 ## 台账必填项（常驻）
 
-REFACTOR 是唯一输出 = `REFACTOR_LEDGER`。以下 11 项**每项**必须给出「命中 + 处置与证据」或「未命中 + 理由一句」，不许留空、不许省略：
+REFACTOR 是唯一输出 = `REFACTOR_LEDGER`。以下 11 项**每项**必须给出「命中 + 处置（`fixed` / `deferred` / `retained`）与证据」或「未命中 + 具体判据不成立的理由」，不许留空、不许省略；另需末尾 `OPEN_ITEMS`：
 
 ```
 A1 A2 A3 A4 A5 A6 A7 / 过长函数(>40行) / 深嵌套(≥3层) /
@@ -107,4 +125,5 @@ A1 A2 A3 A4 A5 A6 A7 / 过长函数(>40行) / 深嵌套(≥3层) /
 - 重构步骤导致测试失败 → 立即回滚该步
 - 重构必须从 smells-catalog.md 命中的坏味道出发，按对应「首选手法」或 techniques.md 的标准步骤执行；禁止凭直觉自创改法。
 - 无对应标准手法，或手法不适用 → 记台账并停止该项，不得即兴发挥。
+- 命中即处置：catalog 命中只能 `fixed` / `deferred` / `retained`；不得以 Minor、影响不大、以后再说跳过。
 - 实现任何 helper/常量前先 grep 已有同类：找到就复用，找不到才创建（详见 `references/smells-catalog.md` 复用优先规则）

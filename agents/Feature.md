@@ -295,7 +295,7 @@ digraph feature_flow {
 ## Completion Gate (完成门)
 
 dispatch branch-finisher 前必须确认:
-1. 所有 story-executor 故事返回 DONE
+1. 所有 story-executor 故事返回 DONE；返回 DONE_WITH_CONCERNS 且 `OPEN_ITEMS` 非空 → 原样交用户裁决后才可继续
 2. 所有 code-reviewer 审查通过（无 Critical/Important）
 3. 所有变更已保存
 
