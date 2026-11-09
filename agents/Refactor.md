@@ -92,7 +92,7 @@ pending → 覆盖评估 →（已覆盖 / 直接补测 / 难测建网）→ rea
 2. **覆盖评估**（必须留证据：测试文件 + 覆盖的方法名 + `N passed`）：
    - 已覆盖 → `ready`
    - 未覆盖但能直接补测 → dispatch `legacy-executor`（`mode=safety-net-only`，只做 L2）补常规测试 → 全绿 → `ready`
-   - 未覆盖且难测（无法构造对象 / 依赖硬编码 / 全局或静态状态 / 无法观察结果 / 非确定性 / 深继承）→ `safety-net`：dispatch `legacy-analyst` 做 L0 → dispatch `legacy-executor` 在 L2 建网（找接缝 → 解依赖 → 写特征测试）→ 全绿 → `ready`
+   - 未覆盖且难测（无法构造对象 / 依赖硬编码 / 全局或静态状态 / 无法观察结果 / 非确定性 / 深继承）→ `safety-net`：dispatch `legacy-analyst` 做 L0 → dispatch `legacy-executor`（`mode=safety-net-only`）在 L2 建网（找接缝 → 解依赖 → 写特征测试）→ 全绿 → `ready`
    - 基线一律取安全网就位后的全量结果（已覆盖簇即入口结果）。
 3. **只对 `ready` 簇 dispatch `refactor-executor`（`task=cluster`）**；非 `ready` 一律拒绝。
 4. **收尾簇**：全量绿 + 台账齐全后 commit；executor 写回本簇行（状态 `done`、`CONFIRMED` / `NEW` / `CLOSED`、基线）。`COMMIT` 字段留待下一个清单变更 commit 回填（自引用 SHA 不可写），最后一簇由收尾 commit 回填。

@@ -52,7 +52,7 @@ Tab 切换:
 | story-writer | 用户故事：Epic 契约 + [story]/[enabler] + AC + 批次标注，不写结构设计 |
 | story-executor | 逐故事 TDD + 批次单 commit；既有遗留代码缺覆盖时自己补安全网（能直接写测试就直接补；难测才用 legacy-code） |
 | legacy-analyst | 由 Refactor 在未覆盖且难测时调度：L0 侦察 change points / effect sketch / 测试盘点 / 改法建议（只读） |
-| legacy-executor | 由 Refactor 在未覆盖且难测时调度：L1-L4 安全网、两顶帽子主循环、出清；结构与语义分 commit；可直接补测时以 `safety-net-only` 只做 L2 |
+| legacy-executor | 由 Refactor 在未覆盖时调度：可直接补测走 `safety-net-only`（只做 L2），难测走 L1-L4（安全网、两顶帽子主循环、出清）；结构与语义分 commit |
 | refactor-executor | 自控七步重构循环（扫描→选择→决策→执行→验证→记账→判断）+ REFACTOR_LEDGER；清单落盘（`inventory-init` / `cluster` / `scan-only`） |
 | code-reviewer | 按 profile（feature/refactor）审查：假测试 + 坏味道 + 专项检查 |
 | branch-finisher | 分支收尾 |

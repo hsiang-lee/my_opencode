@@ -16,7 +16,7 @@
 - **状态**：`pending` / `safety-net` / `ready` / `done` / `blocked`。进行中不设独立状态：`ready` 簇有未提交改动即视为 in-progress；`blocked` 修复后回 `pending` / `ready`，跳过须用户确认。
 - **1 簇 = 1 个重构 commit**（`cluster: Cx`）；安全网另计 1 个 commit（`cluster: Cx safety-net`）。清单与重构 commit 同批更新。
 - **COMMIT**：在下一个清单变更 commit 回填（自引用 SHA 不可写）；最后一簇由收尾 commit 回填。
-- **落盘责任**：清单由 refactor-executor（`inventory-init` / `cluster` / `scan-only`）与 legacy-executor（安全网行）写入；Refactor 只读。
+- **落盘责任**：清单由 refactor-executor（`inventory-init` / `cluster`）与 legacy-executor（安全网行）写入；Refactor 只读。
 
 每簇块：
 
