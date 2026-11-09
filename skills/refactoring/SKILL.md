@@ -9,7 +9,7 @@ description: Use during the REFACTOR phase after tests are green, when detecting
 
 **目录**：定位与使用者 · 索引 · 边界 · 设计工具与童子军 · 加载时机 · 阈值 · 台账 · 流程 · 红线。
 
-**使用者**：story-executor（RED 后 REFACTOR 阶段 dispatch 循环）、refactor-executor（自控循环执行）、legacy-analyst（L0 侦察）、legacy-executor（L3a 两顶帽子）、code-reviewer（Phase 2.5 质量审计）。**本文件常驻 = 判定层**（阈值、台账必填项、红线），索引里的文件只在需要时读。
+**使用者**：story-executor（RED 后 REFACTOR 阶段 dispatch 循环）、refactor-executor（自控循环执行）、legacy-analyst（L0 侦察）、legacy-executor（L2 安全网）、code-reviewer（Phase 2.5 质量审计）。**本文件常驻 = 判定层**（阈值、台账必填项、红线），索引里的文件只在需要时读。
 
 ---
 

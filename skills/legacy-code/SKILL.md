@@ -97,4 +97,4 @@ L4 出清：删临时测试接缝、结构与语义分 commit
 | 目标代码没有测试、要先上安全网 | 本 skill |
 | 已有测试的代码怎么小步改结构 | refactoring skill |
 | 坏味道已存在、要演化成设计模式 | refactoring-to-patterns skill |
-| 怎么验证行为（RED-GREEN-REFACTOR） | story-executor / legacy-executor 正文 |
+| 怎么验证行为（RED-GREEN-REFACTOR） | story-executor 正文 |

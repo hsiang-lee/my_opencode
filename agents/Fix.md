@@ -149,7 +149,7 @@ digraph fix_flow {
     Dispatch: story-executor
     Task: "Fix [bug] per fix investigation"
     （skill 加载由 story-executor 自身声明；Fix 按轻量档契约派发）
-    契约（轻量档）: 目标（期望行为）/ 范围（根因 file:line + 允许触碰文件）/ 测试计划（RED）/ 明确不做 / SHA 基线
+    契约（轻量档）: 目标（期望行为 + 复现）/ 范围（根因 file:line + 允许触碰文件）/ 测试计划（RED）/ 明确不做 / SHA 基线
     GREEN 后 dispatch refactor-executor（mode=tdd）做及时重构：一次一种坏味道，不改期望值
 
   [B] 无覆盖:
@@ -157,7 +157,7 @@ digraph fix_flow {
       能直接写测试 → 直接补；难测 → legacy-code 接缝 → 解依赖 → 写特征测试。
       安全网全绿后回到 [A] 按 TDD 写 RED 修 bug。
       结构与语义 commit 必须分离（解依赖 / 补测单独 commit）。
-    契约: 目标 / 范围（根因 file:line）/ 测试计划（先补安全网，再给失败 RED）/ 明确不做 / SHA 基线；补测分类判定（直接补 / 难测→legacy-code）
+    契约: 目标（期望行为 + 复现）/ 范围（根因 file:line）/ 测试计划（先补安全网，再给失败 RED）/ 明确不做 / SHA 基线；补测分类判定（直接补 / 难测→legacy-code）
 
 ── Step 5/5: 审查 & 收尾 ──
   Dispatch: code-reviewer

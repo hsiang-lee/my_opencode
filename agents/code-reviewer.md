@@ -91,6 +91,8 @@ git diff BASE_SHA..HEAD_SHA
 5. **执行器台账（REFACTOR_LEDGER）** — executor 返回的批次合并台账，供台账抽查
 6. **Review Profile** — `profile: feature|refactor`，决定追加加载的 skill 与专项检查；缺失 → `NEEDS_CONTEXT`
 
+**Fix / 轻量档**：以 `BUG_REPORT` 的「目标」替代 AC；批次故事清单与逐故事 AC 核对可跳过，其余字段照常。
+
 ---
 
 ## Phase 2: Fake Test Detection (假测试检测，优先级最高)
@@ -99,7 +101,7 @@ git diff BASE_SHA..HEAD_SHA
 
 ### 测试规格核对（Phase 2 前置）
 
-无论按批次审查，reviewer **逐故事核对测试证据**——每个故事的测试是否覆盖其 AC（对照 dispatch 块携带的**AC 与测试规格**）、是否通过。**以故事为单位，不依赖 commit 边界**（批次单 commit 不影响逐故事核对，不因批量而合并跳过）。
+无论按批次审查，reviewer **逐故事核对测试证据**——每个故事的测试是否覆盖其 AC（对照 dispatch 块携带的**AC 与测试规格**）、是否通过。**以故事为单位，不依赖 commit 边界**（批次单 commit 不影响逐故事核对，不因批量而合并跳过）。Fix / 轻量档改为对照 `BUG_REPORT` 的「目标」核对，不要求故事清单。
 
 - 每个故事：对照其**AC** 逐条核对是否有对应测试 + 断言/行为匹配
 - 该故事的测试是否通过（运行验证）
