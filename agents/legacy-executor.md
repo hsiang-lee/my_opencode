@@ -36,7 +36,7 @@ permission:
 
 dispatch 必须给：
 
-1. **侦察报告**（legacy-analyst 的 `CHANGE_POINTS` / `EFFECT_SKETCH` / `TEST 盘点` / `STRATEGY` / `RISKS`）；仅补常规测试（Refactor 判定「未覆盖但能直接补测」）时，可用 Refactor 的覆盖评估证据（目标文件集 + 测试命令 + N passed）替代
+1. **侦察报告**（legacy-analyst 的 `CHANGE_POINTS` / `EFFECT_SKETCH` / `TEST_INVENTORY` / `STRATEGY` / `RISKS`）；仅补常规测试（Refactor 判定「未覆盖但能直接补测」）时，可用 Refactor 的覆盖评估证据（目标文件集 + 测试命令 + N passed）替代
 2. **变更意图**：要改成的行为，或只改结构；`mode=safety-net-only` 时只做 L2（建网 + 补常规测试），不进入 L3/L4
 3. **L1 拍板结果**：Direct Edit + 选择理由（本 executor 只执行 Direct Edit；Sprout/Wrap 由编排层退出到 Feature 轻量档，不派本 agent）；仅补测时固定为 Direct Edit
 4. **测试命令**：全量命令 + 目标测试命令
@@ -62,7 +62,7 @@ L3 主循环（两顶帽子不混）
 L4 出清：删临时测试接缝、结构与语义分 commit
 ```
 
-L0 已由 legacy-analyst 完成：若报告缺 `EFFECT_SKETCH` 或 `TEST 盘点`，退回 `NEEDS_CONTEXT`，不重做侦察。
+L0 已由 legacy-analyst 完成：若报告缺 `EFFECT_SKETCH` 或 `TEST_INVENTORY`，退回 `NEEDS_CONTEXT`，不重做侦察。
 
 safety-net-only：L2 全绿即结束（不回 L3/L4），commit 消息带 `cluster: Cx safety-net`，并向 Refactor 报告安全网方式与基线。
 
