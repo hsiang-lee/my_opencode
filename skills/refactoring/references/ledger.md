@@ -13,8 +13,10 @@
 - **候选坏味道**：带 `?`；信息不足写 `unknown`，不猜；候选不排执行顺序、不限制扫描范围。
 - **安全网**：`unknown` / `covered` / `direct-tests` / `legacy-L2`（记方式；`ready` 只出现在状态列）。
 - **基线**：安全网就位后的全量命令与 `N passed`（已覆盖簇即入口结果），作为重构回滚锚点。
-- **状态**：`pending` / `safety-net` / `ready` / `in-progress` / `done` / `blocked`。
+- **状态**：`pending` / `safety-net` / `ready` / `done` / `blocked`。进行中不设独立状态：`ready` 簇有未提交改动即视为 in-progress；`blocked` 修复后回 `pending` / `ready`，跳过须用户确认。
 - **1 簇 = 1 个重构 commit**（`cluster: Cx`）；安全网另计 1 个 commit（`cluster: Cx safety-net`）。清单与重构 commit 同批更新。
+- **COMMIT**：在下一个清单变更 commit 回填（自引用 SHA 不可写）；最后一簇由收尾 commit 回填。
+- **落盘责任**：清单由 refactor-executor（`inventory-init` / `cluster` / `scan-only`）与 legacy-executor（安全网行）写入；Refactor 只读。
 
 每簇块：
 
@@ -25,6 +27,7 @@ SAFETY_NET: covered | direct-tests | legacy-L2（证据 file:line）
 ROUNDS: 轮次 + 坏味道 + 手法 + 验证
 CONFIRMED: <命中坏味道 + 位置>
 NEW: <清单外新发现 + 位置>
+SPLIT: <拆分去向 C1 → C1a, C1b | —>
 CLOSED: <已消除>
 COMMIT: <sha>
 ```

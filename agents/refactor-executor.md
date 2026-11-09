@@ -36,15 +36,27 @@ permission:
 
 ## 输入契约
 
-dispatch 必须给五件套：
+dispatch 必须给：
 
-1. **scope** — 本次聚焦的改动面（簇文件集 + 候选坏味道；围栏是文件集，候选不限制扫描范围）。
-2. **mode** — `tdd`（已有测试基线，无需安全网）或 `legacy`（无测试路径，安全网已由 Refactor 前置完成）。
-3. **基线** — 全量测试命令 + 当前 `N passed`，作为回滚锚点。
-4. **轮次上限** — 循环最多执行多少轮；达到即停并报告。
-5. **cluster 上下文** — `cluster_id` + SCOPE_INVENTORY 中该簇切片（文件集 + 候选坏味道）。候选只是提示，不限制扫描范围；围栏是文件集。
+1. **task** — `inventory-init`（只写清单）/ `cluster`（重构一簇）/ `scan-only`（只出扫描结论）。
+2. **scope** — 本次聚焦的改动面（簇文件集 + 候选坏味道；围栏是文件集，候选不限制扫描范围）。
+3. **mode** — `tdd`（已有测试基线，无需安全网）或 `legacy`（安全网已由前置步骤完成）。
+4. **基线** — 全量测试命令 + 当前 `N passed`，作为回滚锚点。
+5. **轮次上限** — 循环最多执行多少轮；达到即停并报告。
+6. **cluster 上下文** — `cluster_id` + SCOPE_INVENTORY 中该簇切片（文件集 + 候选坏味道）。候选只是提示，不限制扫描范围；围栏是文件集。
+7. **inventory** — 清单文件路径 + 本簇行；`task=inventory-init` 时为完整清单内容。
 
-缺 2/3/4/5 → `NEEDS_CONTEXT`，不自拟范围。
+缺 2–7 → `NEEDS_CONTEXT`，不自拟范围；`scan-only` 只需 1 / 2 / 4。
+
+---
+
+## 清单落盘（按 task）
+
+- **inventory-init** — 把 Refactor 给的完整清单写入 `docs/refactor/YYYY-MM-DD-<scope>.md`，commit `docs(refactor): add scope inventory for <scope>`。不改代码、不跑循环。
+- **cluster** — 正常七步循环。结束时把本簇行写回清单：状态、安全网方式、基线、`CONFIRMED` / `NEW` / `CLOSED`；与代码同 commit。`COMMIT` 留空，由下一个清单变更 commit 回填（自引用 SHA 不可写）。
+- **scan-only** — 只按 scope 做最终扫描，输出 Critical/Major/Minor；不改代码、不改清单、不 commit。
+
+簇超标需拆分 → 单独 commit 清单变更（新行 + 父行标 `blocked` + `SPLIT: C1 → C1a, C1b`），报告 `BLOCKED`，等 Refactor 重新派发。
 
 ---
 
@@ -109,6 +121,7 @@ dispatch 必须给五件套：
 ## 报告（DONE 时必须给）
 
 ```
+TASK: inventory-init | cluster | scan-only
 SCOPE: <cluster_id> + 簇文件集
 MODE: tdd | legacy
 BASELINE: <全量命令> → <N passed>
@@ -117,7 +130,8 @@ FINAL_SCAN: 最终扫描结论（剩余 Critical/Major/Minor）
 TEST: <全量命令> → <N passed>
 LEDGER: REFACTOR_LEDGER 逐项状态
 CLUSTER_STATUS: done | blocked
-INVENTORY_DELTA: CONFIRMED <...> / NEW <...> / CLOSED <...>
+INVENTORY_DELTA: CONFIRMED <...> / NEW <...> / CLOSED <...> / SPLIT <...>
+COMMIT: <本簇 commit sha | —>
 BEHAVIOR: 测试文件 diff = <空 | 只增不改>；期望值不变
 ```
 

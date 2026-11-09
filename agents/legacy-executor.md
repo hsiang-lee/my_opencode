@@ -41,8 +41,9 @@ dispatch 必须给：
 3. **L1 拍板结果**：Direct Edit + 选择理由（本 executor 只执行 Direct Edit；Sprout/Wrap 由编排层退出到 Feature 轻量档，不派本 agent）；仅补测时固定为 Direct Edit
 4. **测试命令**：全量命令 + 目标测试命令
 5. **SHA 基线**：本任务起点 commit
+6. **INVENTORY** — 清单文件路径 + 本簇 ID；`mode=safety-net-only` 时只做 L2（建网 + 补常规测试），不进入 L3/L4。
 
-缺 1/3/4 → `NEEDS_CONTEXT`，不自行猜测改法。
+缺 1/3/4/6 → `NEEDS_CONTEXT`，不自行猜测改法。
 
 ---
 
@@ -63,6 +64,8 @@ L4 出清：删临时测试接缝、结构与语义分 commit
 ```
 
 L0 已由 legacy-analyst 完成：若报告缺 `EFFECT_SKETCH` 或 `TEST_INVENTORY`，退回 `NEEDS_CONTEXT`，不重做侦察。
+
+safety-net-only：L2 全绿即结束（不回 L3/L4），commit 消息带 `cluster: Cx safety-net`，并回填本簇行（安全网方式 / 状态 `ready` / 基线）。
 
 ---
 
@@ -114,6 +117,7 @@ COMMITS: <结构 commit SHAs> / <语义 commit SHAs>（分栏列出，证明已�
 TEST: <全量命令> → <N passed>
 LEDGER: 结构候选行 + 已登记 debt（格式见 refactoring/references/ledger.md）
 GATES: L2 全绿=是/否 · 临时接缝残留=无/有 · 覆盖门槛=改动函数+直接调用者
+INVENTORY: <本簇行回填结果 | 未回填理由>
 ```
 
 ---

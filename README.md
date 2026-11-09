@@ -52,8 +52,8 @@ Tab 切换:
 | story-writer | 用户故事：Epic 契约 + [story]/[enabler] + AC + 批次标注，不写结构设计 |
 | story-executor | 逐故事 TDD + 批次单 commit；既有遗留代码缺覆盖时自己补安全网（能直接写测试就直接补；难测才用 legacy-code） |
 | legacy-analyst | 由 Refactor 在未覆盖且难测时调度：L0 侦察 change points / effect sketch / 测试盘点 / 改法建议（只读） |
-| legacy-executor | 由 Refactor 在未覆盖且难测时调度：L1-L4 安全网、两顶帽子主循环、出清；结构与语义分 commit |
-| refactor-executor | 自控七步重构循环（扫描→选择→决策→执行→验证→记账→判断）+ REFACTOR_LEDGER |
+| legacy-executor | 由 Refactor 在未覆盖且难测时调度：L1-L4 安全网、两顶帽子主循环、出清；结构与语义分 commit；可直接补测时以 `safety-net-only` 只做 L2 |
+| refactor-executor | 自控七步重构循环（扫描→选择→决策→执行→验证→记账→判断）+ REFACTOR_LEDGER；清单落盘（`inventory-init` / `cluster` / `scan-only`） |
 | code-reviewer | 按 profile（feature/refactor）审查：假测试 + 坏味道 + 专项检查 |
 | branch-finisher | 分支收尾 |
 | explore / librarian | 代码库搜索 / 外部研究 |
@@ -114,7 +114,7 @@ Tab 切到 Fix，给出复现步骤。根因调查后判定覆盖：有测试 �
 
 ### Refactor (行为保持 / 存量腐坏)
 
-Tab 切到 Refactor。先收敛范围并产出 SCOPE_INVENTORY；再逐簇评估覆盖：已覆盖直接重构，未覆盖先建安全网（能直接补测就补，难测才走 legacy-code），非 ready 簇不进循环。循环只有一个实现：Refactor 把 cluster_id / scope / mode / 基线 / 循环上限交给 refactor-executor 自控七步，1 簇 1 commit，完成后按整分支 diff + SCOPE_INVENTORY + REFACTOR_LEDGER 审查。
+Tab 切到 Refactor。先收敛范围并算出 SCOPE_INVENTORY（executor 以 `inventory-init` 落盘）；再逐簇评估覆盖：已覆盖直接重构，未覆盖先建安全网（能直接补测就 `safety-net-only`，难测才走 legacy-code），非 ready 簇不进循环。循环只有一个实现：Refactor 把 task / cluster_id / scope / mode / 基线 / 循环上限 / inventory 交给 refactor-executor 自控七步，1 簇 = 1 个重构 commit + 1 个安全网 commit，完成后无条件 scan-only 终扫，再按整分支 diff + SCOPE_INVENTORY + REFACTOR_LEDGER 审查。
 
 ### Feature (行为变更)
 
@@ -163,4 +163,4 @@ Tab 切到 Feature，描述功能。入口先定档位：轻量档跳过设计/�
 |------|--------|------|
 | `docs/stories/YYYY-MM-DD-<epic>.md` | story-writer | Epic 契约表 + `[story]` / `[enabler]` 故事清单 + 批次标注 |
 | `docs/qa/`、`docs/qa-findings/` | QAExplorer | 用例表与探索结果 |
-| `docs/refactor/YYYY-MM-DD-<scope>.md` | Refactor | SCOPE_INVENTORY（簇、候选坏味道、安全网状态、基线、进度）+ 每簇台账 |
+| `docs/refactor/YYYY-MM-DD-<scope>.md` | Refactor 指挥；refactor-executor 落盘 | SCOPE_INVENTORY（簇、候选坏味道、安全网状态、基线、进度）+ 每簇台账 |
