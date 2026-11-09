@@ -37,7 +37,7 @@
 ## 2. 函数级
 
 | 4 | 过长函数 Long Function | 超过 SKILL 阈值表的长函数线（见 refactoring/SKILL.md），或含 ≥2 个可独立命名的段落 | Fowler | Extract Method / Replace Temp with Query / Decompose Conditional | 平铺直叙的状态机或协议解析拆开后更难读时，不硬拆 |
-| 5 | 过长参数列表 Long Parameter List | 参数个数 > 4 | Fowler | Introduce Parameter Object / Preserve Whole Object / Remove Flag Argument | 参数来自不同生命周期且不构成概念整体时，不强行打包 |
+| 5 | 过长参数列表 Long Parameter List | 参数个数超过 SKILL 阈值表（见 refactoring/SKILL.md） | Fowler | Introduce Parameter Object / Preserve Whole Object / Remove Flag Argument | 参数来自不同生命周期且不构成概念整体时，不强行打包 |
 | 6 | 标志参数 Flag Argument | 布尔参数切换函数内两条不同行为路径 | Fowler | Remove Flag Argument | 布尔值是真正的数据属性而非行为开关时保留 |
 | 7 | 临时字段 Temporary Field | 字段只在部分调用路径有值，其余为 null / 空 | Fowler | Extract Class / Introduce Null Object | 字段确实描述对象的可选状态且所有路径都显式检查时保留 |
 | 8 | 循环 Loops | 手写索引循环只做 filter / map / reduce 能表达的事 | Fowler | Replace Loop with Pipeline | 循环含提前 break、多集合同步或副作用较多时，管道反而更难读 |
@@ -48,10 +48,10 @@
 
 | 9 | 发散式变化 Divergent Change | 同一个类因 ≥2 类不同原因被修改 | Fowler | Extract Class / Move Function | 修改原因尚未真实发生、只是设想的扩展点，先不拆 |
 | 10 | 霰弹式修改 Shotgun Surgery | 一个变化要改 ≥2 个类的多处 | Fowler | Move Function / Inline Class | 分散点是稳定协议或插件注册表时，集中反而增加耦合 |
-| 11 | 依恋情结 Feature Envy | 方法 > 50% 的访问指向另一个对象 | Fowler | Move Function | 目标是策略对象或 visitor，跨对象访问是设计意图时保留 |
+| 11 | 依恋情结 Feature Envy | 方法对另一对象的访问占比超过 SKILL 阈值表 | Fowler | Move Function | 目标是策略对象或 visitor，跨对象访问是设计意图时保留 |
 | 12 | 基本类型偏执 Primitive Obsession | 用基本类型表达领域概念，校验散落在 ≥2 处 | Fowler | Replace Primitive with Object / Replace Type Code with Subclasses | 值没有行为且只在本函数内使用时，不造值对象 |
 | 13 | 重复的 switch Repeated Switches | 同一类型分支出现在 ≥2 处 | Fowler | Replace Conditional with Polymorphism | 分支只有 2 个且不会再扩时，简单多态即可，不建完整模式 |
-| 14 | 过大类 Large Class | > 10 个方法，或含 ≥2 个不相关功能组 | Fowler | Extract Class / Extract Subclass | 类是由框架基类规定的集中入口时，只拆可独立的部分 |
+| 14 | 过大类 Large Class | 方法数超过 SKILL 阈值表，或含 ≥2 个不相关功能组 | Fowler | Extract Class / Extract Subclass | 类是由框架基类规定的集中入口时，只拆可独立的部分 |
 | 15 | 纯数据类 Data Class | 只有字段与 getter / setter，行为全在类外（A5 的形态之一） | Fowler | Move Function / Encapsulate Record | 它是 DTO 或序列化契约时，保持数据形状，不塞业务行为 |
 | 16 | 拒绝遗赠 Refused Bequest | 子类不用父类大半成员，或覆写为空实现 | Fowler | Push Down Method / Field / Replace Inheritance with Delegation | 父类是稳定框架契约且子类只需少数钩子时保留继承 |
 
@@ -59,8 +59,8 @@
 
 ## 4. 耦合与结构
 
-| 17 | 消息链 Message Chains | `a.b().c().d()` 调用链长度 > 2 | Fowler | Hide Delegate / Extract Method | 链是公开 DSL 或流式 API 时，隐藏委托会破坏可读性 |
-| 18 | 中间人 Middle Man | > 60% 的方法只是转发委托 | Fowler | Remove Middle Man / Inline Method | 中间层承担权限、缓存或协议转换时保留 |
+| 17 | 消息链 Message Chains | `a.b().c().d()` 调用链长度超过 SKILL 阈值表 | Fowler | Hide Delegate / Extract Method | 链是公开 DSL 或流式 API 时，隐藏委托会破坏可读性 |
+| 18 | 中间人 Middle Man | 转发委托的方法占比超过 SKILL 阈值表 | Fowler | Remove Middle Man / Inline Method | 中间层承担权限、缓存或协议转换时保留 |
 | 19 | 过度亲密 Insider Trading | 两个类互相访问对方内部 / 私有数据 ≥2 处 | Fowler | Move Function / Extract Class / 改单向关联 | 两者是同一模块内的值对象与容器时，访问是合理内聚 |
 | 20 | 异曲同工的类 Alternative Classes with Different Interfaces | ≥2 个类做同一件事但方法名 / 签名不一致 | Fowler | Rename Method / Move Function / Extract Interface | 两者语义只是表面相似、变化原因不同时，不强行统一 |
 | 21 | 惰性元素 Lazy Element | 类 / 函数只做一件事且唯一调用者只有 1 处 | Fowler | Inline Class / Inline Function / Collapse Hierarchy | 元素是测试接缝或框架要求的扩展点时保留 |
