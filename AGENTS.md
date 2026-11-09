@@ -12,12 +12,13 @@
 | 顺序 | 判据 | 场景 |
 |------|------|------|
 | 1 | 行为与预期不符（bug），有或可构造复现路径 | **Fix** |
-| 2 | 要改的代码无测试 / 难有可靠测试 → 先上安全网 | **Refactor** |
-| 3 | 行为不变，只改结构或模式，基线全绿 | **Refactor** |
-| 4 | 新增/变更行为，且目标可写测试 | **Feature** |
-| 5 | 前端探索测试（只报告不修复） | **QAExplorer** |
+| 2 | 行为不变，只改结构或模式，基线全绿 | **Refactor** |
+| 3 | 新增/变更行为 | **Feature** |
+| 4 | 前端探索测试（只报告不修复） | **QAExplorer** |
 
 判据重叠时按上表顺序。场景不符即停，不「先做一点看看」。
+
+**无测试不构成独立场景**：改动点既有遗留代码且缺覆盖时，由所在场景（Fix / Feature / story-executor）自己补安全网后继续，不转交、不停下。
 
 ## 两种设计边界
 
@@ -30,7 +31,7 @@
 | 触发 | 本次改动引入或触碰到的坏味道 | 存量腐坏：跨模块、多坏味道、设计已变形 |
 | 交付 | 行为变更 + 本故事代码无坏味道 | **零行为变更** + 聚焦点无 Critical/Major |
 
-重构循环只有一个实现（`agents/refactor-executor.md`）：两个入口只差安全网前置与 scope。
+重构循环只有一个实现（`agents/refactor-executor.md`）：两个入口只差安全网时机（Feature/Fix 自己补、Refactor 先评估覆盖）与 scope。
 
 ## 时机表（何时读哪个 skill）
 
@@ -40,6 +41,7 @@
 | 建模 | design |
 | 写测试 | testing-techniques |
 | 实现 | functional |
+| 改动点既有遗留代码且缺覆盖、难写测试 | legacy-code（条件加载：仅此情形读；新增代码直接 TDD，不读） |
 | 第一次出现重复 | refactoring（记候选行） |
 | 同一概念第二次变化 | design（抽象闸门） |
 | 审查 | code-reviewer 的 profile 集合 |
@@ -62,14 +64,14 @@
 
 | Agent | 用途 | 调用 |
 |-------|------|------|
-| Feature | 场景 4：行为变更 + 可写测试 | Tab |
+| Feature | 场景 3：行为变更 | Tab |
 | Fix | 场景 1：bug 修复 | Tab |
-| Refactor | 场景 2/3：无测试先上安全网 / 行为保持型重构 | Tab |
+| Refactor | 场景 2：行为保持型重构（入口先评估覆盖） | Tab |
 | QAExplorer | 前端探索测试 | Tab |
 | story-writer | 决策确认后产出 Epic + 故事清单 | `Task("story-writer", ...)` |
-| story-executor | 有测试路径的逐故事 TDD | `Task("story-executor", ...)` |
-| legacy-analyst | 由 Refactor 安全网阶段调度：L0 侦察 + L1 改法建议（只读） | `Task("legacy-analyst", ...)` |
-| legacy-executor | 由 Refactor 安全网阶段调度：L1–L4 安全网与主循环 | `Task("legacy-executor", ...)` |
+| story-executor | 逐故事 TDD（无覆盖时自己补安全网） | `Task("story-executor", ...)` |
+| legacy-analyst | 由 Refactor 在未覆盖且难测时调度：L0 侦察 + L1 改法建议（只读） | `Task("legacy-analyst", ...)` |
+| legacy-executor | 由 Refactor 在未覆盖且难测时调度：L1–L4 安全网与主循环 | `Task("legacy-executor", ...)` |
 | refactor-executor | 自控七步重构循环 + 台账 | `Task("refactor-executor", ...)` |
 | code-reviewer | 实现完成后独立审查（按 profile） | `Task("code-reviewer", ...)` |
 | branch-finisher | 分支收尾 | `Task("branch-finisher", ...)` |
@@ -89,7 +91,7 @@
 
 - 执行侧分三类：`story-executor`（RED-GREEN-REFACTOR，REFACTOR 阶段 dispatch `refactor-executor`）、`legacy-executor`（L2 安全网 + L3 两顶帽子）、`refactor-executor`（自控七步循环）；判定标准在各 agent 正文。
 - 编排侧不写代码、不改测试。Feature 不跑测试；Fix / Refactor 只允许跑只读验证命令（复现、基线、现有测试），不得修改测试或源码。dispatch 要求先给失败测试或安全网证据，核对 RED 证据，无证据不验收。
-- 目标路径无测试时，`story-executor` 必须返回 `BLOCKED(需 Refactor 安全网)`，禁止自写特征测试；无测试不改变场景，先进 Refactor 补安全网。
+- 目标路径无测试不转交、不 BLOCKED：由执行场景自己补安全网（三分类：能直接写测试 → 直接补；难测 → legacy-code 接缝→特征测试→解依赖；新增代码（白纸）→ 直接 TDD，不问有无测试），补完继续 TDD。
 
 ## 红线
 
