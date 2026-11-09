@@ -59,7 +59,7 @@ description: Use during the REFACTOR phase after tests are green, when detecting
 | 过长函数 | > 40 行（经典参考线 20 行仅作提示） |
 | 嵌套层次过深 | ≥ 3 层 |
 | 参数过多 | > 4 个 |
-| 过大类 | > 10 个方法 |
+| 过大类 | > 500 行；行数未到但含 ≥2 个不相关职责组时同样算（灵活判断，不唯行数） |
 | 重复代码 | 同一结构出现在 ≥ 2 处方法/类/文件 |
 | A1 共享常量重复 | 同一常量/字面量在 ≥ 2 个文件重复定义 |
 | A2 绕过现有封装 | 已有封装（apiClient / push_task_to_redis 等）外裸写等价调用 |

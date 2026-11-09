@@ -12,6 +12,8 @@ description: Use when writing unit tests, choosing test doubles or fixtures, or 
 
 **本文件常驻 = 判定层。** 写具体测试时才读 references，不要通读。
 
+| 时机 | 说明 |
+|------|------|
 | 何时读 | 写测试、选替身/夹具、判测试好坏时读本 SKILL 与对应 reference |
 | 何时不读 | 只读、零逻辑变更的改动可不新增测试（现有测试即范式示范）；**任何逻辑变更都必须测**，此时读本 skill |
 
