@@ -259,7 +259,7 @@ Task(agent, "描述",
   Dispatch: story-executor
   Task: "执行本批次故事 (批次契约)"
   （skill 加载由 story-executor 自身声明，dispatch 不重复指定）
-  每故事 GREEN 后立即 dispatch 循环子 agent（refactor-executor, mode=tdd）做及时重构，不跨故事积累；一次一种坏味道
+  每故事 GREEN 后由 story-executor 自行 dispatch 循环子 agent（refactor-executor, mode=tdd）做及时重构，不跨故事积累；一次一种坏味道
   前置检查: 执行侧对既有遗留代码缺覆盖自己补安全网（三分类：能直接写测试 → 直接补；难测 → legacy-code 接缝→解依赖→写特征测试；新增代码直接 TDD），补完继续 TDD，不转交 Refactor
   返还证据: 报告注明「目标代码测试状态：有覆盖 <文件:行> / 原无覆盖→已补安全网 <文件:行>」
   批次契约 (Step 4 dispatch 块, 全部字段必需):

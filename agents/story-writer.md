@@ -7,6 +7,8 @@ color: "#4CAF50"
 permission:
   edit: allow
   bash: deny
+  task:
+    explore: allow
 ---
 
 # Story-Writer — 用户故事编写 Agent

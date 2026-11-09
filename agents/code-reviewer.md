@@ -45,11 +45,11 @@ dispatch 契约必须给 `profile: feature|refactor`。缺失或取值不在枚�
 | profile | 加载 | 何时用 |
 |---------|------|--------|
 | **feature** | testing-techniques + refactoring + design（改接口时） | 新增/变更行为，目标可写测试 |
-| **refactor** | refactoring + design + refactoring-to-patterns（引入模式时）+ legacy-code（走过 L0–L4 时） | 行为不变，只改结构或模式 |
+| **refactor** | refactoring + design + refactoring-to-patterns（引入模式时）+ legacy-code（走过安全网时） | 行为不变，只改结构或模式 |
 
-非 feature profile 不核对故事 AC：profile=refactor 以整分支 diff + REFACTOR_LEDGER 为核对对象；若本分支走过 L0–L4（legacy 路径），额外核对侦察报告与 CHARACTERIZATION。
+非 feature profile 不核对故事 AC：profile=refactor 以整分支 diff + REFACTOR_LEDGER 为核对对象；若本分支有安全网 commit（legacy L0/L2），额外核对侦察报告与 CHARACTERIZATION。
 
-### legacy 路径专项检查（profile=refactor 且本分支走过 L0–L4 时必做）
+### legacy 路径专项检查（profile=refactor 且本分支有安全网 commit 时必做）
 
 - [ ] **结构 commit 与语义 commit 是否分离**：解依赖/重构与改行为分两次提交，混合 → Important（阻塞）。
 - [ ] **临时测试接缝是否残留**：`#ifdef TEST`、测试专属子类、公开出去只为测试的成员留在生产源码 → Important（阻塞）。
@@ -84,7 +84,7 @@ git diff BASE_SHA..HEAD_SHA
 
 本批次由编排者（Feature / Fix / Refactor）通过 dispatch 传入以下字段，作为审查依据：
 
-1. **文档路径** — 按 profile：故事文档（feature）/ 整分支 diff（refactor；走过 L0–L4 时附侦察报告），作为核对依据
+1. **文档路径** — 按 profile：故事文档或轻量档方案清单 / BUG_REPORT（feature）；整分支 diff（refactor；有 `cluster: Cx safety-net` commit 时附侦察报告与 CHARACTERIZATION），作为核对依据
 2. **批次故事清单** — 本批次审查范围的故事列表
 3. **AC 与测试规格** — 每故事的 AC 与测试规格，供核对「测试是否覆盖 AC」
 4. **批次 SHA 区间** — `基线 SHA .. 本批 HEAD SHA`，供整批 `git diff`

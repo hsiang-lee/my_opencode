@@ -148,8 +148,8 @@ digraph fix_flow {
   [A] 有覆盖:
     Dispatch: story-executor
     Task: "Fix [bug] per fix investigation"
-    （skill 加载由 story-executor 自身声明；本步只传根因、修复策略、测试类型）
-    契约: 根因 file:line + 修复策略 + 需要的测试类型 + SHA 基线 + 「先给失败测试」
+    （skill 加载由 story-executor 自身声明；Fix 按轻量档契约派发）
+    契约（轻量档）: 目标（期望行为）/ 范围（根因 file:line + 允许触碰文件）/ 测试计划（RED）/ 明确不做 / SHA 基线
     GREEN 后 dispatch refactor-executor（mode=tdd）做及时重构：一次一种坏味道，不改期望值
 
   [B] 无覆盖:
@@ -157,12 +157,12 @@ digraph fix_flow {
       能直接写测试 → 直接补；难测 → legacy-code 接缝 → 解依赖 → 写特征测试。
       安全网全绿后回到 [A] 按 TDD 写 RED 修 bug。
       结构与语义 commit 必须分离（解依赖 / 补测单独 commit）。
-    契约: 根因 file:line + 补测分类判定（直接补 / 难测→legacy-code）+ SHA 基线 + 「先补安全网再给失败测试」
+    契约: 目标 / 范围（根因 file:line）/ 测试计划（先补安全网，再给失败 RED）/ 明确不做 / SHA 基线；补测分类判定（直接补 / 难测→legacy-code）
 
 ── Step 5/5: 审查 & 收尾 ──
   Dispatch: code-reviewer
   Task: "Review bug fix (profile=feature)"
-  契约: profile = feature；BUG_REPORT；BASE_SHA / HEAD_SHA
+  契约: profile=feature；输入清单（轻量档）= BUG_REPORT（目标 / 复现 / 根因 / 范围 / 测试证据）；批次 SHA 区间 = BASE_SHA..HEAD_SHA；REFACTOR_LEDGER（有则附）
   Critical/Important → 返回对应修复路径
 
   Dispatch: branch-finisher
