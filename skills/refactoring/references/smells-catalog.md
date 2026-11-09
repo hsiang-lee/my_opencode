@@ -27,7 +27,7 @@
 
 ## 1. 命名与重复
 
-| 1 | 神秘命名 Mysterious Name | 名称需注释才能说明用途；同一概念在 ≥2 处使用不同词 | Fowler | Rename Method / Rename Variable / Rename Class | 名称是框架或序列化协议规定的对外标识时，先做兼容层再改 |
+| 1 | 神秘命名 Mysterious Name | 名称不能自解释；改名需求见 A4 命名漂移 | Fowler | Rename Method / Rename Variable / Rename Class | 名称是框架或序列化协议规定的对外标识时，先做兼容层再改 |
 | 2 | 重复代码 Duplicated Code | 同一结构出现在多处方法 / 类 / 文件（阈值见 SKILL 表） | Fowler | Extract Method / Pull Up Method / Form Template Method | 两段只是文本相似但变化方向不同，强合并会制造发散式变化 |
 | 3 | 数据泥团 Data Clumps | 多个字段 / 参数总是同时出现（阈值见 SKILL 表） | Fowler | Extract Class / Introduce Parameter Object | 这组值已由既有领域对象承载时，不再造平行类型 |
 | 25 | 注释 Comments | 注释解释「做了什么」而非「为什么」；或注释与代码不一致 | Fowler | Extract Method / Rename / Introduce Assertion | 注释记录的是约束、边界与历史原因时必须保留 |
@@ -38,7 +38,6 @@
 
 | 4 | 过长函数 Long Function | 超过 SKILL 阈值表的长函数线（见 refactoring/SKILL.md），或含 ≥2 个可独立命名的段落 | Fowler | Extract Method / Replace Temp with Query / Decompose Conditional | 平铺直叙的状态机或协议解析拆开后更难读时，不硬拆 |
 | 5 | 过长参数列表 Long Parameter List | 参数个数超过 SKILL 阈值表（见 refactoring/SKILL.md） | Fowler | Introduce Parameter Object / Preserve Whole Object / Remove Flag Argument | 参数来自不同生命周期且不构成概念整体时，不强行打包 |
-| 6 | 标志参数 Flag Argument | 布尔参数切换函数内两条不同行为路径 | Fowler | Remove Flag Argument | 布尔值是真正的数据属性而非行为开关时保留 |
 | 7 | 临时字段 Temporary Field | 字段只在部分调用路径有值，其余为 null / 空 | Fowler | Extract Class / Introduce Null Object | 字段确实描述对象的可选状态且所有路径都显式检查时保留 |
 | 8 | 循环 Loops | 手写索引循环只做 filter / map / reduce 能表达的事 | Fowler | Replace Loop with Pipeline | 循环含提前 break、多集合同步或副作用较多时，管道反而更难读 |
 
@@ -77,7 +76,7 @@
 | A3 | 测试 setup 复制 | 相同 mock 工厂 / seed / 样板在多个测试文件逐字重复（阈值见 SKILL 表） | AI 生成实证 | 提取共享 testHelper | 两个测试的 setup 只是字面相似但语义不同时，不合并 |
 | A4 | 命名漂移 | 同一概念在代码中使用多种命名（阈值见 SKILL 表） | AI 生成实证 | 统一命名并引用同一来源 | 对外兼容的旧名需要保留时，加别名并标注迁移方向 |
 | A5 | 贫血模型 / 职责错位 | 操作所需数据在类 X，操作却落在类外自由函数或别的类；判据是数据与操作的关系，不是有无成员方法 | AI 生成实证 | Move Function 收编（操作归数据专家） | 操作是跨对象的编排逻辑时，留在编排者而非数据类 |
-| A6 | 伪多态 | 分派同一概念行为的 cast / instanceof / match / 类型 switch 散落多处（新增子类要改 N 处） | AI 生成实证 | Replace Conditional with Polymorphism | 不同概念的独立 cast、跨函数配对不算，不强行多态化 |
+| A6 | 伪多态（#13 重复 switch 的程序化形态，不单独计入总数） | 分派同一概念行为的 cast / instanceof / match / 类型 switch 散落多处（新增子类要改 N 处） | AI 生成实证 | Replace Conditional with Polymorphism | 不同概念的独立 cast、跨函数配对不算，不强行多态化 |
 | A7 | out-param 束 | 签名含多个非 const 引用 out-param（阈值见 SKILL 表；刻意 in-out 钳制不算） | AI 生成实证 | Introduce Parameter Object / 收编为成员 | 构造 / 解析类多返回值是接口语义时，保留签名 |
 
 判据：A1 / A2 优先于全部经典类；实现任何 helper 或常量前先按「复用优先」grep 已有同类。
@@ -105,13 +104,13 @@
 
 ## 8. 设计层判断
 
-| D1 | 抽象过早 Premature Abstraction | 同一概念只出现 1 次变化就建接口 / 基类 | 设计层 | 稳定中间形式；等第二次变化再抽象 | 变化已发生第二次且形态稳定时，应当抽象 |
-| D2 | 接口数超过变体数 | 接口数 > 真实变体数 | 设计层 | AWAY 到最简形态 | 接口用于隔离外部依赖时，变体数不是唯一判据 |
+| D1 | 抽象过早 Premature Abstraction | 同一概念只出现 1 次变化就建接口 / 基类 | 设计层 | 稳定中间形式；同一坏味道第三次重复才抽象（Rule of Three：第 1 次最直白，第 2 次记账，第 3 次抽象） | 同一坏味道已第三次重复且形态稳定时，应当抽象 |
+| D2 | 抽象超出变体数 | 实现数 ≤1，或没有任何调用方 | 设计层 | AWAY 到最简形态 | 接口用于隔离外部依赖时，实现数不是唯一判据 |
 | D3 | 依赖方向倒置 | 稳定策略依赖易变细节（业务层直接 import 框架层） | 设计层 | 依赖倒置 / 移动接缝 | 框架强制入口层依赖时，用适配器隔离而非硬改方向 |
 | D4 | 概念重复 Concept Duplication | 同一领域概念在 ≥2 层各有模型与转换 | 设计层 | 统一模型，删中间映射 | 两层模型分属不同限界上下文时，保留并显式转换 |
 | D5 | 无主职责 Orphan Responsibility | 同一操作在 ≥2 处各自实现，无单一归属 | 设计层 | 按 Information Expert 收编 | 两处实现服务于不同变化原因时，先区分概念 |
 
-判据：设计层判断只在第二次变化后使用；接口数红线同时约束 refactoring-to-patterns 的 TO / TOWARDS / AWAY。
+判据：设计层判断只在同一坏味道第三次重复后使用；AWAY 判据（实现数 ≤1，或没有任何调用方）同时约束 refactoring-to-patterns 的 TO / TOWARDS / AWAY。
 
 ## 附：检测顺序、来源与分工
 
@@ -128,7 +127,7 @@
 
 **来源**：
 
-- Fowler《重构》第 2 版：1–25 经典坏味道
+- Fowler《重构》第 2 版：经典坏味道 24 类（ID 1–25，6 号保留空位）
 - AI 生成代码实证：A1–A7（同一仓库三种病灶取证）
 - Feathers《修改代码的艺术》：T1–T6 可测性坏味道
 - Kerievsky《重构与模式》：P1–P5 模式误用

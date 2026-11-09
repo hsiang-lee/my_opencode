@@ -2,6 +2,8 @@
 
 回到索引: [../SKILL.md](../SKILL.md)
 
+> 本项目 24 种解依赖技术（Feathers 为主，含少量补充）。补充项：`Wrap Method` / `Wrap Class` / `Introduce Null Object` / `Use Dependency Injection`（来自 Fowler / Kerievsky 与工程实践，非 Feathers 原始清单）。
+
 ## 1. 方法 / 函数级（8）
 
 | # | 技术 | 用途 |
@@ -73,4 +75,4 @@
 | 第二步：小步重构 | `refactoring/references/workflow.md` + `refactoring/references/techniques.md` | 消除坏味道 |
 | 第三步：结构改善 | design skill | 引入必要抽象（过 YAGNI 闸门） |
 
-**解依赖本身也是重构**：行为不变，只改结构。所以它受同一套红线约束（一次一种、测试保持绿、失败回滚）。
+**解依赖是结构重构的一种**：行为不变，只改结构。所以它受同一套红线约束（一次一种、测试保持绿、失败回滚）——但不等于重构完成。

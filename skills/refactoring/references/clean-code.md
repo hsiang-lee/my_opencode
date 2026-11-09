@@ -8,8 +8,8 @@
 |------|------|-------------|
 | 命名 | 揭示意图，可读可搜 | `d` → `elapsedTimeInDays`；`genymdhms` → `generationTimestamp` |
 | 命名 | 类的名词、方法用动词，避免 Manager/Data/Info/doStuff | `handle()` → `applyDiscount()` |
-| 函数 | 3-10 行，只做一件事，同一抽象层级 | 业务判断与正则解析混在一起 |
-| 函数 | 参数 0-2 个最优，≥3 个建议封装为对象，达到阈值即违规（见 SKILL.md） | `(x, y, w, h, color, label)` → `Rect` |
+| 函数 | 判定阈值见 refactoring/SKILL.md 判定阈值表；只做一件事，同一抽象层级 | 业务判断与正则解析混在一起 |
+| 函数 | 参数过多时封装为对象，避免长参数列表 | `(x, y, w, h, color, label)` → `Rect` |
 | 函数 | 无副作用，名字不说谎 | `getX()` 里修改全局状态 |
 | 函数 | 指令与查询分离（CQS） | 既 return 旧值又改状态 |
 | 嵌套 | ≤2 层，超出用卫语句 | 三层 `if` 包住整段逻辑 |
