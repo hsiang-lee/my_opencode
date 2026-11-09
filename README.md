@@ -8,20 +8,19 @@
 
 - **Feature** — 行为变更：设计 → 用户故事 → 评审 → TDD → 审查 → 收尾（6 步，分轻量/精简/完整档）
 - **Fix** — bug：复现 → 根因 → 覆盖分叉 → 修复 → 审查 → 收尾（5 步，不设档位）
-- **Refactor** — 存量腐坏代码：范围收敛 → 安全网（无测试时）→ 统一循环 → 审查 → 收尾
+- **Refactor** — 存量腐坏代码：范围收敛 → 先评估覆盖（缺且难测才建安全网）→ 统一循环 → 审查 → 收尾
 - **QAExplorer** — 前端探索测试：生成/执行用例，产出证据化 finding 报告（只报告，不修复）
 
-**核心设计：Agent 不做意图猜测，用户选场景；档位由机械阈值判定，不凭感觉；无测试不是独立场景，是 Refactor 的安全网前置步骤。**
+**核心设计：Agent 不做意图猜测，用户选场景；档位由机械阈值判定，不凭感觉；无测试不是独立场景：Feature/Fix 自己补安全网；Refactor 入口先评估覆盖。**
 
 ## 场景判定
 
 | 顺序 | 判据 | 场景 |
 |------|------|------|
 | 1 | 行为与预期不符（bug），有或可构造复现路径 | Fix |
-| 2 | 要改的代码无测试 / 难有可靠测试 → 先上安全网 | Refactor |
-| 3 | 行为不变，只改结构或模式，基线全绿 | Refactor |
-| 4 | 新增/变更行为，且目标可写测试 | Feature |
-| 5 | 前端探索测试 | QAExplorer |
+| 2 | 行为不变，只改结构或模式，基线全绿 | Refactor |
+| 3 | 新增/变更行为 | Feature |
+| 4 | 前端探索测试 | QAExplorer |
 
 ### 档位（Feature 入口）
 
@@ -40,8 +39,8 @@ Refactor 不按规模分级：范围收敛只看聚焦点，规模只影响拆�
 ```
 Tab 切换:
 
-  Fix (bug)     Refactor (结构 / 无测试)     Feature (行为)      QAExplorer
-  5 步          安全网 + 统一循环            6 步 / 精简5步 / 轻量3步  探索测试
+  Fix (bug)     Refactor (结构)     Feature (行为)      QAExplorer
+  5 步          先评估覆盖 + 统一循环            6 步 / 精简5步 / 轻量3步  探索测试
      │                    │                       │                  │
      └────────────────────┴──── shared subagents ──┴──────────────────┘
 ```
@@ -51,9 +50,9 @@ Tab 切换:
 | Agent | 功能 |
 |-------|------|
 | story-writer | 用户故事：Epic 契约 + [story]/[enabler] + AC + 批次标注，不写结构设计 |
-| story-executor | 有测试路径的逐故事 TDD + 批次单 commit；无测试路径报 BLOCKED(需 Refactor 安全网) |
-| legacy-analyst | 由 Refactor 安全网阶段调度：L0 侦察 change points / effect sketch / 测试盘点 / 改法建议（只读） |
-| legacy-executor | 由 Refactor 安全网阶段调度：L1-L4 安全网、两顶帽子主循环、出清；结构与语义分 commit |
+| story-executor | 逐故事 TDD + 批次单 commit；既有遗留代码缺覆盖时自己补安全网（能直接写测试就直接补；难测才用 legacy-code） |
+| legacy-analyst | 由 Refactor 在未覆盖且难测时调度：L0 侦察 change points / effect sketch / 测试盘点 / 改法建议（只读） |
+| legacy-executor | 由 Refactor 在未覆盖且难测时调度：L1-L4 安全网、两顶帽子主循环、出清；结构与语义分 commit |
 | refactor-executor | 自控七步重构循环（扫描→选择→决策→执行→验证→记账→判断）+ REFACTOR_LEDGER |
 | code-reviewer | 按 profile（feature/legacy/refactor）审查：假测试 + 坏味道 + 专项检查 |
 | branch-finisher | 分支收尾 |
@@ -111,11 +110,11 @@ cp -r skills/* ~/.config/opencode/skills/
 
 ### Fix (bug)
 
-Tab 切到 Fix，给出复现步骤。根因调查后判定覆盖：有测试 → story-executor 按 TDD 修复；无测试 → 转交 Refactor 安全网（找接缝 → 特征测试 → 解依赖），建网后回 Fix 修 bug。
+Tab 切到 Fix，给出复现步骤。根因调查后判定覆盖：有测试 → story-executor 按 TDD 修复；无测试 → Fix 自己补安全网（能直接写测试就直接补；难测才用 legacy-code：接缝 → 特征测试 → 解依赖），补完继续 TDD 修复。
 
 ### Refactor (行为保持 / 存量腐坏)
 
-Tab 切到 Refactor。先收敛聚焦点；目标路径无测试 → 先上安全网，再重构。循环只有一个实现：Refactor 把 scope / mode / 基线 / 循环上限交给 refactor-executor 自控七步，完成后按整分支 diff + REFACTOR_LEDGER 审查。
+Tab 切到 Refactor。先收敛聚焦点；再评估覆盖：已覆盖直接重构，未覆盖且难测才建安全网。循环只有一个实现：Refactor 把 scope / mode / 基线 / 循环上限交给 refactor-executor 自控七步，完成后按整分支 diff + REFACTOR_LEDGER 审查。
 
 ### Feature (行为变更)
 
