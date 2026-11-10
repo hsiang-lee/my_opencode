@@ -20,6 +20,7 @@ description: Use during the REFACTOR phase after tests are green, when detecting
 | 判断某种坏味道存不存在（经典 24 类 + A1–A7，唯一事实源） | `references/smells-catalog.md` |
 | 查检测优先级、复用优先规则 | `references/smells-catalog.md` |
 | 查某种坏味道该用哪个重构手法、手法怎么做 | `references/techniques.md` |
+| 拆过大类 / 做 Extract Class（数据簇判定、四道闸门、七步、产物） | `references/extract-class.md` |
 | 走完整执行流程（两顶帽子 / 步骤 / 失败处理） | `references/workflow.md` |
 | 写台账（完整格式与示例） | `references/ledger.md` |
 | Clean Code 10 条（评审用判据） | `references/clean-code.md` |
