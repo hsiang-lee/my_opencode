@@ -67,7 +67,7 @@ Tab 切换:
 
 | Skill | 消费者 | 内容 |
 |-------|--------|------|
-| brainstorm | Feature Step 1（唯一加载方） | 设计探索：提问澄清、方案对比、决策清单输出（契约 + 关键选择，不含结构设计） |
+| brainstorm | Feature Step 1（唯一加载方） | 设计探索：开放提问 + 复述确认、方案对比、决策清单输出（契约 + 关键选择，不含结构设计）；完整档定稿前做 Builder Check |
 | design | Feature Step 1, code-reviewer, story-executor, refactor-executor | 索引层（决策顺序 / YAGNI 闸门 / 自检）+ references/（GRASP 9、SOLID+包原则、DbC、GoF 23、分析模型 UML）按需读 |
 | testing-techniques | story-executor, code-reviewer, legacy-executor, refactor-executor | 索引层（四属性 / 假测试闸门 / 坏味道判级）+ references/（测试结构、替身、夹具、坏味道全集）按需读 |
 | refactoring | story-executor, code-reviewer, refactor-executor, legacy-analyst, legacy-executor | 小步行为保持：阈值/台账/红线 + references/（坏味道 24 类 + A1-A7、手法、流程、台账、Clean Code） |
