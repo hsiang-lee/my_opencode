@@ -28,7 +28,7 @@ for sk in "$root"/*/SKILL.md; do
     done
   fi
   case "$name" in
-    brainstorm|design|functional|refactoring|testing-techniques)
+    brainstorm|design|functional|testing-techniques)
       if [ "$(wc -l < "$sk")" -gt 100 ] && ! grep -q '目录' "$sk"; then
         echo "NO-TOC   $name  SKILL.md"; fail=1
       fi ;;

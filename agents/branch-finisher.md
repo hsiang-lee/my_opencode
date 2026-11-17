@@ -72,7 +72,7 @@ git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
 
 **审查认定规则（不重复审查）：**
 
-- 本次变更来自 Feature / Fix / Refactor → 审查已在其流程内完成，**直接建 PR**，不重新 dispatch code-reviewer
+- 本次变更来自 Feature / Fix → 审查已在其流程内完成，**直接建 PR**，不重新 dispatch code-reviewer
 - 从任意流程直接进入本 agent、且无审查记录 → 先 dispatch code-reviewer
 
 **HARD GATE: 无审查记录且未 dispatch → 禁止创建 PR。**

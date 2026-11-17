@@ -1,130 +1,90 @@
 ---
 name: refactoring
-description: Use during the REFACTOR phase after tests are green, when detecting and eliminating code smells on code that already has tests, or when reviewing code for smell and Clean Code violations. SKILL.md holds the judging thresholds, the ledger's required items and the hard constraints; smell catalogs, refactoring techniques, workflow and Clean Code rules are in references/ and read on demand. Legacy code without a safety net belongs to the legacy-code skill; evolving smells into a pattern belongs to refactoring-to-patterns.
+description: Use when a smell has been found and you need to pick the refactoring for it. Maps Fowler, pattern-related and test smells to their refactorings, each with a one-line key point; does not include step-by-step procedures.
 ---
 
-# Refactoring — 代码重构
+# Refactoring — 坏味道 → 手法
 
-**核心原则：测试失败时禁止重构。重构只改变结构，不改变行为。**
+`smell-scout` / `pattern-scout` / `test-smell-scout` 负责判定；本文件只回答「命中之后用哪个手法」。
 
-**目录**：定位与使用者 · 索引 · 边界 · 设计工具与童子军 · 加载时机 · 阈值 · 台账 · 流程 · 红线。
-
-**使用者**：story-executor（RED 后 REFACTOR 阶段 dispatch 循环）、refactor-executor（自控循环执行）、legacy-analyst（L0 侦察）、legacy-executor（L2 安全网）、code-reviewer（Phase 2.5 质量审计）。**本文件常驻 = 判定层**（阈值、台账必填项、红线），索引里的文件只在需要时读。
-
----
-
-## 索引 — 要做什么 → 读哪个文件
-
-| 要做的事                                                        | 文件                           |
-| --------------------------------------------------------------- | ------------------------------ |
-| 判断某种坏味道存不存在（经典 24 类 + A1–A7，唯一事实源）        | `references/smells-catalog.md` |
-| 查检测优先级、复用优先规则                                      | `references/smells-catalog.md` |
-| 查某种坏味道该用哪个重构手法、手法怎么做                        | `references/techniques.md`     |
-| 拆过大类 / 做 Extract Class（数据簇判定、四道闸门、七步、产物） | `references/extract-class.md`  |
-| 走完整执行流程（两顶帽子 / 步骤 / 失败处理）                    | `references/workflow.md`       |
-| 写台账（完整格式与示例）                                        | `references/ledger.md`         |
-| Clean Code 10 条（评审用判据）                                  | `references/clean-code.md`     |
-
-规则：**只读当前任务需要的那一个**。核对台账 ≠ 通读全部；先按下面阈值定位嫌疑项，再按嫌疑项查对应文件。
+一次只用一种手法；改完测试保持绿，红即回滚。
 
 ---
 
-## 与其他 skill 的边界
+## 一、Fowler 24 项
 
-| 问题                             | 用哪个                        |
-| -------------------------------- | ----------------------------- |
-| 已有测试的代码怎么小步改结构     | 本 skill                      |
-| 目标代码**没有测试**（遗留代码） | legacy-code skill             |
-| 坏味道已存在、要演化成设计模式   | refactoring-to-patterns skill |
-| 测试怎么写、怎么判假测试         | testing-techniques skill      |
-
----
-
-## 重构是设计工具
-
-重构不是清理阶段，而是设计的一部分：先写稳定中间形式，坏味道出现后用它把结构长出来。**童子军规则四限**：顺手重构必须同时满足 **同一函数**、**有测试**、独立 commit、改动 ≤10 行（童子军边界，非判定阈值）；任一不满足即记台账交 Refactor，不得夹带扩大改动面。
-
-## 加载时机
-
-| 时机     | 说明                                                                                                                                    |
-| -------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| 何时读   | GREEN 后需要判定坏味道、查手法、或写 REFACTOR_LEDGER 时读本 SKILL 与对应 reference                                                      |
-| 何时不读 | 测试未绿、目标代码缺安全网（能直接补测试就先补，难测才 legacy-code）、或只是新增代码且无结构改动（只需扫候选行，不读 references）时不读 |
-
-## 判定阈值（常驻，唯一来源）
-
-所有阈值以本表为准；references 与 agent 正文出现不同数值一律以本表覆盖。检测优先级：A1/A2 → A3 → A4 → 经典结构类；纯人工逐类核对，不使用静态分析工具。
-
-| 项                 | 触发阈值                                                                                             |
-| ------------------ | ---------------------------------------------------------------------------------------------------- |
-| 过长函数           | > 40 行（经典参考线 20 行仅作提示）                                                                  |
-| 嵌套层次过深       | ≥ 3 层                                                                                               |
-| 参数过多           | > 4 个                                                                                               |
-| 过大类             | > 500 行(实现代码，比如c++中的cpp文件)；行数未到但含 ≥2 个不相关职责组时同样算（灵活判断，不唯行数） |
-| 重复代码           | 同一结构出现在 ≥ 2 处方法/类/文件                                                                    |
-| A1 共享常量重复    | 同一常量/字面量在 ≥ 2 个文件重复定义                                                                 |
-| A2 绕过现有封装    | 已有封装（apiClient / push_task_to_redis 等）外裸写等价调用                                          |
-| A3 测试 setup 复制 | 相同 setup 样板在 ≥ 2 个测试文件逐字重复                                                             |
-| A4 命名漂移        | 同一概念 ≥ 2 种命名                                                                                  |
-| A5 贫血 / 职责错位 | 操作所需数据在类 X，操作却落在类外（判据是数据与操作的关系，不是有无成员方法）                       |
-| A6 伪多态          | 分派同一概念行为的 cast/instanceof/类型 switch 散落多处（新增子类要改 N 处）                         |
-| A7 out-param 束    | 签名含 ≥ 2 个非 const 引用 out-param（刻意 in-out 钳制不算）                                         |
-| 数据泥团           | ≥ 3 个字段/参数总是同时出现                                                                          |
-| 消息链             | 调用链长度 > 2                                                                                       |
-| 中间人             | > 60% 的方法只是委托                                                                                 |
-| 依恋情结           | > 50% 的访问指向另一个对象                                                                           |
-| 重复的 switch      | 同一类型分支出现在 ≥ 2 处                                                                            |
-| 霰弹式修改         | 一个变更要改 ≥ 2 个类的多处                                                                          |
+| # | 坏味道 | 重构手法（要点） |
+|---|--------|------------------|
+| 1 | 神秘命名 | Rename Function / Variable / Class、Rename Field（按使用点意图命名；作用域小且上下文唯一时短名可接受） |
+| 2 | 重复代码 | Extract Method（相同代码段，抽一处）；Pull Up Method（子类重复，提到父类）；Form Template Method（步骤同序异实现）；Substitute Algorithm（算法可整体替换） |
+| 3 | 过长函数 | Extract Method（每段可独立命名的逻辑块）；Replace Temp with Query（临时变量改查询）；Introduce Parameter Object（参数成组）；Preserve Whole Object（传整个对象）；Replace Loop with Pipeline（循环改管道） |
+| 4 | 过长参数列表 | Introduce Parameter Object（常一起出现的参数封成对象）；Preserve Whole Object（已有对象就直接传）；Remove Flag Argument（布尔参数拆成两个语义函数） |
+| 5 | 全局数据 | Encapsulate Variable（getter/setter 包住，限制写入口）；Introduce Parameter Object（逐步改显式传参） |
+| 6 | 可变数据 | Separate Query from Modifier（查询不修改）；Remove Setting Method（去掉不必要的 setter）；Replace Derived Variable with Query（缓存改实时计算）；Combine Functions into Class / Transform（把读写收进一处） |
+| 7 | 发散式变化 | Extract Class（按变化原因拆）；Move Function、Move Field（把职责搬到变化发生的类） |
+| 8 | 霰弹式修改 | Move Function、Move Field（把分散改动集中到一处）；Inline Class（中间类过小就合并） |
+| 9 | 依恋情结 | Move Function（整个方法搬到它依赖的类）；Extract Function（只搬依赖对方的那段） |
+| 10 | 数据泥团 | Extract Class（字段组变值对象）；Introduce Parameter Object（参数组变对象）；Preserve Whole Object（直接传整个对象） |
+| 11 | 基本类型偏执 | Replace Primitive with Object（金额/电话/区间变值对象）；Replace Type Code with Subclasses / State / Strategy（类型码影响行为时）；Extract Class（一组基本类型成组） |
+| 12 | 重复的 switch | Replace Conditional with Polymorphism（每个分支一个实现，调用方按多态分派） |
+| 13 | 循环语句 | Replace Loop with Pipeline（filter / map / reduce 表达意图；循环含 break 或多集合并行时保留） |
+| 14 | 冗赘的元素 | Inline Function（只转发就内联）；Inline Class（无独立职责就合并）；Collapse Hierarchy（空层合并） |
+| 15 | 夸夸其谈通用性 | Collapse Hierarchy、Inline Function、Inline Class（撤掉未使用的抽象）；Change Function Declaration（删掉从未使用的参数/钩子） |
+| 16 | 临时字段 | Extract Class（只在某状态有意义的字段+行为单独成类）；Introduce Special Case / Null Object（缺失情况显式化） |
+| 17 | 过长的消息链 | Hide Delegate（在中间对象加转发方法）；Extract Function（把整条链的意图收成一个函数）；Move Function（把行为搬到数据所在处） |
+| 18 | 中间人 | Remove Middle Man（调用方直接找实际对象）；Inline Function、Inline Class（中间层没有附加价值就撤掉） |
+| 19 | 内幕交易 | Move Function、Move Field（把交流改成单向）；Hide Delegate（藏起内部结构）；Remove Setting Method；Replace Subclass with Delegate（继承换委托） |
+| 20 | 过大类 | Extract Class（按职责组拆）；Extract Subclass（只部分场景用的成员下移）；Extract Interface（客户端只需要一部分能力时） |
+| 21 | 异曲同工的类 | Rename Function（先统一命名）；Move Function（统一归属）；Extract Superclass（抽出共同父类） |
+| 22 | 纯数据类 | Encapsulate Record / Collection（字段私有化）；Remove Setting Method（去掉任意修改）；Move Function（把操作数据的行为搬进来）；Hide Delegate |
+| 23 | 拒绝遗赠 | Push Down Method / Field（子类不用的下移到真正用它的子类）；Replace Inheritance with Delegation（继承关系不成立就改委托） |
+| 24 | 注释 | Extract Method（把注释描述的「做什么」变成函数名）；Rename Function / Variable（命名代替解释）；Introduce Assertion（把假设变成断言）；只保留解释「为什么」的注释 |
 
 ---
 
-## 命中判定与处置（唯一标准）
+## 二、模式相关 12 项
 
-**命中是二值判定**：按本表阈值 + `smells-catalog.md` 该条「怎么认」核对，成立即命中，必须给出 `file:line` + 计数或断言证据；不成立则写「未命中 + 哪条判据不成立」，不接受「看着不严重」「影响不大」「大概没事」。
+| # | 坏味道 | 重构手法（要点） | 落点模式 |
+|---|--------|------------------|----------|
+| 1 | 不当暴露 | Encapsulate Classes with Factory（构造降为非 public，只暴露接口与创建方法） | Factory |
+| 2 | 解决方案蔓延 | Move Creation Knowledge to Factory（创建知识集中）；Introduce Polymorphic Creation with Factory Method（把 new 谁下放到子类） | Factory / Factory Method |
+| 3 | 条件逻辑太复杂 | Compose Method 打底，再 Replace Conditional Logic with Strategy（每个变体一个实现） | Strategy；分支改状态 → State；修饰可叠加 → Decorator |
+| 4 | 方法过长 | Compose Method（切成同一抽象层小方法）；Move Accumulation to Collecting Parameter（累加搬出） | 先不引入模式；确认变体增长后再走向 Strategy / Command |
+| 5 | 类过大 | Replace Conditional Dispatcher with Command（调度拆出去）；Replace State-Altering Conditionals with State；Replace Implicit Language with Interpreter | Command / State / Interpreter |
+| 6 | 分支语句 | Replace Conditional Dispatcher with Command（按动作建命令并注册表）；Replace State-Altering Conditionals with State；Move Accumulation to Visitor | Command / State / Visitor |
+| 7 | 重复代码 | Form Template Method（步骤同序异实现）；Extract Composite（重复的部分-整体代码）；Encapsulate Composite with Builder（重复拼树） | Template Method / Composite / Builder |
+| 8 | 替代类却接口不同 | Unify Interfaces with Adapter（先统一接口）；Extract Adapter（多版本再拆） | Adapter |
+| 9 | 组合爆炸 | Replace Implicit Language with Interpreter（把嵌套条件变成表达式树） | Interpreter |
+| 10 | 怪异解决方案 | Unify Interfaces with Adapter（先统一两套写法的接口，再消重） | Adapter |
+| 11 | 基本类型迷恋 | Replace Type Code with Class（类型码变值对象）；Replace State-Altering Conditionals with State；Replace Conditional Logic with Strategy；Replace Implicit Tree with Composite；Replace Implicit Language with Interpreter | 值对象 / State / Strategy / Composite / Interpreter |
+| 12 | 冗赘类 | Inline Singleton（把滥用或无状态的 Singleton 抹平）；Collapse Hierarchy（空子类合并） | 拆除 Singleton / 合并层次 |
 
-**命中必须处置，只有三种合法处置**：
-
-| 处置       | 条件                                                | 台账要求                                                                                 |
-| ---------- | --------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `fixed`    | 在本次 scope（簇文件集 / 批次 diff 及其触碰模块）内 | 手法 + `file:line` + 验证结果 / commit                                                   |
-| `deferred` | 确属 scope 外                                       | 写入 `OPEN_ITEMS`：`file:line` + 目标（哪个簇 / 下一批 / 另开 Refactor）+ 为何超出 scope |
-| `retained` | 命中该条「不该用它的情况」中的**具体一条**          | 逐字引用该条例外 + `file:line` 证据                                                      |
-
-**禁止**：以 Minor / 小问题 / 以后再说 / 不在本次范围 为由关闭命中而不登记。严重级别只决定修复顺序，**不决定是否修复**；`retained` 是唯一允许「命中但不改」的路径。
-
-**门槛**：Refactor 收尾要求 `OPEN_ITEMS` 为空；Feature / Fix 批末 `OPEN_ITEMS` 非空时必须原样交用户裁决，不得自称通过。
-
----
-
-## 台账必填项（常驻）
-
-REFACTOR 是唯一输出 = `REFACTOR_LEDGER`。以下 11 项**每项**必须给出「命中 + 处置（`fixed` / `deferred` / `retained`）与证据」或「未命中 + 具体判据不成立的理由」，不许留空、不许省略；另需末尾 `OPEN_ITEMS`：
-
-```
-A1 A2 A3 A4 A5 A6 A7 / 过长函数(>40行) / 深嵌套(≥3层) /
-批级质量遍(本批整体 diff，含跨任务累积) / 其他经典类
-```
-
-格式模板见 `references/ledger.md`。谎报台账（声称未命中但 diff 中明显命中）= 假测试级违规。
+**上模式前必须说明**：目标模式是什么、为什么是它、以及为什么更轻的写法不够（YAGNI 三问）。说不清就不上。
 
 ---
 
-## 执行流程（4 条，细节见 `references/workflow.md`）
+## 三、测试 13 项
 
-1. **测试必须全绿**才能开始；红着不进入重构。
-2. **一次一种坏味道**：逐类核对 → 命中即用一种手法重构 → 跑测试 → 绿了再下一项。
-3. **不改行为**：不加功能、不改变既有公开契约；若必须新增接缝/接口，单列一步并说明。期望值变了 = 在加功能，停下先写测试。
-4. **回滚红色**：某步重构导致测试失败 → 回滚该步 → 台账标注「已回滚」→ 停止继续重构。
+| # | 坏味道 | 测试重构手法（要点） |
+|---|--------|----------------------|
+| 1 | 脆弱的测试 | 断言行为而非实现细节（去掉对私有方法、内部调用顺序、日志文本的断言）；Extract Method 隔离易变构造；必要时 Replace Test Double with Real Object |
+| 2 | 不可重复 | 消除时间/随机/环境依赖（注入固定 Clock / Random / 配置）；Fresh Fixture 隔离共享状态；不依赖执行顺序 |
+| 3 | 缓慢的测试 | Replace Real Object with Test Double（DB/网络/文件替换）；快慢测试分离；Lazy Setup 只在需要时建夹具 |
+| 4 | 过于具体的测试 | 收窄断言到关键行为；用 Custom Assertion 表达意图，避免逐字段对比 |
+| 5 | 测试侵蚀 | 删除永远通过/长期失效的测试；Extract Method / Extract Testcase Superclass 让测试可维护 |
+| 6 | 断言缺失 | 补明确断言（状态或行为）；用 Custom Assertion 提高可读性；断言具体值，不用 assertNotNull 兜底 |
+| 7 | 条件测试逻辑 | Parameterize Test（把 if/for 变成多组输入）；拆成多个独立测试，每个一个行为 |
+| 8 | 测试代码重复 | Extract Method（setup / 断言样板）；Extract Testcase Superclass（跨测试类共享夹具）；Parameterize Test（只差输入） |
+| 9 | 大型测试 | 按 act / assert 段落拆成多个测试；Extract Method 提公共准备 |
+| 10 | 神秘客人 | Replace Real Object with Test Double；把外部资源改成测试内显式构造的 Fixture |
+| 11 | 共享夹具污染 | Fresh Fixture（每个测试新建）；必要的共享夹具加 teardown 重置；避免 BeforeAll 里的可变状态 |
+| 12 | 测试依赖链 | 独立 Fixture；把副作用搬进测试自己的 setup；删除顺序依赖与编号命名 |
+| 13 | 测试类过大 | Move Test to Correct Class（放回对应被测类）；按主题拆类；Extract Testcase Superclass 共享夹具 |
 
 ---
 
-## 红线
+## 边界
 
-- 测试失败时禁止重构
-- 一次只处理一种坏味道
-- 重构不改变行为
-- 重构步骤导致测试失败 → 立即回滚该步
-- 重构必须从 smells-catalog.md 命中的坏味道出发，按对应「首选手法」或 techniques.md 的标准步骤执行；禁止凭直觉自创改法。
-- 无对应标准手法，或手法不适用 → 记台账并停止该项，不得即兴发挥。
-- 命中即处置：catalog 命中只能 `fixed` / `deferred` / `retained`；不得以 Minor、影响不大、以后再说跳过。
-- 实现任何 helper/常量前先 grep 已有同类：找到就复用，找不到才创建（详见 `references/smells-catalog.md` 复用优先规则）
+- 只给手法名与要点，不写步骤。
+- 没有对应手法，或手法不适用 → 停止并说明，禁止即兴发挥。
+- 手法执行后必须测试保持绿；红即回滚该步。

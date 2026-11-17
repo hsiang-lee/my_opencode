@@ -12,9 +12,8 @@
 | 顺序 | 判据                                      | 场景           |
 | ---- | ----------------------------------------- | -------------- |
 | 1    | 行为与预期不符（bug），有或可构造复现路径 | **Fix**        |
-| 2    | 行为不变，只改结构或模式，基线全绿        | **Refactor**   |
-| 3    | 新增/变更行为                             | **Feature**    |
-| 4    | 前端探索测试（只报告不修复）              | **QAExplorer** |
+| 2    | 新增/变更行为                             | **Feature**    |
+| 3    | 前端探索测试（只报告不修复）              | **QAExplorer** |
 
 判据重叠按上表顺序；场景不符即停，不「先做一点看看」。
 
@@ -28,23 +27,20 @@
 | 精简档 | 3-8 文件且无新增模块/公共接口/数据模型               | 跳过 momus，其余照走                     |
 | 完整档 | >8 文件，或新增模块/公共接口/数据结构/并发/权限/迁移 | 走满全流程                               |
 
-档位一旦确定不得中途升降。Refactor 不设档位：范围收敛产出簇清单，规模只影响拆几个簇。Fix / Legacy 不设档位。
+档位一旦确定不得中途升降。Fix / QAExplorer 不设档位。
 
 ## Agent
 
 | Agent                                        | 用途                                                   | 调用                                                |
 | -------------------------------------------- | ------------------------------------------------------ | --------------------------------------------------- |
-| Feature                                      | 场景 3：行为变更                                       | Tab                                                 |
+| Feature                                      | 场景 2：行为变更                                       | Tab                                                 |
 | Fix                                          | 场景 1：bug 修复                                       | Tab                                                 |
-| Refactor                                     | 场景 2：行为保持型重构（入口先评估覆盖）               | Tab                                                 |
 | QAExplorer                                   | 前端探索测试                                           | Tab                                                 |
 | story-writer                                 | 决策确认后产出 Epic + 故事清单                         | `Task("story-writer", ...)`                         |
-| story-executor                               | 逐故事 TDD（无覆盖时自己补安全网）                     | `Task("story-executor", ...)`                       |
-| legacy-analyst                               | 由 Refactor 在未覆盖且难测时调度：只做 L0 侦察（只读） | `Task("legacy-analyst", ...)`                       |
-| legacy-executor                              | 由 Refactor 在未覆盖时调度：只做 L2 安全网             | `Task("legacy-executor", ...)`                      |
-| refactor-executor                            | 自控七步重构循环 + 台账；清单只报告 delta              | `Task("refactor-executor", ...)`                    |
-| general（内置）                              | 由 Refactor 委派：只写 `docs/refactor/*.md` 清单并提交 | `Task("general", ...)`                              |
-| code-reviewer                                | 实现完成后独立审查（按 profile）                       | `Task("code-reviewer", ...)`                        |
+| story-executor                               | 逐故事 TDD + 批末三 scout 扫描 → refactor（无覆盖时自己补安全网） | `Task("story-executor", ...)`                       |
+| refactor                                     | 按 scout 清单逐项重构：查手法 / 先补测试 / 检查点验证   | `Task("refactor", ...)`（executor 自动派发）        |
+| smell-scout / pattern-scout / test-smell-scout | 坏味道扫描（Fowler 24 / 模式 12 / 测试 13），只报告不改 | `@smell-scout` 等（executor 自动派发）              |
+| code-reviewer                                | 实现完成后独立审查（profile=feature，不含坏味道）      | `Task("code-reviewer", ...)`                        |
 | branch-finisher                              | 分支收尾                                               | `Task("branch-finisher", ...)`                      |
 | metis / momus / explore / librarian / oracle | 预判 / 评审 / 搜索 / 文档 / 复杂调试与架构咨询         | `@metis / @momus / @explore / @librarian / @oracle` |
 
@@ -69,17 +65,17 @@ Task(agent, "描述",
 
 ## Skill 加载
 
-- `SKILL.md` 是索引 + 判定层：先读它，再按「要做什么 → 读哪个文件」表只打开当前任务需要的 1 个 reference。
+- 多文件 skill：`SKILL.md` 是索引 + 判定层，先读它，再按「要做什么 → 读哪个文件」表只打开当前任务需要的 1 个 reference；单文件 skill（`refactoring` / `legacy-code` / `testing-techniques`）一次读完，没有 reference。
 - 同一 reference 本会话不重读；不确定读哪个就看索引，不猜、不通读；阈值冲突以 SKILL.md 为准。
 - 加载声明只写在 agent 正文，dispatch 不重复指定。
 
 ## TDD
 
-- 执行侧三类：`story-executor`（RED-GREEN-REFACTOR）、`legacy-executor`（只做 L2 安全网）、`refactor-executor`（自控七步循环）。
-- 循环只有一份实现（`agents/refactor-executor.md`）：Feature/Fix 自己补网，Refactor 入口评估覆盖。
-- 编排侧不写代码、不改测试；Feature 不跑测试；Fix / Refactor 只跑只读验证命令。dispatch 先给失败测试或安全网证据，无证据不验收。
+- 执行侧：`story-executor`（RED-GREEN-REFACTOR；REFACTOR 阶段自己做及时重构，一次一种坏味道）。
+- 批末扫描：每批次 commit 前，executor 并行派 `smell-scout` / `pattern-scout` / `test-smell-scout`，汇总去重后交 `refactor` 逐项重构（`commit: none`，成果并入批次单 commit）；报告必须含 `SMELL_SCAN`。
+- 编排侧不写代码、不改测试；Feature 不跑测试；Fix 只跑只读验证命令。dispatch 先给失败测试或安全网证据，无证据不验收。
 - 无测试不转交、不 BLOCKED：按 `skills/legacy-code/SKILL.md`「安全网三分类」自补，补完继续 TDD。
-- 重构必须按 `skills/refactoring/references/smells-catalog.md` 的坏味道与 `techniques.md` 的手法执行；无对应手法 → 停止说明，禁止即兴发挥。
+- 重构必须一次只处理一种坏味道、不改行为、测试保持绿；坏味道判定以 `smell-scout` / `pattern-scout` / `test-smell-scout` 的清单为准，手法查 `skills/refactoring/SKILL.md`；找不到对应手法 → 停止说明，禁止即兴发挥。
 
 ## 测试与编译经济性
 

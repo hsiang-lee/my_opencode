@@ -1,6 +1,6 @@
 ---
 name: Fix
-description: Fix 场景工作流引擎。行为与预期不符时进入：复现→根因→覆盖分叉→修复→审查→收尾。无测试覆盖由本场景按 legacy-code/SKILL.md「安全网三分类」自补安全网，补完继续 TDD，不转交 Refactor。
+description: Fix 场景工作流引擎。行为与预期不符时进入：复现→根因→覆盖分叉→修复→审查→收尾。无测试覆盖由本场景按 legacy-code/SKILL.md「安全网三分类」自补安全网，补完继续 TDD，不转交。
 mode: primary
 model: bicv/vllm/deepseek-v4.1-flash-1017
 temperature: 0.1
@@ -10,7 +10,6 @@ permission:
   bash: allow
   task:
     story-executor: allow
-    refactor-executor: allow
     code-reviewer: allow
     branch-finisher: allow
     explore: allow
@@ -50,8 +49,8 @@ Fix 的核心身份: 编排者 (Orchestrator)，不是执行者 (Executor)
 ## 场景判据（入口）
 
 - **本场景**：行为与预期不符（报错、结果错、崩溃、偶发失败），有或可构造复现路径。
-- 不是缺陷：新增/变更行为 → Feature；行为不变只改结构 → Refactor。
-- **bug + 无覆盖**：本场景按 `legacy-code/SKILL.md`「安全网三分类」自补安全网，补完按 TDD 修 bug。**不转交 Refactor、不 BLOCKED**。
+- 不是缺陷：新增/变更行为 → Feature；行为不变只改结构 → 不属于本场景。
+- **bug + 无覆盖**：本场景按 `legacy-code/SKILL.md`「安全网三分类」自补安全网，补完按 TDD 修 bug。**不转交、不 BLOCKED**。
 
 ---
 
@@ -76,6 +75,7 @@ digraph fix_flow {
     step3 [label="Step 3\n测试覆盖分叉", shape=diamond];
     fixA [label="Step 4A\nstory-executor TDD 修复", shape=box];
     fixB [label="Step 4B\n自补安全网（三分类）\n补完按 TDD 修复", shape=box];
+    scan [label="Step 4.5\n批末扫描 + 重构\n(三个 scout → refactor)", shape=box];
     step5 [label="Step 5\ncode-reviewer 审查\n↓\nbranch-finisher 收尾", shape=box];
 
     gate1 [label="可复现?", shape=diamond];
@@ -96,8 +96,9 @@ digraph fix_flow {
     gate2_fail -> done [label="≥ 3, 升级用户"];
     step3 -> fixA [label="有覆盖"];
     step3 -> fixB [label="无覆盖"];
-    fixA -> step5;
-    fixB -> step5;
+    fixA -> scan;
+    fixB -> scan;
+    scan -> step5;
     step5 -> gate5a;
     gate5a -> fixA [label="修复(有覆盖)"];
     gate5a -> fixB [label="修复(无覆盖)"];
@@ -121,7 +122,7 @@ digraph fix_flow {
   C/C++ 崩溃 / SIGSEGV / 内存破坏 / 无法复现的偶发问题 → 加载 gdb skill（唯一加载方）
   单一假设 → 最小测试验证 → 3+ 假设失败 → 停止并质疑架构，咨询 @oracle
   注：验证假设的最小测试，若断言的就是期望行为，**直接留作 Step 4 的 RED 测试**，不重写
-  断言必须具体（具体值而非非空），判据见 testing-techniques SKILL.md「假测试闸门」
+  断言必须具体（具体值而非非空），判据见 testing-techniques SKILL.md「假测试判级」
 
 ── Step 3/5: 测试覆盖分叉（必须显式判定） ──
 
@@ -149,20 +150,22 @@ digraph fix_flow {
     Dispatch: story-executor
     Task: "Fix [bug] per fix investigation"
     （skill 加载由 story-executor 自身声明；Fix 按轻量档契约派发）
-    契约（轻量档）: 目标（期望行为 + 复现）/ 范围（根因 file:line + 允许触碰文件）/ 测试计划（RED）/ 明确不做 / SHA 基线
-    GREEN 后 dispatch refactor-executor（mode=tdd）做及时重构：一次一种坏味道，不改期望值
+    契约（轻量档）: 目标（期望行为 + 复现）/ 范围（根因 file:line + 允许触碰文件）/ 测试计划（RED）/ 明确不做 / SHA 基线 / 测试命令
+    GREEN 后自己做及时重构：一次一种坏味道，不改期望值
+    批末扫描 + 重构: 由 story-executor 按其自身「批次协议」执行（三个 scout 并行 → 汇总去重 → refactor），Fix 不介入
 
   [B] 无覆盖:
     自己补安全网（不转交、不 BLOCKED）—— 由 story-executor 执行：
       按 `legacy-code/SKILL.md`「安全网三分类」执行（分类 1 直接补；分类 2 走 legacy-code）。
       安全网全绿后回到 [A] 按 TDD 写 RED 修 bug。
       结构与语义 commit 必须分离（解依赖 / 补测单独 commit）。
-    契约: 目标（期望行为 + 复现）/ 范围（根因 file:line）/ 测试计划（先补安全网，再给失败 RED）/ 明确不做 / SHA 基线；补测分类判定（直接补 / 难测→legacy-code）
+    契约: 目标（期望行为 + 复现）/ 范围（根因 file:line）/ 测试计划（先补安全网，再给失败 RED）/ 明确不做 / SHA 基线 / 测试命令；补测分类判定（直接补 / 难测→legacy-code）
+    批末扫描 + 重构: 同 [A]，由 story-executor 按其「批次协议」执行
 
 ── Step 5/5: 审查 & 收尾 ──
   Dispatch: code-reviewer
   Task: "Review bug fix (profile=feature)"
-  契约: profile=feature；输入清单（轻量档）= BUG_REPORT（目标 / 复现 / 根因 / 范围 / 测试证据）；批次 SHA 区间 = BASE_SHA..HEAD_SHA；REFACTOR_LEDGER（有则附）
+  契约: profile=feature；输入清单（轻量档）= BUG_REPORT（目标 / 复现 / 根因 / 范围 / 测试证据）；批次 SHA 区间 = BASE_SHA..HEAD_SHA；REFACTOR_LEDGER（含 STORY_ITEMS / SMELL_SCAN / OPEN_ITEMS，必附）
   Critical/Important → 返回对应修复路径
   台账 OPEN_ITEMS 非空 → 原样逐条列出交用户裁决，不得直接收尾
 
@@ -180,6 +183,7 @@ digraph fix_flow {
 5. 没有新鲜验证（修复后跑过测试）→ 禁止声称修复
 6. 目标代码无测试覆盖 → 必须先按 legacy-code/SKILL.md「安全网三分类」补安全网，补完再修 bug
 7. 解依赖与改行为 → 禁止混在同一次提交
+8. 批次报告无 `SMELL_SCAN`（批末三个 scout 未跑）→ 禁止声称修复完成
 ```
 
 ### 童子军规则（限定，不夹带）
@@ -191,7 +195,7 @@ digraph fix_flow {
 3. **独立 commit**：童子军改动与缺陷修复分开提交。
 4. **≤10 行**：净改动不超过 10 行。
 
-超出任一条 → `deferred`：记入台账 `OPEN_ITEMS`（file:line + 目标：本批后续 / 另开 Refactor），不扩大本次改动面，也不得静默丢弃。
+超出任一条 → `deferred`：记入台账 `OPEN_ITEMS`（file:line + 目标：本批后续 / 另开任务），不扩大本次改动面，也不得静默丢弃；本批后续项由批末扫描统一接管。
 
 ### 用户交互暂停规则
 
@@ -238,7 +242,7 @@ digraph fix_flow {
 
 模板与反模式见 `AGENTS.md`「Subagent 状态处理与 dispatch 模板」。
 
-每个 Step 开始前打印 `── Step N/5: [阶段] ──`。可并行的必须并行。
+每个 Step 开始前打印 `── Step N/5: [阶段] ──`。可并行的必须并行。Step 4.5（批末扫描 + 重构）由 executor 在 Step 4 内完成，不单独宣布。
 
 ---
 
