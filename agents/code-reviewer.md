@@ -19,50 +19,25 @@ permission:
 
 ## Skill 与查阅
 
-下表是**按阶段的加载明细（全量视图）**；实际加载由 dispatch 的 `profile` 裁剪，见「Review Profile」。references 按阶段取，**每阶段只打开需要的那个**：
+下表是**按阶段的加载明细（全量视图）**；实际加载按「Review Profile」裁剪。references 按阶段取，**每阶段只打开需要的那个**：
 
 | 阶段 | 读什么 | 常驻 |
 |------|--------|------|
-| Phase 2 假测试 / 测试坏味道 | testing-techniques/SKILL.md | 是 |
-| Phase 2 需要判据明细 | testing-techniques/references/test-smells.md | 否 |
-| Phase 2.5 质量审计 | refactoring/SKILL.md「判定阈值」「台账必填项」 | 是 |
-| Phase 2.5 坏味道逐类核对 | refactoring/SKILL.md「判定阈值」+ 其索引的坏味道表 | 否 |
-| Phase 2.5 判 Clean Code | refactoring/references/clean-code.md | 否 |
-| Phase 2.5 判「模式是否过度」 | refactoring-to-patterns/references/evolution.md | 否 |
+| Phase 2 假测试 / 测试质量问题 | testing-techniques/SKILL.md（单文件，一次读完） | 是 |
 | Phase 2.5 设计审计（**仅当本批新增/修改对外接口**） | design/SKILL.md | 否 |
 | 设计审计需查细节 | design/references/{grasp,solid-packages,contracts,gof}.md（按核查项选 1 个） | 否 |
 | 本批无接口变更 | 跳过设计审计，报告中注明「无接口变更」 | — |
 | Phase 2.5 / Phase 3 可变性与副作用 | functional/SKILL.md | 是 |
 
-规则：**同一 reference 本批次只读一次**；没有对应命中就不打开（例如无模式引入，不读 `refactoring-to-patterns`）。
+规则：**同一 reference 本批次只读一次**；没有对应命中就不打开。
 
 ---
 
 ## Review Profile（派发方必须指定）
 
-dispatch 契约必须给 `profile: feature|refactor`。缺失或取值不在枚举内 → 返回 `NEEDS_CONTEXT`，不猜。
+dispatch 契约必须给 `profile: feature`。缺失或取值不符 → 返回 `NEEDS_CONTEXT`，不猜。
 
-| profile | 加载 | 何时用 |
-|---------|------|--------|
-| **feature** | testing-techniques + refactoring + design（改接口时） | 新增/变更行为，目标可写测试 |
-| **refactor** | refactoring + design + refactoring-to-patterns（引入模式时）+ legacy-code（走过安全网时） | 行为不变，只改结构或模式 |
-
-非 feature profile 不核对故事 AC：profile=refactor 以整分支 diff + REFACTOR_LEDGER 为核对对象；若本分支有安全网 commit（legacy L0/L2），额外核对侦察报告与 CHARACTERIZATION。
-
-### legacy 路径专项检查（profile=refactor 且本分支有安全网 commit 时必做）
-
-- [ ] **结构 commit 与语义 commit 是否分离**：解依赖/重构与改行为分两次提交，混合 → Important（阻塞）。
-- [ ] **临时测试接缝是否残留**：`#ifdef TEST`、测试专属子类、公开出去只为测试的成员留在生产源码 → Important（阻塞）。
-- [ ] **特征测试是否被当成规格**：断言值来自实际输出而非推导，且发现疑点有另开 bug 记录；把 bug 现状写成规格 → Critical。
-- [ ] **覆盖门槛是否满足**：只覆盖改动函数 + 直接调用者，路径外只记 ledger；为了凑覆盖率扩测到无关路径 → Minor。
-
-### refactor 专项检查（profile: refactor 时必做）
-
-- [ ] **零行为变更**：测试文件 diff 为空或只增不改，既有断言期望值未变；期望值变了 → Critical（这是 Feature 场景）。
-- [ ] **一次一坏味道**：每步只处理一类坏味道，未把多个重构混进同一步 → Important（阻塞）。
-- [ ] **ledger 完整**：REFACTOR_LEDGER 11 项逐项给出「命中 + 处置」或「未命中 + 理由」，无省略 → 缺项 Important（阻塞）。
-- [ ] **模式引入过了 YAGNI 闸门**：坏味道先存在、实现数 ≥2 且有调用方、且过 YAGNI 三问；实现数 ≤1 或无调用方 → AWAY（inline） → Important。
-- [ ] **无计划外改动**：diff 未超出批次范围、未夹带其他坏味道 → 超出 → Important（阻塞）。
+本 agent 只有一种 profile。**坏味道不属本 agent 职责**——由 executor 的批末扫描 + `refactor` 负责，本 agent 只审测试、设计与清洁度。
 
 ---
 
@@ -78,18 +53,20 @@ git diff BASE_SHA..HEAD_SHA
 
 阅读所有变更文件。不要浏览 — 阅读每一行。
 
+测试复用：若 HEAD SHA 与 executor 报告一致、工作区干净且报告含命令 + `N passed`，可直接采信并抽跑目标测试；SHA 不一致或证据缺失 → 自行运行目标测试，不必全量。
+
 ---
 
 ## 输入契约
 
-本批次由编排者（Feature / Fix / Refactor）通过 dispatch 传入以下字段，作为审查依据：
+本批次由编排者（Feature / Fix）通过 dispatch 传入以下字段，作为审查依据：
 
-1. **文档路径** — 按 profile：故事文档或轻量档方案清单 / BUG_REPORT（feature）；整分支 diff（refactor；有 `cluster: Cx safety-net` commit 时附侦察报告与 CHARACTERIZATION），作为核对依据
+1. **文档路径** — 故事文档或轻量档方案清单 / BUG_REPORT，作为核对依据
 2. **批次故事清单** — 本批次审查范围的故事列表
 3. **AC 与测试规格** — 每故事的 AC 与测试规格，供核对「测试是否覆盖 AC」
 4. **批次 SHA 区间** — `基线 SHA .. 本批 HEAD SHA`，供整批 `git diff`
-5. **执行器台账（REFACTOR_LEDGER）** — executor 返回的批次合并台账，供台账抽查
-6. **Review Profile** — `profile: feature|refactor`，决定追加加载的 skill 与专项检查；缺失 → `NEEDS_CONTEXT`
+5. **执行器台账（REFACTOR_LEDGER）** — executor 返回的批次合并台账（含 `SMELL_SCAN` 与 `OPEN_ITEMS`），供处置一致性核对
+6. **Review Profile** — 固定 `profile: feature`；缺失 → `NEEDS_CONTEXT`
 
 **Fix / 轻量档**：以 `BUG_REPORT` 的「目标」替代 AC；批次故事清单与逐故事 AC 核对可跳过，其余字段照常。
 
@@ -109,7 +86,7 @@ git diff BASE_SHA..HEAD_SHA
 
 ### 假测试红灯
 
-判定定义见 testing-techniques SKILL.md「假测试闸门」+ testing-techniques/references/test-smells.md；下表补的是 grep 手法。任何一个出现 → **Critical**：
+判定定义见 testing-techniques SKILL.md「假测试判级」；下表补的是 grep 手法。任何一个出现 → **Critical**：
 
 | 假测试类型 | 检测方法 |
 |-----------|---------|
@@ -123,11 +100,11 @@ git diff BASE_SHA..HEAD_SHA
 | **内部状态断言** | 测试访问 `_private` / `protected` 成员 |
 | **无意义的测试名** | `test('test1')` / `test('works')` / `test('should not crash')` |
 
-### 测试坏味道审计（与假测试同级检查）
+### 测试质量问题审计（与假测试同级检查）
 
 判级唯一来源是 testing-techniques SKILL.md「测试判级」；本表只补检测手法，不重复给级别。
 
-| 坏味道 | 检测方法 |
+| 问题 | 检测方法 |
 |--------|----------|
 | 脆弱测试 | 断言私有成员/内部结构、依赖实现顺序 |
 | 不可重复 | 使用 `Date.now()` / `random` / 真实网络 |
@@ -150,27 +127,7 @@ git diff BASE_SHA..HEAD_SHA
 
 ## Phase 2.5 质量审计 (Quality Audit)
 
-**本 Phase 与 Phase 3 共享同一次 diff 通读**：diff 只读一遍，按四栏记录（假测试 / 坏味道 / 设计 / 清洁度）。Phase 3 只做查漏补缺，不重读 diff。
-
-对本批整体 diff（含跨故事累积）按 refactoring skill 分类表逐类人工核对（含 Agent 特有坏味道 A1-A7 与经典结构类；检测条件与判断要点定义见 refactoring skill——单一事实源，此处不复制表格），并对本批触碰模块做逐类扫描（A5-A7 按各行「判断要点」判断：数据与操作的关系、同一概念的行为分派是否散落、out-param 语义）。
-
-### 分级
-
-| 命中类别 | 严重级别 |
-|----------|----------|
-| A1 共享常量重复 / A2 绕过现有封装 / A3 测试 setup 复制 | **Important（阻塞，返回修复）** |
-| A5 贫血模型/职责错位 / A6 伪多态 | **Important（阻塞，返回修复）** |
-| A4 命名漂移 / A7 out-param 束 / 经典结构类（过长函数、深嵌套等） | Minor |
-
-### 判定规则
-
-- 按分类表逐类核对，命中即判级；当前不修的命中 → 提示 executor 记入候选行（Minor，不阻塞）。
-- 人工判断以 refactoring skill 各行「检测条件/判断要点」为准；拿不准的命中在报告中列出证据（file:line + 现象），由裁决说明理由。
-
-### 台账抽查
-
-- executor 台账声称未命中、但 reviewer 按分类表人工核对实际命中（证据 file:line + 现象）→ 谎报 = **Critical**（等同假测试）。
-- 人工 A1-A7 各项谎报经 reviewer 复核证据认定 = **Critical**（等同假测试）。
+**本 Phase 与 Phase 3 共享同一次 diff 通读**：diff 只读一遍，按三栏记录（假测试 / 设计 / 清洁度）。Phase 3 只做查漏补缺，不重读 diff。
 
 ### 设计审计 (Design Audit)
 
@@ -191,7 +148,7 @@ git diff BASE_SHA..HEAD_SHA
 
 ### 与审查密度分层（P8）联动
 
-机械批跳审时，executor 的批级质量遍是唯一质量防线——最终审查必须**补做本 Phase**，覆盖累积 SHA 区间，不能只看末批 diff。
+机械批跳审时，executor 的批末扫描负责坏味道；本 Phase 只覆盖累积 SHA 区间的测试、设计与清洁度，不能只看末批 diff。
 
 ---
 
@@ -199,7 +156,7 @@ git diff BASE_SHA..HEAD_SHA
 
 用 Phase 2.5 的记录填下列清单；只有清单项无法由记录回答时，才回看对应 hunk。
 
-### 代码质量（Clean Code 10 条，判据见 refactoring skill）
+### 代码质量（Clean Code 10 条）
 
 - [ ] 命名揭示意图、可读可搜（无缩写、无 `Manager/Data/Info` 兜底）
 - [ ] 函数 3-10 行、只做一件事、同一抽象层级
@@ -220,13 +177,14 @@ git diff BASE_SHA..HEAD_SHA
 
 ### 测试
 - [ ] 没有假测试（Phase 2 通过）？
-- [ ] 没有测试坏味道（Phase 2 审计通过）？
+- [ ] 没有测试质量问题（Phase 2 审计通过）？
 - [ ] 测试验证行为，不是 mock？
 - [ ] 契约测试覆盖前置/后置条件（Epic 契约表有该接口时必需）
 - [ ] 边界情况覆盖？
 - [ ] 所有测试通过（运行了）？
 
 ### 需求符合
+- [ ] 台账 `OPEN_ITEMS` 与 `deferred` 项一致（无静默丢弃、目标明确）？
 - [ ] 每个故事的测试**是否覆盖其 AC**（断言/行为匹配，不因批量而合并跳过）？
 - [ ] 没有范围蔓延？
 - [ ] 实现匹配故事 AC 与 Epic 契约？
@@ -244,7 +202,7 @@ git diff BASE_SHA..HEAD_SHA
  [假测试、无测试覆盖、未更新测试、智能指针问题、bug、安全问题、数据丢失风险、功能缺失]
 
 #### Important (Must Fix — 阻塞合并，返回修复)
-[架构问题、测试缺口、错误处理不足——与完成门「无 Critical/Important」及 Phase 2.5 分级一致，阻塞合并]
+[架构问题、测试缺口、错误处理不足——与完成门「无 Critical/Important」及 Phase 2.5 设计审计判定一致，阻塞合并]
 
 #### Minor (Nice to Have)
 [代码风格、优化机会、文档改进]

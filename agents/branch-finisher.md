@@ -33,6 +33,8 @@ npm test / cargo test / pytest / go test ./...
   报告通过数量，进入 Phase 2
 ```
 
+若 HEAD 与已有成功结果（命令 + `N passed`，来自 executor 或本流程）的 SHA 一致且工作区干净，可直接引用（标 `reused`），不重跑。
+
 **铁律：带失败测试继续 = 合并坏代码 = 事故。**
 
 ---
@@ -70,7 +72,7 @@ git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
 
 **审查认定规则（不重复审查）：**
 
-- 本次变更来自 Feature / Fix / Refactor → 审查已在其流程内完成，**直接建 PR**，不重新 dispatch code-reviewer
+- 本次变更来自 Feature / Fix → 审查已在其流程内完成，**直接建 PR**，不重新 dispatch code-reviewer
 - 从任意流程直接进入本 agent、且无审查记录 → 先 dispatch code-reviewer
 
 **HARD GATE: 无审查记录且未 dispatch → 禁止创建 PR。**

@@ -92,9 +92,7 @@ description: Use when assigning responsibilities, judging dependency direction, 
 | 问题 | 用哪个 |
 |------|--------|
 | 职责放哪、契约怎么写、要不要模式 | 本 skill |
-| 代码怎么写干净、坏味道怎么消除（已有测试） | refactoring |
 | 测试怎么写、怎么判假测试 | testing-techniques |
 | 怎么验证行为（RED-GREEN-REFACTOR） | story-executor |
 | 没有测试的老代码怎么改 | legacy-code |
-| 坏味道已存在、要演化成设计模式 | refactoring-to-patterns |
 | OO 与 FP 选型、可变性与副作用策略 | functional |

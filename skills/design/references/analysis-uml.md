@@ -51,7 +51,7 @@
 | 给每个用例画全套 4+1 视图 | 文档成本压过收益 | 只留用例 + 领域模型 + 关键顺序图 |
 | 聚合边界按表关系划分 | 跨聚合强一致、事务过大 | 按一致性需求划，跨聚合用最终一致 |
 
-> A5 贫血模型等坏味道的识别与首选手法见 [`../../refactoring/references/smells-catalog.md`](../../refactoring/references/smells-catalog.md)。
+> A5 贫血模型等坏味道的识别见 `smell-scout` 清单。
 
 ## 6. 本流程七步（连续迭代）
 

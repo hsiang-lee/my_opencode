@@ -84,7 +84,7 @@
 | SDK 散落业务 | 第三方调用遍布业务代码 | Pure Fabrication + Protected Variations（适配层） |
 | 过度抽象 | 一个接口一个实现，永不变 | 过 design 的 YAGNI 三问再引入 |
 
-> A5 贫血模型等坏味道的识别与首选手法见 [`../../refactoring/references/smells-catalog.md`](../../refactoring/references/smells-catalog.md)。
+> A5 贫血模型等坏味道的识别见 `smell-scout` 清单。
 
 ---
 

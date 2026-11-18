@@ -1,110 +1,106 @@
 ---
 name: legacy-code
-description: Use when the code to change has no reliable tests, when adding a safety net before editing old code, when choosing between Sprout/Wrap/Direct Edit, or when breaking dependencies so code becomes testable. SKILL.md holds the L0-L4 rhythm, the seven pace parameters and the three red lines; seams, change points, dependency-breaking techniques and sprouting variants are in references/ and read on demand.
+description: Use when the code to change has no reliable tests. Shows how to add a safety net first: find a seam, break the dependency, write a characterization test, then change behavior.
 ---
 
-# Legacy Code — 遗留代码改动
+# Legacy Code — 给老代码补测试
 
-> **定义：没有测试的代码就是遗留代码** —— 无论它多新、多漂亮。
-> **核心：没有安全网就不改。先解依赖，再重构，最后才改行为。**
-
-| 谁用 | 用来做什么 |
-|------|------------|
-| legacy-analyst | 只做 L0 侦察（effect sketch + 增量测试缺口，只读） |
-| legacy-executor | 只执行 L2（安全网）；Refactor 的 safety-net-only 专用 |
-| code-reviewer | 审查安全网是否成立、特征测试是否被当成规格 |
-
-**本文件常驻 = 节奏层。** 下面索引的文件只在对应阶段读，不要一次全读。
+> 没有测试的代码就是遗留代码，无论它多新。
+> 先加测试，再改行为。测试红着不动生产代码。
 
 ---
-
-## L0–L4 节奏（唯一权威）
-
-```
-L0 侦察（禁改代码）：change points + effect sketch + 现有测试盘点
-L1 选改法（执行者就地判定；Refactor 安全网路径固定 Direct Edit）
-   Sprout/Wrap 不改老逻辑主体，只在调用点插入/委托 → 直接走 TDD，跳过 L2
-L2 上安全网（一次性）：只覆盖"将被改路径 + 直接调用者"，对象接缝优先
-   一次一种解依赖，每次解完全量测试 → 全绿并记录基线（含 flaky 标注）
-L3 主循环（两顶帽子不混）
-   3a 只改结构 → 一次一坏味道，绿→改→绿，红即回滚
-   3b 改行为   → 先红后绿，特征测试保留到新测试覆盖
-L4 出清：删临时测试接缝、结构与语义分 commit
-```
-
----
-
-## 节奏参数（7 条，与本文件同权威）
-
-| # | 参数 | 约束 |
-|---|------|------|
-| 1 | 一次一 change point | 不并行认领两个修改点 |
-| 2 | 一次一种解依赖 | 解完跑全量测试再解下一个 |
-| 3 | 一次一种坏味道 | 3a 阶段逐类处理，不合并动手 |
-| 4 | 结构与语义分离 | 结构 commit 与语义 commit 必须分开提交 |
-| 5 | 一步一见绿 | 每个「编辑-编译-测试」周期必须见绿，红即回滚该步 |
-| 6 | 覆盖门槛 | 只覆盖改动函数 + 直接调用者；其余分支暂不覆盖 |
-| 7 | 退出条件 | 行为已改 + 该路径有测试 + 无临时接缝 + ledger 已更新 |
-
-**特征测试需新测试覆盖后才可删**（见参数 7 与红线 1）。
-
----
-
-## 三条红线
-
-1. **特征测试 ≠ 规格**：它只锁 bug 现状；发现疑似错误另开 bug，不改断言迁就。
-2. **解依赖是结构重构的一种，但不等于重构完成**：解依赖只是上安全网的结构动作，不替代随后的坏味道处理与行为修改。
-3. **Sprout 不得绕过必须修改的腐败点**：新代码挂在腐败逻辑旁边而不修根因，只是把问题留原地。
-
----
-
-## 四大策略入口
-
-| 策略 | 何时选 | 起点 |
-|------|--------|------|
-| **Sprout** | 新逻辑可独立挂在老代码旁、老代码不必改 | 直接 TDD，跳过 L2 |
-| **Wrap** | 要改老代码，但可从外部包一层适配或拦截 | 直接 TDD，跳过 L2 |
-| **Direct Edit** | 必须原地修改腐败逻辑 | 找接缝 → 解依赖 → 写特征测试 → 小步改 |
-| **解依赖** | 上述路径被硬编码 / 全局状态挡住时 | 本 skill 的 L2 与 `dependency-breaking.md` |
-
-**选择顺序（判据）**：先问能否 Sprout → 能否 Wrap → 否则 Direct Edit；三种都被依赖挡住时才先解依赖。策略入口只决定起点，不替代 L0–L4 内部步骤。
 
 ## 安全网三分类（唯一事实源）
 
 | 分类 | 判据 | 处理 |
 |------|------|------|
-| 1 能直接写测试 | 能构造被测对象、能观察结果、依赖可注入 | 直接补测试，继续 TDD |
-| 2 难测 | 无法构造对象 / 依赖硬编码 / 全局或静态状态 / 无法观察结果 / 非确定性 / 深继承 | 找接缝 → 解依赖 → 写特征测试（锁现状）；全绿后继续 |
-| 3 新增代码（白纸） | 无既有行为要锁 | 直接 TDD，不加载本 skill |
+| 1 能直接写测试 | 能构造被测对象、能观察结果、依赖可注入 | 直接补测试，然后继续 TDD |
+| 2 难测 | 无法构造对象 / 依赖硬编码 / 全局或静态状态 / 无法观察结果 / 非确定性 / 深继承 | 找接缝 → 解依赖 → 写特征测试锁现状 → 全绿后继续 |
+| 3 新增代码（白纸） | 没有既有行为要锁 | 直接 TDD，不读本 skill |
 
-执行场景（Feature / Fix / story-executor）按本表自行补安全网；Refactor 的 legacy 路径使用分类 2 建 L2 网。
-
-## 加载时机
-
-| 时机 | 说明 |
-|------|------|
-| 何时读 | 改动点既有代码缺测试且难测、需要找接缝 / 特征测试 / 解依赖时读 |
-| 何时不读 | 新增代码（直接 TDD）、既有代码能直接补测试、或已有测试的普通重构（回 refactoring）时不读 |
-
-> 可测性坏味道（隐藏依赖 / 全局状态 / 不可观测输出等）的名称与识别见 refactoring skill 的 `smells-catalog.md`。
-
-## 索引 — 要做什么 → 读哪个文件
-
-| 要做的事 | 文件 |
-|----------|------|
-| 找接缝、定义 change point / test point / effect sketch、写特征测试 | `references/seams.md` |
-| 解依赖：24 种技术、场景→技术对照、私有方法判定 | `references/dependency-breaking.md` |
-| Sprout / Wrap / Direct Edit 的判定与实现细节 | `references/sprouting.md` |
-
-规则：**只读当前阶段需要的那一个**。L0 查 `seams.md`，L1 查 `sprouting.md`，L2 查 `dependency-breaking.md`。
+先判分类 1；确认难测才升级到分类 2。不许一上来就上重技术。
 
 ---
 
-## 与其他 skill 的边界
+## 添加测试的五步
 
-| 问题 | 用哪个 |
-|------|--------|
-| 目标代码没有测试、要先上安全网 | 本 skill |
-| 已有测试的代码怎么小步改结构 | refactoring skill |
-| 坏味道已存在、要演化成设计模式 | refactoring-to-patterns skill |
-| 怎么验证行为（RED-GREEN-REFACTOR） | story-executor 正文 |
+### 1. 定 change point 与 test point
+
+- **change point**：这次真正要改的那几行。
+- **test point**：能观察到该行为的最近公共入口（通常是公开方法，而不是私有函数）。
+- **effect sketch**：谁会受影响。用 `rg "<符号名>"` 找调用方，标直接/间接。
+- 覆盖范围只取「将被改路径 + 直接调用者」，不追求整体覆盖率。
+
+### 2. 定策略
+
+| 策略 | 何时用 | 起点 |
+|------|--------|------|
+| Sprout | 新逻辑可独立挂在老代码旁，老逻辑不必改 | 直接 TDD，跳过解依赖 |
+| Wrap | 要改老代码，但能从外部包一层适配或拦截 | 直接 TDD，跳过解依赖 |
+| Direct Edit | 必须原地修改腐败逻辑 | 找接缝 → 解依赖 → 特征测试 → 小步改 |
+| 先解依赖 | 上面三条都被硬编码 / 全局状态挡住 | 第 4 步 |
+
+选择顺序：先问 Sprout → Wrap → Direct Edit；都不行才先解依赖。
+
+### 3. 找接缝（seam）
+
+接缝 = 不改调用代码就能替换行为的位置。
+
+| 接缝 | 含义 | C++ 常见形态 |
+|------|------|--------------|
+| 对象接缝 | 替换协作对象 | 构造函数注入接口实现；setter 注入；虚函数覆盖 |
+| 链接接缝 | 链接期替换实现 | 测试目标链接不同的目标文件；弱符号 |
+| 预处理接缝 | 编译期替换 | `#ifdef TEST` 换实现 |
+
+优先对象接缝。预处理接缝只作临时手段，收尾必须删除。
+
+### 4. 解依赖（一次一种）
+
+| 症状 | 手法 | 做法 |
+|------|------|------|
+| 构造里硬编码 `new` | Parameterize Constructor / Extract and Override Factory Method | 构造函数接收对象或工厂；或 protected 虚函数创建 |
+| 全局变量 / 单例 | Encapsulate Global References | 包一层可替换的访问器，测试时替换 |
+| 静态函数直接调用 | Extract Interface + Adapt Parameter | 抽接口，通过参数注入 |
+| 构造里做 IO / 复杂初始化 | Break Out Method Object | 把逻辑搬到可单独构造的对象 |
+| 结果不可观察 | 暴露查询点 / Wrap Method | 增加只读访问器或用包装方法捕获输出 |
+| 时间 / 随机 | Adapt Parameter / Parameterize Method | 注入 clock、random 或种子 |
+| 私有方法难测 | Expose Static Method（谨慎） | 把不依赖实例状态的逻辑提为静态并公开 |
+
+规则：一次只解一种；每解一种跑一次目标测试；不要顺手重构业务逻辑。
+
+### 5. 写特征测试
+
+- 先**实际运行**，记录当前输出，再把这个输出写成断言。锁的是现状，不是正确性。
+- 断言行为（返回值、状态变化、外部可见效果），不断言私有实现细节。
+- 一个测试只锁一个行为点；名称写清场景与当前行为。
+- 测试必须可重复：不依赖时间、随机、网络、执行顺序。
+- 发现疑似 bug：记录下来另开任务，**不改断言去迁就**，也不在本轮修。
+
+示例（C++ 伪代码）：
+
+```cpp
+// 测点：calcTotal 的最近公共入口
+TEST(OrderLegacyTest, KeepsCurrentTotalForEmptyOrder) {
+  Order o;                       // 特征测试锁现状
+  EXPECT_EQ(0, o.calcTotal());   // 断言来自实际运行结果
+}
+```
+
+---
+
+## 改行为的顺序
+
+1. 安全网全绿，记录基线（命令 + `N passed`）。
+2. 小步改，每一步测试保持绿；红即回滚该步。
+3. 特征测试保留到新测试覆盖同一行为后再删。
+4. 结构改动与行为改动分开 commit。
+
+---
+
+## 红线
+
+1. **特征测试 ≠ 规格**：它只锁 bug 现状；发现错误另开任务。
+2. **解依赖 ≠ 重构完成**：它只是上安全网的结构动作，不替代后续的坏味道处理。
+3. **Sprout 不得绕过必须修改的腐败点**：新代码挂在腐败逻辑旁边而不修根因，只是把问题留在原地。
+4. **测试红着不改行为**。
+5. **测试接缝必须清理**：`#ifdef TEST`、测试专用子类、为测试公开的成员，收尾删除。
