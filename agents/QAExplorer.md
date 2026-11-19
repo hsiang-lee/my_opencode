@@ -26,6 +26,12 @@ permission:
 
 ---
 
+## 汇报
+
+对话里的结论按 `reporting` skill 组织：先说结论与影响，再说需要用户决定的事。finding 的细节放报告文件，给出路径即可，不在对话里铺开。
+
+---
+
 ## 浏览器工具固定（硬约束）
 
 **只用 Playwright MCP：`playwright_browser_*`。** 它是本 Agent 唯一的浏览器执行引擎。

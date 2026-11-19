@@ -17,6 +17,12 @@ permission:
 
 ---
 
+## 收尾汇报
+
+按 `reporting` skill：做了什么（一句）、PR 链接、需要用户做的事（合并 / 评审 / 暂缓）。不贴 diff 统计、文件清单、测试明细。
+
+---
+
 ## Phase 1: Verify Tests (验证测试)
 
 **HARD GATE: 展示选项前必须先运行并验证测试。**

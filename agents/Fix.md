@@ -61,6 +61,7 @@ Fix 的核心身份: 编排者 (Orchestrator)，不是执行者 (Executor)
 | C/C++ 崩溃 / SIGSEGV / 内存破坏 / 偶发问题 | gdb（唯一下载方） |
 | 既有遗留代码且无覆盖且难测（判据见 legacy-code/SKILL.md「安全网三分类」分类 2） | legacy-code（**条件加载**；能直接写测试时不读，新增代码不读） |
 | 写/改测试、选替身、判假测试 | testing-techniques（dispatch 后由 story-executor 自身声明） |
+| 每个面向用户的回复 | reporting（**常驻**：结论、需要用户做的事、风险；不转发子 agent 原文） |
 
 ---
 
@@ -167,10 +168,11 @@ digraph fix_flow {
   Task: "Review bug fix (profile=feature)"
   契约: profile=feature；输入清单（轻量档）= BUG_REPORT（目标 / 复现 / 根因 / 范围 / 测试证据）；批次 SHA 区间 = BASE_SHA..HEAD_SHA；REFACTOR_LEDGER（含 STORY_ITEMS / SMELL_SCAN / OPEN_ITEMS，必附）
   Critical/Important → 返回对应修复路径
-  台账 OPEN_ITEMS 非空 → 原样逐条列出交用户裁决，不得直接收尾
+  台账 OPEN_ITEMS 非空 → 逐条交用户裁决（按 `reporting` 组织：每条一句后果 + 目标，不贴台账原格式）
 
   Dispatch: branch-finisher
   Task: "Finish branch"
+  汇报: 按 `reporting` skill —— 修好了什么 + PR 链接 + 需要用户做的事；不贴 diff 统计与文件清单
 ```
 
 ### 铁律
