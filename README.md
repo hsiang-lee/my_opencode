@@ -100,6 +100,22 @@ cp -r skills/* ~/.config/opencode/skills/
 
 重启 OpenCode 或新开会话。
 
+### 5. 运行期配置（必需）
+
+`experimental.subagent_depth` 默认是 `1`，而本工作流需要 **primary → story-executor(depth 1) → smell-scout/refactor(depth 2)**。缺这项时批末扫描会报：
+
+```
+Subagent depth limit reached (1)
+```
+
+`install.sh` 第 6 步会把 `subagent_depth: 2` **合并**进 `~/.config/opencode/opencode.json`（保留其它配置）；手工安装则自行加：
+
+```jsonc
+{
+  "experimental": { "subagent_depth": 2 }
+}
+```
+
 ## 使用
 
 ### Fix (bug)
@@ -142,6 +158,7 @@ Tab 切到 Feature，描述功能。入口先定档位：轻量档跳过设计/�
 │   ├── testing-techniques/SKILL.md
 │   ├── functional/SKILL.md + references/*.md
 │   └── ...（gdb / init-deep / gh-pr / glab / issue-master / mull / qnx / vcpkg / writing-skills）
+├── opencode.json        # experimental.subagent_depth = 2（批末扫描必需）
 └── AGENTS.md
 ```
 
