@@ -111,6 +111,7 @@ GREEN 之后才能重构，且不改行为。本故事内命中坏味道 → 一
   - Stories: [stories doc path]"
   ```
   **commit message 一律英文**（`feat|fix|refactor|test|docs|chore(scope): summary`）。中文不写进 subject。
+- **只本地 commit**：`git push` / `gh pr create` 由 `branch-finisher` 独占，本 agent 一律不做。中途推分支会让 CI 对着半成品跑一遍。
 - **批末扫描 + 重构**：批内全部故事 GREEN 后、**批次 commit 前**执行（保持批次单 commit，审查区间不变）。
   1. **并行 dispatch 三个 scout**（同一条消息）：
      - `smell-scout` / `pattern-scout`：`scope` = 本批 diff 触及的文件（整文件读）+ 本批改了公共接口的模块文件
