@@ -37,7 +37,7 @@
 | story-writer                                 | 决策确认后产出 Epic + 故事清单                         | `Task("story-writer", ...)`                         |
 | story-executor                               | 逐故事 TDD + 批末三 scout 扫描 → refactor（无覆盖时自己补安全网） | `Task("story-executor", ...)`                       |
 | refactor                                     | 按 scout 清单逐项重构：查手法 / 先补测试 / 检查点验证   | `Task("refactor", ...)`（executor 自动派发）        |
-| smell-scout / pattern-scout / test-smell-scout | 坏味道扫描（Fowler 24 / 模式 12 / 测试 13），只报告不改 | `@smell-scout` 等（executor 自动派发）              |
+| smell-scout / pattern-scout / test-smell-scout | 坏味道扫描（Fowler 24 / 模式 12 / 测试 14），只报告不改 | `@smell-scout` 等（executor 自动派发）              |
 | code-reviewer                                | 实现完成后独立审查（profile=feature，不含坏味道）      | `Task("code-reviewer", ...)`                        |
 | branch-finisher                              | 分支收尾                                               | `Task("branch-finisher", ...)`                      |
 | metis / momus / explore / librarian / oracle | 预判 / 评审 / 搜索 / 文档 / 复杂调试与架构咨询         | `@metis / @momus / @explore / @librarian / @oracle` |

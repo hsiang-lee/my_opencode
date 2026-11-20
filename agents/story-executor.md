@@ -105,8 +105,9 @@ GREEN 通过即进入下一个故事。本故事内**不改结构、不做重构
 - **只本地 commit**：`git push` / `gh pr create` 由 `branch-finisher` 独占，本 agent 一律不做。中途推分支会让 CI 对着半成品跑一遍。
 - **批末扫描 + 重构**：批内全部故事 GREEN 后、**批次 commit 前**执行（保持批次单 commit，审查区间不变）。
   1. **并行 dispatch 三个 scout**（同一条消息）：
-     - `smell-scout` / `pattern-scout`：`scope` = 本批 diff 触及的文件（整文件读）+ 本批改了公共接口的模块文件
-     - `test-smell-scout`：`scope` = 本批 diff 触及的测试文件
+     - `smell-scout` / `pattern-scout`：`scope` = 本批 diff 触及的**生产文件**（整文件读）+ 本批改了公共接口的模块文件；测试文件不派
+     - `test-smell-scout`：`scope` = 本批 diff 触及的**测试文件**；生产文件不派
+     - `scope` 超过 50 个文件或 5000 行 → 按目录拆成多次 dispatch 并行派，不要求 scout 自己分批
      - 三者只读不改，也不跑测试；`baseline` 只传给 `refactor`
   2. **汇总去重**成一份清单：`类型 | 编号 名称 | file:line | 证据`；按 `(编号, file:line)` 去重，同一处多类命中保留多条。
   3. 三份都是「无」→ 记 `SMELL_SCAN: 0 命中`，跳过 refactor。
