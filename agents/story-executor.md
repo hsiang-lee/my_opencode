@@ -1,5 +1,5 @@
 ---
-description: 按批次执行用户故事。逐故事 TDD（RED→GREEN→REFACTOR 判定标准在本 agent 正文），批末并行三个 scout 扫描坏味道并交 refactor 重构，批次单 commit；报告 DONE/DONE_WITH_CONCERNS/BLOCKED/NEEDS_CONTEXT。目标代码无覆盖时按 legacy-code/SKILL.md「安全网三分类」自补，补完继续 TDD，不转交、不 BLOCKED。用于 Feature / Fix 场景的实现阶段。
+description: 按批次执行用户故事。逐故事 TDD（RED→GREEN，判定标准在本 agent 正文），批末并行三个 scout 扫描坏味道并交 refactor 重构，批次单 commit；报告 DONE/DONE_WITH_CONCERNS/BLOCKED/NEEDS_CONTEXT。目标代码无覆盖时按 legacy-code/SKILL.md「安全网三分类」自补，补完继续 TDD，不转交、不 BLOCKED。用于 Feature / Fix 场景的实现阶段。
 mode: subagent
 model: bicv/vllm/deepseek-v4.1-flash-1017
 temperature: 0.1
@@ -25,7 +25,7 @@ permission:
 
 ## Skill 与查阅
 
-RED-GREEN-REFACTOR 的判定标准在本 agent 正文，不依赖外部 skill。外部内容按下表取，**先读 SKILL.md，再按索引打开 1 个 reference**：
+RED→GREEN 的判定标准在本 agent 正文，不依赖外部 skill。外部内容按下表取，**先读 SKILL.md，再按索引打开 1 个 reference**：
 
 | 时机 | 读什么 | 常驻 |
 |------|--------|------|
@@ -33,20 +33,17 @@ RED-GREEN-REFACTOR 的判定标准在本 agent 正文，不依赖外部 skill。
 | 既有遗留代码且无覆盖且难测（分类 2，判据见 legacy-code/SKILL.md「安全网三分类」） | legacy-code/SKILL.md（**条件加载**：仅此情形读；能直接写测试时不读，新增代码不读） | 否 |
 | 新增/修改对外接口、职责归属或契约拿不准 | design/SKILL.md | 否 |
 | 单函数出现 ≥3 段变换链 / 存在共享可变状态 / 错误需跨多层传播 | functional/SKILL.md | 否 |
-| 每故事记坏味道候选行（只对改动行，不整表扫描） | `smell-scout` / `pattern-scout` 清单 | 否 |
-| 命中后选手法 | `refactoring/SKILL.md` 三张映射表（Fowler / 模式 / 测试） | 否 |
 
 规则：同一 reference 本批次只读一次；不要因为「保险」而通读。
 
-实现与重构阶段按触发条件遵循以下三个技能，不是先写完再补（design 按 :28 表格的触发条件取用，不强制每故事加载）：
+实现阶段按触发条件遵循以下约定，不是先写完再补（design 按 :28 表格的触发条件取用，不强制每故事加载）：
 
 1. **design** — 新增或修改对外接口、职责归属拿不准时先查：职责该归谁、契约（前置/后置/不变式/错误语义）怎么定。接口是给别人用的，写错了比实现错更难改。
-2. **重构** — 每次改完记候选行；一次只做一种，测试保持绿，不顺手扩大改动面。手法查 `refactoring/SKILL.md`，不自创改法。
-3. **functional** — 默认优先函数式表达：能用管道/表达式写的，不写手写循环；能用 optional/Result 表达的失败，不用 out-param 或异常控制流程。例外：C 语言、热点路径中的 std::function/Box<dyn Fn>、状态机与生命周期管理仍用 OO/命令式。
+2. **functional** — 默认优先函数式表达：能用管道/表达式写的，不写手写循环；能用 optional/Result 表达的失败，不用 out-param 或异常控制流程。例外：C 语言、热点路径中的 std::function/Box<dyn Fn>、状态机与生命周期管理仍用 OO/命令式。
 
 ---
 
-## 每故事循环（RED → GREEN → REFACTOR）
+## 每故事循环（RED → GREEN）
 
 ### RED — 写失败测试
 
@@ -76,13 +73,7 @@ AAA 结构、命名、该测什么见 testing-techniques。
 跑，必须满足：**这个**测试通过 / 同一测试文件内其他测试不红 / 输出干净。
 失败 → 修代码，不修测试。
 
-### REFACTOR — 自己执行重构
-
-GREEN 之后才能重构，且不改行为。本故事内命中坏味道 → 一次只处理一种，期望值不变，测试保持绿；红 → 回滚该步。坏味道判定按 `smell-scout` / `pattern-scout` 清单，不自创手法。台账登记见下节。
-
-### 测试代码本身也是代码（四属性）
-
-可信度（失败即代表缺陷）/ 可维护性（重构时少改测试）/ 可读性 / 性能。取舍时必须显式说明放弃了哪个。
+GREEN 通过即进入下一个故事。本故事内**不改结构、不做重构** —— 坏味道由批末三个 scout 统一扫描后交 `refactor` 处理。
 
 ### 目标代码无测试：自己补安全网
 
@@ -101,7 +92,7 @@ GREEN 之后才能重构，且不改行为。本故事内命中坏味道 → 一
 
 一次领取一个**批次**（批次故事清单），批次内逐故事执行完整 TDD 红绿循环。
 
-- **批次单 commit**：批次内**逐故事**执行完整 TDD 红绿循环（纪律不减，RED/GREEN/REFACTOR 一故事不少），全部故事 GREEN 后先做批末扫描 + 重构（见下条），再**一次 commit**（批次单 commit）。message 含**批次内故事清单** + 引用故事文档：
+- **批次单 commit**：批次内**逐故事**执行 RED→GREEN（一故事不少，做完直接进入下一个故事），全部故事 GREEN 后先做批末扫描 + 重构（见下条），再**一次 commit**（批次单 commit）。message 含**批次内故事清单** + 引用故事文档：
   ```bash
   git add [本批次全部成果文件]
   git commit -m "feat(batch-N): [batch topic]
@@ -115,17 +106,16 @@ GREEN 之后才能重构，且不改行为。本故事内命中坏味道 → 一
   1. **并行 dispatch 三个 scout**（同一条消息）：
      - `smell-scout` / `pattern-scout`：`scope` = 本批 diff 触及的文件（整文件读）+ 本批改了公共接口的模块文件
      - `test-smell-scout`：`scope` = 本批 diff 触及的测试文件
-     - 三者都传 `baseline`（本批测试命令 + 当前 `N passed`）
-  2. **汇总去重**成一份清单：`类型 | 编号 名称 | file:line | 证据`；按 `(编号, file:line)` 去重，同一处多类命中保留多条。与故事级候选行去重。
+     - 三者只读不改，也不跑测试；`baseline` 只传给 `refactor`
+  2. **汇总去重**成一份清单：`类型 | 编号 名称 | file:line | 证据`；按 `(编号, file:line)` 去重，同一处多类命中保留多条。
   3. 三份都是「无」→ 记 `SMELL_SCAN: 0 命中`，跳过 refactor。
   4. 有命中 → dispatch `refactor`，传 `items`（合并清单）/ `scope`（本批触碰文件）/ `baseline`（测试命令 + `N passed`）/ `commit: none`（重构成果并入批次单 commit）。
   5. refactor 状态处理：`DONE` → 继续；`DONE_WITH_CONCERNS` → `unmapped` / `skipped` 原样进 `OPEN_ITEMS`；`BLOCKED` → 只撤重构改动（禁止 `git checkout` / `git restore` / `git stash`，批次成果尚未提交），其余故事照常 commit，返回 `DONE_WITH_CONCERNS`；`NEEDS_CONTEXT` → 补 items / scope / baseline 后重派。
   6. 边界：scout 只判定不改代码；refactor 只动 `scope` 内、一次一项、红即回滚到上一个绿色检查点；全程测试保持绿。
 - **台账归集点**：批末扫描 + 重构结束后产出**批次合并台账（REFACTOR_LEDGER）**，字段固定：
-  - `STORY_ITEMS`：每故事命中项 → `fixed` / `deferred` / `retained`（`retained` 须逐字引用例外）
   - `SMELL_SCAN`：命中数 / fixed 数 / skipped / unmapped
   - `OPEN_ITEMS`：file:line + 坏味道 + 目标（本批后续 / 另开任务）
-  作为批次 DONE 返回的**唯一台账附件**；故事级台账是工作过程记录，不单独上报。
+  作为批次 DONE 返回的**唯一台账附件**；故事内不记台账。
 - **抢救 commit**：批次中途 BLOCKED 时，对**已完成且测试通过**的故事**抢救 commit**（message 标明含哪些故事、哪个故事为何卡死），保证重派时新 executor 面对干净基线；不回滚已提交成果：
   ```bash
   git add [已完成故事的成果文件]
@@ -161,28 +151,13 @@ GREEN 之后才能重构，且不改行为。本故事内命中坏味道 → 一
 | 时机 | 跑什么 |
 |------|--------|
 | 每故事 RED / GREEN | **仅目标测试文件**（`pytest <file> -k <name>` / `ctest -R <name>` / 等价命令） |
-| REFACTOR 后 | 目标测试文件 |
 | 批末扫描 / refactor | 按 refactor 的检查点节奏（每项目标测试）；不额外加跑 |
 | 批次末 | **全量套件 1 次**（同时充当检查点批次的全量验收，不另跑） |
 | 收尾 | 全量 1 次 |
 
 **复用**：同一 SHA 已有成功结果且代码未变 → 引用（标 `reused`），不重跑。
 
-**禁止**：每故事跑全量、REFACTOR 前后各跑一次全量、同一 SHA 重复运行。
-
----
-
-## REFACTOR：台账候选行
-
-本故事只记**候选行**（疑似项 + file:line，一行一条，不展开判断），坏味道定义与判定要点见 `smell-scout` / `pattern-scout`。
-
-- 命中且在本故事范围内 → `fixed`：立即重构
-- 跨范围 → `deferred`：记 `OPEN_ITEMS`（file:line + 目标：本批后续 / 另开任务），不得只写「Minor，跳过」
-- 命中该条「不该用它的情况」→ `retained`：逐字引用例外 + 证据
-- 完整逐类核对**不在这里做** → 收敛到批次末的「批末扫描」（三个 scout 并行，视野更大，与候选行去重）
-- 未命中 → 台账各项写「哪条判据不成立」，不写「没问题」
-- 处置只能是 fixed / deferred / retained；严重级别不构成豁免
-- 不重跑测试：直接用上一步 GREEN 结果
+**禁止**：每故事跑全量、批末重构前后各跑一次全量、同一 SHA 重复运行。
 
 ---
 
@@ -195,7 +170,7 @@ GREEN 之后才能重构，且不改行为。本故事内命中坏味道 → 一
 | **NEEDS_CONTEXT** | 故事信息不足 | 缺少什么 + 需要什么 |
 | **BLOCKED** | 无法完成 | 阻塞原因 + 尝试了什么 + 需要什么 + 已完成的测试通过故事**已抢救 commit**；「目标代码无测试」不构成 BLOCKED 理由（自己补安全网） |
 
-**必须升级：** 故事需要故事文档未预期的架构决策 / 涉及文档未预见的重构 / 读了很多仍不清楚
+**必须升级：** 故事需要故事文档未预期的架构决策 / 读了很多仍不清楚
 
 ---
 
@@ -218,6 +193,7 @@ Task(oracle, "技术咨询: [问题]",
 - [ ] 故事 AC 与边界情况都实现了（轻量档按方案确认清单）？
 - [ ] 命名清晰、遵循现有模式、无 YAGNI 外功能？
 - [ ] 每个测试都有 RED→GREEN 证据？
+- [ ] 故事内没有顺手改结构（所有重构都留给了批末 `refactor`）？
 - [ ] 目标代码原本无覆盖时已按三分类补安全网（分类 2 才用 legacy-code），没有跳过补测直接改？
 - [ ] 批末三个 scout 都跑过（含 0 命中记录），命中的已交 refactor 或记进 `OPEN_ITEMS`？
 - [ ] `OPEN_ITEMS` 是否为空？非空 → 返回 DONE_WITH_CONCERNS 并原样列出，不得标 DONE。
@@ -235,6 +211,7 @@ Task(oracle, "技术咨询: [问题]",
 | "一次多写几个故事的测试再统一实现更快" | 无法隔离失败。逐故事 RED→GREEN。 |
 | "批次中途先 commit 一次更安全" | 批次单 commit 是审查单元，拆碎 = 审查成本翻倍。卡住走抢救 commit。 |
 | "简单项目不需要重构" | 任何代码都值得好味道。 |
+| "顺手改两行更快，何必等批末" | 越权；批末三个 scout 会统一扫到，结构改动只由 `refactor` 执行。 |
 | "目标没测试，先转交/报 BLOCKED 更省事" | 无测试不是阻塞理由，也不转交。按「安全网三分类」补，补完继续 TDD。 |
 | "难测就直接上 legacy-code 全套" | 先判分类 1：能直接写测试就直接补，不许跳过轻路径。 |
 | "批次末我自己看一眼就够了" | 手工核对弱于专门 scout。三个 scout 并行跑，成本低于漏检。 |
@@ -247,6 +224,7 @@ Task(oracle, "技术咨询: [问题]",
 - 测试立即通过（没因功能缺失失败）→ 修复测试
 - 写了 `toBeNull()` / `not.toThrow()` / `toBeDefined()` 作为唯一断言 → 重写
 - 跨故事合并 RED → 拆回逐故事循环
-- GREEN 后没跑台账核对就说"不需要重构" → 按 smell-scout 清单逐类核对并记候选行
+- GREEN 后自己顺手改结构（哪怕只是改名、内联）→ 撤回，留给批末 `refactor`
+- 自己直接简单重构敷衍过去（改两行充数，或跳过后宣称"已重构"）→ 停止，交批末 `refactor`
 - 批次末没跑三个 scout 扫描（无 `SMELL_SCAN`）→ 批次不算 DONE
 - 批次末没跑全量套件 → 批次不算 DONE

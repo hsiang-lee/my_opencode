@@ -93,6 +93,6 @@ description: Use when assigning responsibilities, judging dependency direction, 
 |------|--------|
 | 职责放哪、契约怎么写、要不要模式 | 本 skill |
 | 测试怎么写、怎么判假测试 | testing-techniques |
-| 怎么验证行为（RED-GREEN-REFACTOR） | story-executor |
+| 怎么验证行为（RED→GREEN） | story-executor |
 | 没有测试的老代码怎么改 | legacy-code |
 | OO 与 FP 选型、可变性与副作用策略 | functional |

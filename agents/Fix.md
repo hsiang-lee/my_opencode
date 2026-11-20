@@ -74,9 +74,8 @@ digraph fix_flow {
     step1 [label="Step 1\n确认可复现", shape=box];
     step2 [label="Step 2\n根因调查 + 假设验证", shape=box];
     step3 [label="Step 3\n测试覆盖分叉", shape=diamond];
-    fixA [label="Step 4A\nstory-executor TDD 修复", shape=box];
+    fixA [label="Step 4A\nstory-executor TDD 修复\n(含批末扫描 + 重构)", shape=box];
     fixB [label="Step 4B\n自补安全网（三分类）\n补完按 TDD 修复", shape=box];
-    scan [label="Step 4.5\n批末扫描 + 重构\n(三个 scout → refactor)", shape=box];
     step5 [label="Step 5\ncode-reviewer 审查\n↓\nbranch-finisher 收尾", shape=box];
 
     gate1 [label="可复现?", shape=diamond];
@@ -97,9 +96,8 @@ digraph fix_flow {
     gate2_fail -> done [label="≥ 3, 升级用户"];
     step3 -> fixA [label="有覆盖"];
     step3 -> fixB [label="无覆盖"];
-    fixA -> scan;
-    fixB -> scan;
-    scan -> step5;
+    fixA -> step5;
+    fixB -> step5;
     step5 -> gate5a;
     gate5a -> fixA [label="修复(有覆盖)"];
     gate5a -> fixB [label="修复(无覆盖)"];
@@ -152,7 +150,7 @@ digraph fix_flow {
     Task: "Fix [bug] per fix investigation"
     （skill 加载由 story-executor 自身声明；Fix 按轻量档契约派发）
     契约（轻量档）: 目标（期望行为 + 复现）/ 范围（根因 file:line + 允许触碰文件）/ 测试计划（RED）/ 明确不做 / SHA 基线 / 测试命令
-    GREEN 后自己做及时重构：一次一种坏味道，不改期望值
+    故事内只做 RED→GREEN，不改结构、不做重构；坏味道只在批末由三个 scout 扫描后交 refactor
     批末扫描 + 重构: 由 story-executor 按其自身「批次协议」执行（三个 scout 并行 → 汇总去重 → refactor），Fix 不介入
 
   [B] 无覆盖:
@@ -166,7 +164,7 @@ digraph fix_flow {
 ── Step 5/5: 审查 & 收尾 ──
   Dispatch: code-reviewer
   Task: "Review bug fix (profile=feature)"
-  契约: profile=feature；输入清单（轻量档）= BUG_REPORT（目标 / 复现 / 根因 / 范围 / 测试证据）；批次 SHA 区间 = BASE_SHA..HEAD_SHA；REFACTOR_LEDGER（含 STORY_ITEMS / SMELL_SCAN / OPEN_ITEMS，必附）
+  契约: profile=feature；输入清单（轻量档）= BUG_REPORT（目标 / 复现 / 根因 / 范围 / 测试证据）；批次 SHA 区间 = BASE_SHA..HEAD_SHA；REFACTOR_LEDGER（含 SMELL_SCAN / OPEN_ITEMS，必附）
   Critical/Important → 返回对应修复路径
   台账 OPEN_ITEMS 非空 → 逐条交用户裁决（按 `reporting` 组织：每条一句后果 + 目标，不贴台账原格式）
 
@@ -244,7 +242,7 @@ digraph fix_flow {
 
 模板与反模式见 `AGENTS.md`「Subagent 状态处理与 dispatch 模板」。
 
-每个 Step 开始前打印 `── Step N/5: [阶段] ──`。可并行的必须并行。Step 4.5（批末扫描 + 重构）由 executor 在 Step 4 内完成，不单独宣布。
+每个 Step 开始前打印 `── Step N/5: [阶段] ──`。可并行的必须并行。批末扫描 + 重构由 executor 在 Step 4 内完成。
 
 ---
 

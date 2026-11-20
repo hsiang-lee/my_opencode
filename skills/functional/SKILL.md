@@ -112,7 +112,7 @@ OO 与 FP 正交，不互斥：领域模型用 OO，内部计算用纯函数。
 | 职责归属、契约、模式选型 | design |
 | 怎么写出干净代码 | 本 skill |
 | FP 与 OO 如何协作、模式能否用 lambda 简化 | 本 skill → `references/fp-oo.md` |
-| 怎么验证行为 | story-executor 的 RED-GREEN-REFACTOR + testing-techniques |
+| 怎么验证行为 | story-executor 的 RED→GREEN + testing-techniques |
 
 | 场景 | 判据 |
 |------|------|

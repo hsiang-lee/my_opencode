@@ -69,7 +69,7 @@ Task(agent, "描述",
 
 ## TDD
 
-- 执行侧：`story-executor`（RED-GREEN-REFACTOR；REFACTOR 阶段自己做及时重构，一次一种坏味道）。
+- 执行侧：`story-executor`（每故事 RED→GREEN；故事内不改结构，重构只在批末由 `refactor` 执行）。
 - 批末扫描：每批次 commit 前，executor 并行派 `smell-scout` / `pattern-scout` / `test-smell-scout`，汇总去重后交 `refactor` 逐项重构（`commit: none`，成果并入批次单 commit）；报告必须含 `SMELL_SCAN`。
 - 编排侧不写代码、不改测试；Feature 不跑测试；Fix 只跑只读验证命令。dispatch 先给失败测试或安全网证据，无证据不验收。
 - 无测试不转交、不 BLOCKED：按 `skills/legacy-code/SKILL.md`「安全网三分类」自补，补完继续 TDD。
