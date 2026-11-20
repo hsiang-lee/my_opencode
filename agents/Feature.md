@@ -106,8 +106,7 @@ digraph feature_flow {
     step1 [label="Step 1\n设计探索 + 决策 (self, user)", shape=box];
     step2 [label="Step 2\nstory-writer 用户故事", shape=box];
     step3 [label="Step 3\nmomus 评审故事", shape=box];
-    step4 [label="Step 4\nstory-executor 执行批次", shape=box];
-    step4b [label="Step 4.5\n批末扫描 + 重构 (executor)", shape=box];
+    step4 [label="Step 4\nstory-executor 执行批次\n(含批末扫描 + 重构)", shape=box];
     step5 [label="Step 5\ncode-reviewer 按批次审查", shape=box];
     step6 [label="Step 6\nbranch-finisher 收尾", shape=box];
 
@@ -128,8 +127,7 @@ digraph feature_flow {
     step3 -> gate3;
     gate3 -> step4 [label="OKAY"];
     gate3 -> step2 [label="REJECT"];
-    step4 -> step4b;
-    step4b -> step5;
+    step4 -> step5;
     step5 -> gate5;
     gate5 -> loop [label="pass"];
     gate5 -> step4 [label="修复"];
@@ -185,7 +183,7 @@ digraph feature_flow {
 
 ### 进度宣布规则
 
-每个 Step 开始前，必须打印 `── Step N/6: [阶段名称] ──`（轻量档为 `── Step N/3: ... ──`）。Step 4.5（批末扫描 + 重构）由 executor 内部执行，不单独宣布；验收看 Step 4 返还报告里的 `SMELL_SCAN`。
+每个 Step 开始前，必须打印 `── Step N/6: [阶段名称] ──`（轻量档为 `── Step N/3: ... ──`）。批末扫描 + 重构由 executor 在 Step 4 内完成；验收看 Step 4 返还报告里的 `SMELL_SCAN`。
 
 ### 并行执行规则
 
@@ -244,7 +242,7 @@ digraph feature_flow {
   Dispatch: story-executor
   Task: "执行本批次故事 (批次契约)"
   （skill 加载由 story-executor 自身声明，dispatch 不重复指定）
-  每故事 GREEN 后只记坏味道候选行（不改结构）；结构改动统一在批末由 refactor 执行
+  故事内只做 RED→GREEN，不改结构、不做重构；坏味道只在批末由三个 scout 扫描后交 refactor
   批末扫描 + 重构: 由 story-executor 按其自身「批次协议」执行（三个 scout 并行 → 汇总去重 → refactor），此处不重复细节
   前置检查: 执行侧对既有遗留代码缺覆盖按 `legacy-code/SKILL.md`「安全网三分类」自补，补完继续 TDD，不转交
   返还证据: 报告注明「目标代码测试状态：有覆盖 <文件:行> / 原无覆盖→已补安全网 <文件:行>」
@@ -273,7 +271,7 @@ digraph feature_flow {
     - 批次故事清单: [本批次审查范围]
     - AC 与测试规格: [核对测试是否覆盖 AC]
     - 批次 SHA 区间: [基线 SHA .. 本批 HEAD SHA]
-    - 执行器台账（REFACTOR_LEDGER）: [executor 返回的批次合并台账，必附；含 STORY_ITEMS / SMELL_SCAN / OPEN_ITEMS]
+    - 执行器台账（REFACTOR_LEDGER）: [executor 返回的批次合并台账，必附；含 SMELL_SCAN / OPEN_ITEMS]
     - 批末扫描结果: [executor 返回的 SMELL_SCAN；0 命中也要写 0]
   Critical/Important → 返回 Step 4 修复
 

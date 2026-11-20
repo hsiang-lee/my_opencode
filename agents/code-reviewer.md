@@ -65,7 +65,7 @@ git diff BASE_SHA..HEAD_SHA
 2. **批次故事清单** — 本批次审查范围的故事列表
 3. **AC 与测试规格** — 每故事的 AC 与测试规格，供核对「测试是否覆盖 AC」
 4. **批次 SHA 区间** — `基线 SHA .. 本批 HEAD SHA`，供整批 `git diff`
-5. **执行器台账（REFACTOR_LEDGER）** — executor 返回的批次合并台账（含 `SMELL_SCAN` 与 `OPEN_ITEMS`），供处置一致性核对
+5. **执行器台账（REFACTOR_LEDGER）** — executor 返回的批次合并台账（含 `SMELL_SCAN` 与 `OPEN_ITEMS`），供核对未处理项是否都有去向
 6. **Review Profile** — 固定 `profile: feature`；缺失 → `NEEDS_CONTEXT`
 
 **Fix / 轻量档**：以 `BUG_REPORT` 的「目标」替代 AC；批次故事清单与逐故事 AC 核对可跳过，其余字段照常。

@@ -46,7 +46,7 @@ Tab 切换:
 | Agent | 功能 |
 |-------|------|
 | story-writer | 用户故事：Epic 契约 + [story]/[enabler] + AC + 批次标注，不写结构设计 |
-| story-executor | 逐故事 TDD + 批末三 scout 扫描 → refactor + 批次单 commit；既有遗留代码缺覆盖时自己补安全网（能直接写测试就直接补；难测才用 legacy-code） |
+| story-executor | 逐故事 RED→GREEN + 批末三 scout 扫描 → refactor + 批次单 commit；既有遗留代码缺覆盖时自己补安全网（能直接写测试就直接补；难测才用 legacy-code） |
 | refactor | 按 scout 清单逐项重构：查 refactoring 手法、先补测试覆盖、检查点节奏验证、红即回滚 |
 | smell-scout / pattern-scout / test-smell-scout | 坏味道扫描（Fowler 24 / 模式 12 / 测试 13），只报告位置与证据，不改代码 |
 | code-reviewer | 按批次 SHA 区间审查：假测试 + 设计审计 + 清洁度（不含坏味道） |
