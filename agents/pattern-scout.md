@@ -166,7 +166,11 @@ PATTERN_SMELLS:
 SCOPE: <实际扫描的路径 / 区间>
 READ: <文件数> 个文件，<总行数> 行
 UNREAD: <无法读取的文件 + 原因 | 无>
+CHECKS: 1:0 2:0 3:0 … 12:0
+FILTERED: <过线但被门槛筛掉、未上报的条数>
 ```
+
+`CHECKS` 必须与正文对账：各项之和 = `PATTERN_SMELLS` 行数 + `FILTERED`。对不上 → 报告作废，重新核对。
 
 ---
 

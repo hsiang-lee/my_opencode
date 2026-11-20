@@ -63,7 +63,7 @@ description: Use when a smell has been found and you need to pick the refactorin
 
 ---
 
-## 三、测试 13 项
+## 三、测试 14 项
 
 | # | 坏味道 | 测试重构手法（要点） |
 |---|--------|----------------------|
@@ -80,6 +80,7 @@ description: Use when a smell has been found and you need to pick the refactorin
 | 11 | 共享夹具污染 | Fresh Fixture（每个测试新建）；必要的共享夹具加 teardown 重置；避免 BeforeAll 里的可变状态 |
 | 12 | 测试依赖链 | 独立 Fixture；把副作用搬进测试自己的 setup；删除顺序依赖与编号命名 |
 | 13 | 测试类过大 | Move Test to Correct Class（放回对应被测类）；按主题拆类；Extract Testcase Superclass 共享夹具 |
+| 14 | 检测力缺口 | 针对漏检的变异补一条能失败的断言（先写 RED 证明它在旧实现下会红）；把未区分的两个参数改成具名类型或分开断言 |
 
 ---
 
