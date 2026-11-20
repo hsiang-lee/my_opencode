@@ -151,7 +151,7 @@ digraph fix_flow {
     Task: "Fix [bug] per fix investigation"
     （skill 加载由 story-executor 自身声明；Fix 按轻量档契约派发）
     契约（轻量档）: 目标（期望行为 + 复现）/ 范围（根因 file:line + 允许触碰文件）/ 测试计划（RED）/ 明确不做 / SHA 基线 / 测试命令
-    GREEN 后自己做及时重构：一次一种坏味道，不改期望值
+    GREEN 后只记坏味道候选行（不改结构）；结构改动统一在批末由 refactor 执行
     批末扫描 + 重构: 由 story-executor 按其自身「批次协议」执行（三个 scout 并行 → 汇总去重 → refactor），Fix 不介入
 
   [B] 无覆盖:

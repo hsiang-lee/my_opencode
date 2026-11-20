@@ -244,7 +244,7 @@ digraph feature_flow {
   Dispatch: story-executor
   Task: "执行本批次故事 (批次契约)"
   （skill 加载由 story-executor 自身声明，dispatch 不重复指定）
-  每故事 GREEN 后由 story-executor 自己做及时重构（一次一种坏味道），不跨故事积累
+  每故事 GREEN 后只记坏味道候选行（不改结构）；结构改动统一在批末由 refactor 执行
   批末扫描 + 重构: 由 story-executor 按其自身「批次协议」执行（三个 scout 并行 → 汇总去重 → refactor），此处不重复细节
   前置检查: 执行侧对既有遗留代码缺覆盖按 `legacy-code/SKILL.md`「安全网三分类」自补，补完继续 TDD，不转交
   返还证据: 报告注明「目标代码测试状态：有覆盖 <文件:行> / 原无覆盖→已补安全网 <文件:行>」

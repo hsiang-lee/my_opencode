@@ -64,7 +64,7 @@ Tab 切换:
 | brainstorm | Feature Step 1（唯一加载方） | 设计探索：开放提问 + 复述确认、方案对比、决策清单输出（契约 + 关键选择，不含结构设计）；完整档定稿前做 Builder Check |
 | design | Feature Step 1, code-reviewer, story-executor | 索引层（决策顺序 / YAGNI 闸门 / 自检）+ references/（GRASP 9、SOLID+包原则、DbC、GoF 23、分析模型 UML）按需读 |
 | testing-techniques | story-executor, code-reviewer | 单文件：假测试判级表 + 四属性 + AAA/命名/边界/参数化 + 替身 + 夹具 |
-| refactoring | story-executor, Feature, Fix | 坏味道 → 重构手法映射（Fowler 24 / 模式 12 / 测试 13），每个手法带一句要点 |
+| refactoring | refactor | 坏味道 → 重构手法映射（Fowler 24 / 模式 12 / 测试 13），每个手法带一句要点 |
 | legacy-code | code-reviewer, Feature/Fix/story-executor（难测时条件加载） | 遗留代码补测试：找接缝 → 解依赖 → 写特征测试，再改行为（单文件） |
 | functional | code-reviewer, story-executor | 索引层（范式选型 / 反 FP 闸门 / 评审 16 项）+ references/（构建块 C++&Rust、FP↔OO、错误处理、性能）按需读 |
 | gdb | Fix（根因是崩溃 / 内存破坏时） | GDB 调试：崩溃分析、运行时变量、core dump |
