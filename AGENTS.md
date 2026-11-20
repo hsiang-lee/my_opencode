@@ -109,6 +109,8 @@ Task(agent, "描述",
 ## 分支与提交
 
 - 分支：`feature|fix|hotfix/issue-{id}-{description}`；Commit 英文：`type(scope): summary`，正文只写「为什么」
+- PR 只在收尾步骤（`branch-finisher`）创建：Step 1–5 只本地 commit，**不 push、不开 PR**；推送与 PR 由收尾独占一次
+- 一个分支一个 PR：先 `gh pr list --head <branch>` 查重；已存在就复用，追加提交前先问用户
 - PR 正文 ≤5 行：What / Why / `Tested: <命令> — N passed`；禁止逐文件清单与长篇论证
 
 ## ripgrep

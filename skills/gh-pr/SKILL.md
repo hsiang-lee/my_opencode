@@ -5,6 +5,14 @@ description: Use when creating GitHub pull requests via command line, checking P
 
 # GitHub Pull Request — gh 命令
 
+## 前置门禁
+
+只在**分支收尾阶段**（`branch-finisher`）使用；实现中途不推送、不建 PR。
+
+- `git status --porcelain` 非空 → 拒绝：工作没做完，先提交或先处理
+- `gh pr list --head <branch>` 已有 PR → 直接用现有链接，**不重复创建**
+- 一个分支只允许一个 PR；要向已有 PR 追加提交，先问用户
+
 ## When to Use
 
 - 需要创建 PR 并指定目标分支、标题、描述

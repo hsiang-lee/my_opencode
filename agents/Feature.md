@@ -159,6 +159,7 @@ digraph feature_flow {
 | Step 4 每故事 | executor 未给出 RED 证据 → 禁止验收该故事 |
 | Step 4 每批次 | 报告无 `SMELL_SCAN`（批末三个 scout 未跑）→ 禁止验收该批次 |
 | Step 5 | 审查发现问题未修复 → 禁止进入收尾 |
+| Step 1–5 | 出现 `git push` / `gh pr create` → 立即停止（PR 只在 Step 6 收尾创建一次） |
 | Step 6 | 没有验证 → 禁展示收尾 |
 
 **铁律违规时：** 拒绝 dispatch / 拒绝验收，告知缺失什么前置条件。

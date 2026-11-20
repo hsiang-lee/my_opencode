@@ -83,6 +83,12 @@ git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
 
 **HARD GATE: 无审查记录且未 dispatch → 禁止创建 PR。**
 
+**HARD GATE: 工作区不干净（`git status --porcelain` 非空）→ 禁止推送，先提交。**
+
+**HARD GATE: 已存在同分支 PR（`gh pr list --head <branch>`）→ 复用链接，不重复创建。**
+
+**HARD GATE: 实现流程尚未走到收尾（Feature Step 6 / Fix Step 5）→ 拒绝。不要为“让 CI 先跑着”提前建 PR——CI 跑的是未完成的代码。**
+
 ```bash
 # Step 1: 确认审查记录（流程内已审 / 无记录则先 dispatch）
 # Step 2: 推送并创建 PR
@@ -132,4 +138,7 @@ EOF
 - ❌ 流程内已审过，又在收尾重跑一遍 code-reviewer
 - ❌ PR 描述超过 5 行正文 / 逐文件罗列改动
 - ❌ commit message 用中文
+- ❌ 工作区有未提交改动就推送
+- ❌ 同一分支重复创建 PR
+- ❌ 提前建 PR「让 CI 先跑着」
 - ❌ 不说审查记录来源（流程内 / 本步补审）

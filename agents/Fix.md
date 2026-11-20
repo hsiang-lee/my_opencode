@@ -184,6 +184,7 @@ digraph fix_flow {
 6. 目标代码无测试覆盖 → 必须先按 legacy-code/SKILL.md「安全网三分类」补安全网，补完再修 bug
 7. 解依赖与改行为 → 禁止混在同一次提交
 8. 批次报告无 `SMELL_SCAN`（批末三个 scout 未跑）→ 禁止声称修复完成
+9. Step 1–4 出现 `git push` / `gh pr create` → 立即停止（PR 只在 Step 5 收尾创建一次）
 ```
 
 ### 童子军规则（限定，不夹带）
