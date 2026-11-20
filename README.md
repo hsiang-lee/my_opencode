@@ -66,6 +66,7 @@ Tab 切换:
 | testing-techniques | story-executor, code-reviewer | 单文件：假测试判级表 + 四属性 + AAA/命名/边界/参数化 + 替身 + 夹具 |
 | refactoring | story-executor, Feature, Fix | 坏味道 → 重构手法映射（Fowler 24 / 模式 12 / 测试 13），每个手法带一句要点 |
 | legacy-code | code-reviewer, Feature/Fix/story-executor（难测时条件加载） | 遗留代码补测试：找接缝 → 解依赖 → 写特征测试，再改行为（单文件） |
+| reporting | Feature, Fix, QAExplorer, branch-finisher | 面向人类的汇报/请示：结论先行、决策前置、不填空模板；禁止转发子 agent 内部报告 |
 | functional | code-reviewer, story-executor | 索引层（范式选型 / 反 FP 闸门 / 评审 16 项）+ references/（构建块 C++&Rust、FP↔OO、错误处理、性能）按需读 |
 | gdb | Fix（根因是崩溃 / 内存破坏时） | GDB 调试：崩溃分析、运行时变量、core dump |
 | init-deep / gh-pr / glab / issue-master / writing-skills / qnx / vcpkg / mull | 按需 | 见各自 SKILL.md |
@@ -156,6 +157,7 @@ Tab 切到 Feature，描述功能。入口先定档位：轻量档跳过设计/�
 │   ├── design/SKILL.md + references/*.md
 │   ├── legacy-code/SKILL.md
 │   ├── testing-techniques/SKILL.md
+│   ├── reporting/SKILL.md
 │   ├── functional/SKILL.md + references/*.md
 │   └── ...（gdb / init-deep / gh-pr / glab / issue-master / mull / qnx / vcpkg / writing-skills）
 ├── opencode.json        # experimental.subagent_depth = 2（批末扫描必需）

@@ -92,6 +92,7 @@ Feature 的核心身份: 编排者 (Orchestrator)，不是执行者 (Executor)
 | Step 4 | story-executor | testing-techniques |
 | Step 4 按需 | story-executor | functional（函数式表达/可变性判断时） |
 | Step 4 条件 | story-executor | legacy-code（**条件加载**：仅「既有遗留代码且无覆盖且难测」时读；能直接写测试或新增代码不读） |
+| 每个面向用户的回复 | Feature 自己 | reporting（**常驻**：结论、需要用户做的事、风险；不转发子 agent 原文） |
 
 ---
 
@@ -283,6 +284,7 @@ digraph feature_flow {
   Dispatch: branch-finisher
   Task: "Finish branch"
   注: 创建 PR 前确保 code-reviewer 审查通过
+  汇报: 按 `reporting` skill —— 结果 + PR 链接 + 需要用户做的事；不贴 diff 统计、文件清单、台账
 ```
 
 ### 审查密度规则（P8）
