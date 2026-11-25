@@ -48,7 +48,7 @@ Tab 切换:
 | story-writer | 用户故事：Epic 契约 + [story]/[enabler] + AC + 批次标注，不写结构设计 |
 | story-executor | 逐故事 RED→GREEN + 批末三 scout 扫描 → refactor + 批次单 commit；既有遗留代码缺覆盖时自己补安全网（能直接写测试就直接补；难测才用 legacy-code） |
 | refactor | 按 scout 清单逐项重构：查 refactoring 手法、先补测试覆盖、检查点节奏验证、红即回滚 |
-| smell-scout / pattern-scout / test-smell-scout | 坏味道扫描（Fowler 24 / 模式 12 / 测试 13），只报告位置与证据，不改代码 |
+| smell-scout / pattern-scout / test-smell-scout | 坏味道扫描（Fowler 24 / 模式 12 / 测试 14），只报告位置与证据，不改代码 |
 | code-reviewer | 按批次 SHA 区间审查：假测试 + 设计审计 + 清洁度（不含坏味道） |
 | branch-finisher | 分支收尾 |
 | explore / librarian | 代码库搜索 / 外部研究 |
@@ -64,7 +64,7 @@ Tab 切换:
 | brainstorm | Feature Step 1（唯一加载方） | 设计探索：开放提问 + 复述确认、方案对比、决策清单输出（契约 + 关键选择，不含结构设计）；完整档定稿前做 Builder Check |
 | design | Feature Step 1, code-reviewer, story-executor | 索引层（决策顺序 / YAGNI 闸门 / 自检）+ references/（GRASP 9、SOLID+包原则、DbC、GoF 23、分析模型 UML）按需读 |
 | testing-techniques | story-executor, code-reviewer | 单文件：假测试判级表 + 四属性 + AAA/命名/边界/参数化 + 替身 + 夹具 |
-| refactoring | refactor | 坏味道 → 重构手法映射（Fowler 24 / 模式 12 / 测试 13），每个手法带一句要点 |
+| refactoring | refactor | 坏味道 → 重构手法映射（Fowler 24 / 模式 12 / 测试 14），每个手法带一句要点 |
 | legacy-code | code-reviewer, Feature/Fix/story-executor（难测时条件加载） | 遗留代码补测试：找接缝 → 解依赖 → 写特征测试，再改行为（单文件） |
 | reporting | Feature, Fix, QAExplorer, branch-finisher | 面向人类的汇报/请示：结论先行、决策前置、不填空模板；禁止转发子 agent 内部报告 |
 | functional | code-reviewer, story-executor | 索引层（范式选型 / 反 FP 闸门 / 评审 16 项）+ references/（构建块 C++&Rust、FP↔OO、错误处理、性能）按需读 |

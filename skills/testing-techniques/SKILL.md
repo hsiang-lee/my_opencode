@@ -7,7 +7,7 @@ description: Use when writing unit tests, choosing test doubles or fixtures, or 
 
 `story-executor` 写测试时定结构、选替身、选夹具；`code-reviewer` 判假测试（本表是唯一判级依据），坏味道按 `test-smell-scout` 清单。
 
-**本文件即全部内容**，无 references，一次读完。纯文档 / 格式改动可不读；**任何逻辑变更都必须测**。测试坏味道 13 项见 `test-smell-scout` 清单，测试重构手法见 `refactoring/SKILL.md` 第三张表——本文件不重复，避免判据漂移。
+**本文件即全部内容**，无 references，一次读完。纯文档 / 格式改动可不读；**任何逻辑变更都必须测**。测试坏味道 14 项见 `test-smell-scout` 清单，测试重构手法见 `refactoring/SKILL.md` 第三张表——本文件不重复，避免判据漂移。
 
 ---
 
